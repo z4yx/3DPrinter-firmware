@@ -31,6 +31,7 @@ char GCodeFiles[SD_MAX_ITEMS][SD_MAX_FILENAME_LEN];
 void FileManager_Init(void)
 {
 	int res;
+	FRESULT fresult;
 	SD_SPI_Configuration();
 
 	for(int i=0;i<SD_INIT_RETRY_TIMES;i++)
@@ -52,7 +53,9 @@ void FileManager_Init(void)
 
 	no_sd_card = false;
 
-	f_mount(0, &fileSystem);
+	fresult = f_mount(0, &fileSystem);
+	if(FR_OK != fresult)
+		ERR_MSG("Failed to mount SD card!", 0);
 }
 
 //列举SD卡中的G代码文件
@@ -65,7 +68,7 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 
 	res = f_opendir(&rootDir, SD_GFILES_DIR);
 	if(FR_OK != res){
-		ERR_MSG("Failed to open root dir!", 0);
+		ERR_MSG("Failed to open root dir! result=%d", (int)res);
 		return 0;
 	}
 
