@@ -50,6 +50,8 @@
 //加热器PWM输出频率(单位Hz)
 #define HEATER_PWM_FREQ 50
 
+//挤出器输出更新频率限制(ms)
+#define EXTRUDER_UPDATE_PERIOD 500
 //挤出器默认温度
 #define EXTRUDER_DEFAULT_TEMP 240
 //挤出器温度PID控制参数
@@ -58,6 +60,8 @@
 #define EXTRUDER_PID_KD 700
 #define EXTRUDER_PID_INIT_SUM 800
 
+//加热板输出更新频率限制(ms)
+#define HEATBED_UPDATE_PERIOD 500
 //加热板默认温度
 #define HEATBED_DEFAULT_TEMP 100
 

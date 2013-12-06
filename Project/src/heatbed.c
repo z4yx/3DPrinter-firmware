@@ -21,10 +21,12 @@
 #include "adc.h"
 #include "pwmOutput.h"
 #include "heatbed.h"
+#include "systick.h"
 
 static bool bHeating;
 static int16_t targetTemp = HEATBED_DEFAULT_TEMP;
 static struct PIDController pid;
+static SysTick_t lastUpdatingTime;
 
 void HeatBed_Init()
 {
@@ -32,6 +34,8 @@ void HeatBed_Init()
 	ADC_Config(1);
 	ADC_Channel_Config(HeaterBoardTherm_Port, HeaterBoardTherm_Pin, HeaterBoardTherm_ADCChannel, 1);
 	ADC_Start();
+
+	lastUpdatingTime = GetSystemTick();
 }
 
 void HeatBed_Start_Heating()
@@ -49,9 +53,13 @@ void HeatBed_Stop_Heating()
 
 void HeatBedTask(void)
 {
-	if(bHeating) {
+	SysTick_t now = GetSystemTick();
+	if(bHeating && now - lastUpdatingTime > HEATBED_UPDATE_PERIOD) {
 		int output;
 		int16_t cur = ADC_Read_Value();
+
+		lastUpdatingTime = now;
+
 		if(cur < 0) {
 			ERR_MSG("No adc value available!", "err");
 			return;

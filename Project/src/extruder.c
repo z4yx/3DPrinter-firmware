@@ -22,17 +22,20 @@
 #include "fanControl.h"
 #include "pwmOutput.h"
 #include "extruder.h"
-
+#include "systick.h"
 
 static bool bHeating;
 static int16_t targetTemp = EXTRUDER_DEFAULT_TEMP;
 static struct PIDController pid;
+static SysTick_t lastUpdatingTime;
 
 void Extruder_Init()
 {
 	bHeating = false;
 	Fan_Config();
 	MAX6675_Config();
+
+	lastUpdatingTime = GetSystemTick();
 }
 
 void Extruder_Start_Heating()
@@ -52,9 +55,13 @@ void Extruder_Stop_Heating()
 
 void ExtruderTask(void)
 {
-	if(bHeating) {
+	SysTick_t now = GetSystemTick();
+	if(bHeating && now - lastUpdatingTime > EXTRUDER_UPDATE_PERIOD) {
 		int output;
 		int16_t cur = MAX6675_Read_Value();
+
+		lastUpdatingTime = now;
+
 		if(cur < 0) {
 			ERR_MSG("Thermcouple not connected!", 0);
 			return;
