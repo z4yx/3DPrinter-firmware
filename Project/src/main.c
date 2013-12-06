@@ -29,7 +29,7 @@
 
 extern int test_var;
 
-const Task_t SystemTasks[] = { ExtruderTask, HeatBedTask };
+const Task_t SystemTasks[] = { ExtruderTask, HeatBedTask, KeyBoard_Task };
 
 
 static void periphInit()
@@ -40,7 +40,7 @@ static void periphInit()
 	Move_Init();
 	Extruder_Init();
 	HeatBed_Init();
-
+	KeyBoard_Init();
 }
 
 void clockTest()
@@ -120,7 +120,7 @@ int main(void)
 
 	while (1)
 	{
-		int c = USART_ReadInt();
+		// int c = USART_ReadInt();
 
 
 		//运行系统中声明的任务

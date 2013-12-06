@@ -42,5 +42,6 @@ typedef void (*Task_t)(void);
 //系统中所有的任务函数
 void ExtruderTask(void);
 void HeatBedTask(void);
+void KeyBoard_Task(void);
 
 #endif /* __COMMON__H__ */

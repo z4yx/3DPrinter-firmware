@@ -40,6 +40,13 @@
 //限位开关最小触发间隔时间(ms)
 #define LIMIT_SWITCH_MIN_TOGGLE_PERIOD 30
 
+//键盘最小触发间隔时间(ms)
+#define KEYBOARD_MIN_TOGGLE_PERIOD 50
+//键盘开始自动重复时间(ms)
+#define KEYBOARD_START_REPEAT_TIME 900
+//键盘自动重复间隔(ms)
+#define KEYBOARD_REPEAT_PERIOD 250
+
 //加热器PWM输出频率(单位Hz)
 #define HEATER_PWM_FREQ 50
 
