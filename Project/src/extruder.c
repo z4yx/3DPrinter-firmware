@@ -56,7 +56,7 @@ void ExtruderTask(void)
 		int output;
 		int16_t cur = MAX6675_Read_Value();
 		if(cur < 0) {
-			ERR_MSG("Thermcouple not connected!", "err");
+			ERR_MSG("Thermcouple not connected!", 0);
 			return;
 		}
 		output = PID_Update(&pid, targetTemp - cur);
