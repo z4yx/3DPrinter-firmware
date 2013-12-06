@@ -41,14 +41,17 @@ static void limitSwitch_ExtiConfig(void)
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOC, GPIO_PinSource13);	
 	EXTI_InitStructure.EXTI_Line = EXTI_Line13;
 	EXTI_Init(&EXTI_InitStructure);	
+    EXTI_ClearITPendingBit(EXTI_Line13);
 	
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOC, GPIO_PinSource14);	
 	EXTI_InitStructure.EXTI_Line = EXTI_Line14;
 	EXTI_Init(&EXTI_InitStructure);
+    EXTI_ClearITPendingBit(EXTI_Line14);
 	
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOC, GPIO_PinSource15);
 	EXTI_InitStructure.EXTI_Line = EXTI_Line15;
 	EXTI_Init(&EXTI_InitStructure);	
+    EXTI_ClearITPendingBit(EXTI_Line15);
 
     NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;      // 指定中断源
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0; // 指定抢占优先级别
@@ -95,13 +98,13 @@ void LimitSwitch_Config(void)
 	GPIO_InitStructure.GPIO_Pin = Z_Axis_Min_Pin;
 	GPIO_Init(Z_Axis_Min_Port, &GPIO_InitStructure);
 
-	limitSwitch_ExtiConfig();
-
 	for (int i = 0; i < NUM_SWITCHS; ++i)
 	{
 		bSwitchPressed[i] = LimitSwitch_Pressed(i);
 		lastInterrupt[i] = 0;
 	}
+
+	limitSwitch_ExtiConfig();
 }
 
 static void doInterrupt(uint8_t sw)
