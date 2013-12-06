@@ -57,3 +57,12 @@
 //步进电机脉冲频率(单位Hz)
 #define MOTOR_STEP_FREQ 2000
 
+//SD卡初始化重试次数限制
+#define SD_INIT_RETRY_TIMES 3
+//SD卡存放打印文件的目录
+#define SD_GFILES_DIR "/"
+//支持的最长文件名(包含\0)
+#define SD_MAX_FILENAME_LEN (31+1)
+//最多列举的G文件数量
+#define SD_MAX_ITEMS 32
+

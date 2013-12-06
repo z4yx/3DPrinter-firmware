@@ -38,10 +38,12 @@ static void periphInit()
 	LED_Config();
 	USART_Config();
 	lcdSerialInit();
+	FileManager_Init();
 	PWM_Init(HEATER_PWM_FREQ);
 	Move_Init();
 	Extruder_Init();
 	HeatBed_Init();
+
 }
 
 void clockTest()
@@ -95,6 +97,18 @@ int main(void)
 
 	Extruder_Start_Heating();
 	HeatBed_Start_Heating();
+
+	do{
+		char (*files)[][SD_MAX_FILENAME_LEN]
+			= FileManager_ListGFiles();
+		if(files != 0){
+			for(int i=0; i<SD_MAX_ITEMS; i++){
+				if(!(*files)[i][0])
+					break;
+				USART_printf("GCode file: %s\r\n", (*files)[i]);
+			}
+		}
+	}while(0);
 
 	while (1)
 	{
