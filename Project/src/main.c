@@ -31,12 +31,9 @@ extern int test_var;
 
 const Task_t SystemTasks[] = { ExtruderTask, HeatBedTask };
 
+
 static void periphInit()
 {
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-	SysTick_Init();
-	LED_Config();
-	USART_Config();
 	lcdSerialInit();
 	FileManager_Init();
 	PWM_Init(HEATER_PWM_FREQ);
@@ -66,14 +63,25 @@ void clockTest()
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 	while(RCC_GetSYSCLKSource() != 0x08);
 }
+
+//核心组件初始化,包括串口(用于打印调试信息)
+static void coreInit()
+{
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	
+	SystemCoreClockUpdate();
+	SysTick_Init();
+	LED_Config();
+	USART_Config();
+}
+
 int main(void)
 {
 	RCC_ClocksTypeDef clocks;
 	clockTest();
 	RCC_GetClocksFreq(&clocks);
 
-	SystemCoreClockUpdate();
-	periphInit();
+	coreInit();
 
 	USART_printf("\r\n\r\n");
 	USART_printf("Clock Source: %d\r\n", RCC_GetSYSCLKSource());
@@ -83,7 +91,7 @@ int main(void)
 		clocks.PCLK1_Frequency,
 		clocks.PCLK2_Frequency);
 
-
+	periphInit();
 
 	lcdSerialClear();
 	lcdSerialSetCursor(0,0);
