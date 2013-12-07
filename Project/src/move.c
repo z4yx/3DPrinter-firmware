@@ -76,13 +76,14 @@ bool Move_Home(uint8_t axis)
 	}
 	//回原点前先检查限位开关是否已经被按下了
 	if(alreadyHomed(axis)) {
+		DBG_MSG("Axis %d already homed!", (int)axis);
 		homingDone(axis);
 		return true;
 	}
 
 	currentState[axis] = Axis_State_Homing;
 	//一直运动直到触碰限位开关
-	Motor_Start(axis, -1, motorDirFix[axis]);
+	Motor_Start(axis, -1, Move_Dir_Back * motorDirFix[axis]);
 
 	return true;
 }

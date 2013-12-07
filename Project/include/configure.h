@@ -28,7 +28,7 @@
 //Y轴步进电机旋转一周需要的脉冲数量(考虑细分)
 #define Y_PULSES_PER_CYCLE (16*200)
 //Y轴运行方向调整(取值+/-1)
-#define Y_DIRECTION_ADJ      1 
+#define Y_DIRECTION_ADJ      -1 
 
 //Z轴步进电机旋转一周对应的直线位移(um)
 #define Z_DISTANCE_PER_CYCLE 5000
@@ -73,7 +73,7 @@
 #define HEATBED_PID_INIT_SUM 800
 
 //步进电机脉冲频率(单位Hz)
-#define MOTOR_STEP_FREQ 2000
+#define MOTOR_STEP_FREQ 1400
 
 //SD卡初始化重试次数限制
 #define SD_INIT_RETRY_TIMES 3
