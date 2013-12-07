@@ -23,6 +23,10 @@
 
 //电机剩余步进数,-1表示无限
 static volatile int Motor_PendingSteps[NUM_MOTORS];
+//步进脉冲计数,用于调速
+static volatile int Motor_PulseCount[NUM_MOTORS];
+//跳过步进脉冲数量,用于减速
+static int Motor_PulseSkip[NUM_MOTORS];
 //电机旋转方向,+/-1
 static int8_t Motor_Direction[NUM_MOTORS];
 
@@ -128,6 +132,10 @@ void Motor_Interrupt(void)
 		for(int i=0; i<NUM_MOTORS; i++) {
 			if(Motor_PendingSteps[i]) {
 
+				if(Motor_PulseCount[i] % Motor_PulseSkip[i])
+					continue;
+				Motor_PulseCount[i]++;
+
 				GPIO_SetBits(Motor_Step_Ports[i], Motor_Step_Pins[i]);
 				if(Motor_PendingSteps[i] > 0)
 					Motor_PendingSteps[i] --;
@@ -143,7 +151,7 @@ void Motor_Stop(int motor_enum)
 	Motor_PendingSteps[motor_enum] = 0;
 }
 
-void Motor_Start(int motor_enum, int steps, int8_t dir)
+void Motor_Start(int motor_enum, int steps, int skip, int8_t dir)
 {
 	// Motor_Stop();
 
@@ -152,6 +160,8 @@ void Motor_Start(int motor_enum, int steps, int8_t dir)
 		Motor_Dir_Pins[motor_enum],
 		(dir > 0 ? Bit_SET : Bit_RESET));
 	Motor_PendingSteps[motor_enum] = steps;
+	Motor_PulseSkip[motor_enum] = skip;
+	Motor_PulseCount[motor_enum] = 0;
 }
 
 void Motor_PowerOn()
