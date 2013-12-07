@@ -23,6 +23,22 @@
 #include "heatbed.h"
 #include "systick.h"
 
+/*
+//实际温度与ADC采样值数据拟合
+Fit[{
+{3477,24},
+{3200,41},
+{3100,44},
+{2800,56},
+{2700,60},
+{2600,63},
+{2400,72},
+{2250,80},
+{2000,89},
+{1900,96}
+},{x,1},x]
+*/
+
 static bool bHeating;
 static int16_t targetTemp = HEATBED_DEFAULT_TEMP;
 static struct PIDController pid;
@@ -40,7 +56,7 @@ void HeatBed_Init()
 
 void HeatBed_Start_Heating()
 {
-	// PID_Init(&pid, EXTRUDER_PID_KP, EXTRUDER_PID_KI, EXTRUDER_PID_KD, EXTRUDER_PID_INIT_SUM);
+	PID_Init(&pid, EXTRUDER_PID_KP, EXTRUDER_PID_KI, EXTRUDER_PID_KD, EXTRUDER_PID_INIT_SUM);
 	PWM_Channel(2, 90, true);
 	bHeating = true;
 }
@@ -55,7 +71,7 @@ void HeatBedTask(void)
 {
 	SysTick_t now = GetSystemTick();
 	if(bHeating && now - lastUpdatingTime > HEATBED_UPDATE_PERIOD) {
-		int output;
+		int output, temp;
 		int16_t cur = ADC_Read_Value();
 
 		lastUpdatingTime = now;
@@ -64,17 +80,18 @@ void HeatBedTask(void)
 			ERR_MSG("No adc value available!", "err");
 			return;
 		}
-		// output = PID_Update(&pid, targetTemp - cur);
+		temp = HEATBED_ADC_TO_TEMP(cur);
+		output = PID_Update(&pid, targetTemp - temp);
 		
-		// //转为百分比
-		// output /= 400;
-		// if(output > 100)
-		// 	output = 100;
-		// else if(output < 0)
-		// 	output = 0;
+		//转为百分比
+		output /= 400;
+		if(output > 100)
+			output = 100;
+		else if(output < 0)
+			output = 0;
 
-		// PWM_Channel(1, output, true);
+		PWM_Channel(2, output, true);
 
-		DBG_MSG("temp: %d, output: %d", (int)cur, output);
+		DBG_MSG("temp: %d, output: %d", (int)temp, output);
 	}
 }

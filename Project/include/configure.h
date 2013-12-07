@@ -64,6 +64,13 @@
 #define HEATBED_UPDATE_PERIOD 500
 //加热板默认温度
 #define HEATBED_DEFAULT_TEMP 100
+//加热板传感器值与温度换算
+#define HEATBED_ADC_TO_TEMP(x) (179-0.0432614*(x))
+//加热板PID参数
+#define HEATBED_PID_KP 800
+#define HEATBED_PID_KI 25
+#define HEATBED_PID_KD 700
+#define HEATBED_PID_INIT_SUM 800
 
 //步进电机脉冲频率(单位Hz)
 #define MOTOR_STEP_FREQ 2000
