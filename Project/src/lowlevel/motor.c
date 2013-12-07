@@ -18,6 +18,7 @@
 
 #include "common.h"
 #include "motor.h"
+#include "move.h"
 
 #define NUM_MOTORS 4
 
@@ -132,9 +133,9 @@ void Motor_Interrupt(void)
 		for(int i=0; i<NUM_MOTORS; i++) {
 			if(Motor_PendingSteps[i]) {
 
+				Motor_PulseCount[i]++;
 				if(Motor_PulseCount[i] % Motor_PulseSkip[i])
 					continue;
-				Motor_PulseCount[i]++;
 
 				GPIO_SetBits(Motor_Step_Ports[i], Motor_Step_Pins[i]);
 				if(Motor_PendingSteps[i] > 0)
@@ -154,6 +155,7 @@ void Motor_Stop(int motor_enum)
 void Motor_Start(int motor_enum, int steps, int skip, int8_t dir)
 {
 	// Motor_Stop();
+	DBG_MSG("steps=%d, skip=%d", (int)steps, (int)skip);
 
 	Motor_Direction[motor_enum] = dir;
 	GPIO_WriteBit(Motor_Dir_Ports[motor_enum],
