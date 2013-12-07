@@ -41,12 +41,14 @@ Fit[{
 
 static bool bHeating;
 static int16_t targetTemp = HEATBED_DEFAULT_TEMP;
+static int16_t currentTemp;
 static struct PIDController pid;
 static SysTick_t lastUpdatingTime;
 
 void HeatBed_Init()
 {
 	bHeating = false;
+	currentTemp = -1;
 	ADC_Config(1);
 	ADC_Channel_Config(HeaterBoardTherm_Port, HeaterBoardTherm_Pin, HeaterBoardTherm_ADCChannel, 1);
 	ADC_Start();
@@ -67,21 +69,31 @@ void HeatBed_Stop_Heating()
 	bHeating = false;
 }
 
+bool HeatBed_TempReached()
+{
+	int t;
+	if(currentTemp < 0)
+		return false;
+	t = currentTemp - targetTemp;
+	return t >= -2;
+}
+
 void HeatBedTask(void)
 {
 	SysTick_t now = GetSystemTick();
 	if(bHeating && now - lastUpdatingTime > HEATBED_UPDATE_PERIOD) {
-		int output, temp;
-		int16_t cur = ADC_Read_Value();
+		int output;
+		int16_t t = ADC_Read_Value();
 
 		lastUpdatingTime = now;
 
-		if(cur < 0) {
+		if(t < 0) {
+			currentTemp = -1;
 			ERR_MSG("No adc value available!", "err");
 			return;
 		}
-		temp = HEATBED_ADC_TO_TEMP(cur);
-		output = PID_Update(&pid, targetTemp - temp);
+		currentTemp = HEATBED_ADC_TO_TEMP(t);
+		output = PID_Update(&pid, targetTemp - currentTemp);
 		
 		//转为百分比
 		output /= 400;
@@ -92,6 +104,6 @@ void HeatBedTask(void)
 
 		PWM_Channel(2, output, true);
 
-		DBG_MSG("temp: %d, output: %d", (int)temp, output);
+		DBG_MSG("temp: %d, output: %d", (int)currentTemp, output);
 	}
 }

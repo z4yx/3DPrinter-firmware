@@ -16,6 +16,11 @@
  * =====================================================================================
  */
 
+//三轴最大行程(um)
+#define X_MAX_LIMIT 200000
+#define Y_MAX_LIMIT 200000
+#define Z_MAX_LIMIT 100000
+
 //X轴步进电机旋转一周对应的直线位移(um)
 #define X_DISTANCE_PER_CYCLE 5000
 //X轴步进电机旋转一周需要的脉冲数量(考虑细分)
@@ -50,6 +55,13 @@
 //加热器PWM输出频率(单位Hz)
 #define HEATER_PWM_FREQ 50
 
+//挤出器电机方向修正(取值+/-1)
+#define EXTRUDER_MOTOR_DIR -1
+//挤出量系数调整
+#define EXTRUDER_VOLUME_ADJ 300
+//挤出速度调整(减速倍数)
+#define EXTRUDER_SPEED_ADJ 30
+
 //挤出器输出更新频率限制(ms)
 #define EXTRUDER_UPDATE_PERIOD 500
 //挤出器默认温度
@@ -63,7 +75,7 @@
 //加热板输出更新频率限制(ms)
 #define HEATBED_UPDATE_PERIOD 500
 //加热板默认温度
-#define HEATBED_DEFAULT_TEMP 100
+#define HEATBED_DEFAULT_TEMP 95
 //加热板传感器值与温度换算
 #define HEATBED_ADC_TO_TEMP(x) (179-0.0432614*(x))
 //加热板PID参数

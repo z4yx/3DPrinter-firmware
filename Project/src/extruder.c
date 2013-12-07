@@ -23,15 +23,18 @@
 #include "pwmOutput.h"
 #include "extruder.h"
 #include "systick.h"
+#include "motor.h"
 
 static bool bHeating;
 static int16_t targetTemp = EXTRUDER_DEFAULT_TEMP;
+static int16_t currentTemp;
 static struct PIDController pid;
 static SysTick_t lastUpdatingTime;
 
 void Extruder_Init()
 {
 	bHeating = false;
+	currentTemp = -1;
 	Fan_Config();
 	MAX6675_Config();
 
@@ -53,20 +56,35 @@ void Extruder_Stop_Heating()
 	bHeating = false;
 }
 
+void Extruder_Extrude(int volume)
+{
+	DBG_MSG("volume=%d", volume);
+	Motor_Start(A_Axis, volume * EXTRUDER_VOLUME_ADJ, EXTRUDER_SPEED_ADJ, EXTRUDER_MOTOR_DIR);
+}
+
+bool Extruder_TempReached()
+{
+	int t;
+	if(currentTemp < 0)
+		return false;
+	t = currentTemp - targetTemp;
+	return t >= -2;
+}
+
 void ExtruderTask(void)
 {
 	SysTick_t now = GetSystemTick();
 	if(bHeating && now - lastUpdatingTime > EXTRUDER_UPDATE_PERIOD) {
 		int output;
-		int16_t cur = MAX6675_Read_Value();
+		currentTemp = MAX6675_Read_Value();
 
 		lastUpdatingTime = now;
 
-		if(cur < 0) {
+		if(currentTemp < 0) {
 			ERR_MSG("Thermcouple not connected!", 0);
 			return;
 		}
-		output = PID_Update(&pid, targetTemp - cur);
+		output = PID_Update(&pid, targetTemp - currentTemp);
 		
 		//转为百分比
 		output /= 400;
@@ -77,6 +95,6 @@ void ExtruderTask(void)
 
 		PWM_Channel(1, output, true);
 
-		DBG_MSG("temp: %d, output: %d", (int)cur, output);
+		DBG_MSG("temp: %d, output: %d", (int)currentTemp, output);
 	}
 }
