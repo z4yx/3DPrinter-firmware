@@ -26,24 +26,26 @@
 #include "fanControl.h"
 #include "adc.h"
 #include "motor.h"
+#include "command.h"
+#include "gfiles.h"
+#include "move.h"
 
-extern int test_var;
-
-const Task_t SystemTasks[] = { ExtruderTask, HeatBedTask, KeyBoard_Task };
+const Task_t SystemTasks[] = { ExtruderTask, HeatBedTask, KeyBoard_Task, Command_Task };
 
 
 static void periphInit()
 {
-	lcdSerialInit();
 	FileManager_Init();
 	PWM_Init(HEATER_PWM_FREQ);
 	Move_Init();
 	Extruder_Init();
 	HeatBed_Init();
 	KeyBoard_Init();
+	lcdSerialInit();
+	Command_Init();
 }
 
-void clockTest()
+void useHSIClock()
 {
 	// RCC_HSEConfig(RCC_HSE_ON);
 	// while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)//等待HSE使能成功
@@ -78,7 +80,8 @@ static void coreInit()
 int main(void)
 {
 	RCC_ClocksTypeDef clocks;
-	clockTest();
+	// useHSIClock();
+	RCC_PCLK1Config(RCC_HCLK_Div1);
 	RCC_GetClocksFreq(&clocks);
 
 	coreInit();
@@ -95,17 +98,7 @@ int main(void)
 
 	lcdSerialClear();
 	lcdSerialSetCursor(0,0);
-	lcdSerialWriteString("Hello World!");
-
-	Motor_PowerOn();
-
-	Move_Home(X_Axis);
-	Move_Home(Y_Axis);
-	Move_Home(Z_Axis);
-
-	Extruder_Start_Heating();
-	HeatBed_Start_Heating();
-
+	lcdSerialWriteString("->");
 	do{
 		char (*files)[][SD_MAX_FILENAME_LEN]
 			= FileManager_ListGFiles();
@@ -117,6 +110,8 @@ int main(void)
 			}
 		}
 	}while(0);
+
+	Command_StartPrinting("box_new.g");
 
 	while (1)
 	{

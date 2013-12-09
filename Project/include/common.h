@@ -43,5 +43,6 @@ typedef void (*Task_t)(void);
 void ExtruderTask(void);
 void HeatBedTask(void);
 void KeyBoard_Task(void);
+void Command_Task(void);
 
 #endif /* __COMMON__H__ */

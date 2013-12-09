@@ -27,11 +27,16 @@ FATFS fileSystem;
 
 char GCodeFiles[SD_MAX_ITEMS][SD_MAX_FILENAME_LEN];
 
+//当前打开的文件对象
+FIL * currentOpened;
+
 //初始化文件系统及SD卡
 void FileManager_Init(void)
 {
 	int res;
-	FRESULT fresult;
+
+	currentOpened = 0;
+
 	SD_SPI_Configuration();
 
 	for(int i=0;i<SD_INIT_RETRY_TIMES;i++)
@@ -52,10 +57,6 @@ void FileManager_Init(void)
 	}
 
 	no_sd_card = false;
-
-	fresult = f_mount(0, &fileSystem);
-	if(FR_OK != fresult)
-		ERR_MSG("Failed to mount SD card!", 0);
 }
 
 //列举SD卡中的G代码文件
@@ -66,9 +67,18 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 	DIR rootDir;
 	int cur_file;
 
+	if(no_sd_card)
+		return 0;
+
+	if(f_mount(0, &fileSystem) != FR_OK){
+		ERR_MSG("Failed to mount SD card!", 0);
+		return 0;
+	}
+
 	res = f_opendir(&rootDir, SD_GFILES_DIR);
 	if(FR_OK != res){
 		ERR_MSG("Failed to open root dir! result=%d", (int)res);
+		f_mount(0, 0);
 		return 0;
 	}
 
@@ -79,7 +89,7 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 			if(info.fattrib & AM_DIR)
 				continue;
 			length = strlen(info.fname);
-			if(length > 4 && strcasecmp(info.fname+length-4, ".s3g") == 0) {
+			if(length > 2 && strcasecmp(info.fname+length-2, ".g") == 0) {
 				strcpy(GCodeFiles[cur_file], info.fname);
 				cur_file++;
 			}
@@ -90,5 +100,66 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 	if(cur_file < SD_MAX_ITEMS)
 		GCodeFiles[cur_file][0] = '\0';
 
+	f_mount(0, 0);
+
 	return &GCodeFiles;
+}
+
+bool FileManager_OpenGcode(const char *file)
+{
+	static FIL fileObj; //must be static
+
+	if(no_sd_card)
+		return false;
+
+	if(f_mount(0, &fileSystem) != FR_OK){
+		ERR_MSG("Failed to mount SD card!", 0);
+		return false;
+	}
+
+	if(f_open(&fileObj, file, FA_OPEN_EXISTING|FA_READ) != FR_OK){
+		ERR_MSG("Failed to open %s!", file);
+		f_mount(0, 0);
+		return false;
+	}
+
+	currentOpened = &fileObj; //fileObj is static
+
+	return true;
+}
+
+void FileManager_Close(void)
+{
+	if(!currentOpened)
+		return;
+
+	f_close(currentOpened);
+	currentOpened = 0;
+
+	f_mount(0, 0);
+}
+
+static int readOneByte(void)
+{
+	uint8_t ch;
+	uint32_t cnt;
+	if(!currentOpened)
+		return EOF;
+	return (FR_OK == f_read(currentOpened, &ch, 1, &cnt)
+		&& cnt == 1) ? ch : EOF;
+}
+
+//从当前打开文件中读取一行,包含换行符
+int FileManager_GetLine(char *buf, int buf_size)
+{
+	int count = 0, ch;
+	while(count<buf_size && (ch = readOneByte())!=EOF){
+		*(buf++) = ch;
+		count++;
+		if(ch == '\n')
+			break;
+	}
+	while(ch != '\n' && ch != EOF)
+		ch = readOneByte();
+	return count;
 }

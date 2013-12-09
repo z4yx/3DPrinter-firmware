@@ -138,8 +138,11 @@ void Motor_Interrupt(void)
 					continue;
 
 				GPIO_SetBits(Motor_Step_Ports[i], Motor_Step_Pins[i]);
-				if(Motor_PendingSteps[i] > 0)
+				if(Motor_PendingSteps[i] > 0){
 					Motor_PendingSteps[i] --;
+					if(!Motor_PendingSteps[i])
+						Move_Axis_Eneded(i);
+				}
 			}
 		}
 

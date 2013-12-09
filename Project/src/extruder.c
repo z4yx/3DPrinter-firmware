@@ -56,12 +56,6 @@ void Extruder_Stop_Heating()
 	bHeating = false;
 }
 
-void Extruder_Extrude(int volume)
-{
-	DBG_MSG("volume=%d", volume);
-	Motor_Start(A_Axis, volume * EXTRUDER_VOLUME_ADJ, EXTRUDER_SPEED_ADJ, EXTRUDER_MOTOR_DIR);
-}
-
 bool Extruder_TempReached()
 {
 	int t;
