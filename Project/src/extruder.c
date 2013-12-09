@@ -30,9 +30,11 @@ static int16_t targetTemp = EXTRUDER_DEFAULT_TEMP;
 static int16_t currentTemp;
 static struct PIDController pid;
 static SysTick_t lastUpdatingTime;
+static unsigned int dbgMsgCnt;
 
 void Extruder_Init()
 {
+	dbgMsgCnt = 0;
 	bHeating = false;
 	currentTemp = -1;
 	Fan_Config();
@@ -89,6 +91,7 @@ void ExtruderTask(void)
 
 		PWM_Channel(1, output, true);
 
-		DBG_MSG("temp: %d, output: %d", (int)currentTemp, output);
+		if(++dbgMsgCnt % 20 == 0)
+			DBG_MSG("temp: %d, output: %d", (int)currentTemp, output);
 	}
 }

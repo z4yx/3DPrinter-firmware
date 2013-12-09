@@ -44,9 +44,11 @@ static int16_t targetTemp = HEATBED_DEFAULT_TEMP;
 static int16_t currentTemp;
 static struct PIDController pid;
 static SysTick_t lastUpdatingTime;
+static unsigned int dbgMsgCnt;
 
 void HeatBed_Init()
 {
+	dbgMsgCnt = 0;
 	bHeating = false;
 	currentTemp = -1;
 	ADC_Config(1);
@@ -104,6 +106,7 @@ void HeatBedTask(void)
 
 		PWM_Channel(2, output, true);
 
-		DBG_MSG("temp: %d, output: %d", (int)currentTemp, output);
+		if(++dbgMsgCnt % 20 == 0)
+			DBG_MSG("temp: %d, output: %d", (int)currentTemp, output);
 	}
 }

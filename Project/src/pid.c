@@ -52,7 +52,7 @@ int PID_Update(struct PIDController *pid, int delta)
 	pid->diffHistory[pid->diffIndex] = diff;
 	pid->diffIndex = (pid->diffIndex + 1) % DIFF_SAMPLE_SIZE;
 
-	DBG_MSG("P: %d, I: %d, D: %d", delta, pid->deltaSum, pid->diffSum);
+	// DBG_MSG("P: %d, I: %d, D: %d", delta, pid->deltaSum, pid->diffSum);
 
 	
 	output += pid->Kp * delta;
