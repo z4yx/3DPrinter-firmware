@@ -153,12 +153,14 @@ static int readOneByte(void)
 int FileManager_GetLine(char *buf, int buf_size)
 {
 	int count = 0, ch;
-	while(count<buf_size && (ch = readOneByte())!=EOF){
+	while(count<buf_size-1 && (ch = readOneByte())!=EOF){
 		*(buf++) = ch;
 		count++;
 		if(ch == '\n')
 			break;
 	}
+	if(count == buf_size-1)
+		*buf = '\n';
 	while(ch != '\n' && ch != EOF)
 		ch = readOneByte();
 	return count;
