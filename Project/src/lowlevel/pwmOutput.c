@@ -129,10 +129,13 @@ void PWM_Init(int freq)
 
 	Timer_16bit_Calc(freq, &period, &prescaler);
 
-	TIM2_Output_Config();
 	TIMx_Config(TIM2, period, prescaler);
-
 	currentPeriod = period;
+
+	for(int i=1; i<=4; i++)
+		PWM_Channel(i, 50, false);
+
+	TIM2_Output_Config();
 
 	TIMx_Enable(TIM2);
 
