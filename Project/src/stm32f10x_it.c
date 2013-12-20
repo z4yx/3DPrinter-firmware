@@ -167,7 +167,6 @@ void SysTick_Handler(void)
 
 void EXTI15_10_IRQHandler(void)
 {
-    LimitSwitch_Interrupt();
 }
 
 void TIM2_IRQHandler(void)

@@ -30,7 +30,7 @@
 #include "gfiles.h"
 #include "move.h"
 
-const Task_t SystemTasks[] = { ExtruderTask, HeatBedTask, KeyBoard_Task, Command_Task };
+const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, KeyBoard_Task, Command_Task };
 
 
 static void periphInit()
@@ -111,7 +111,7 @@ int main(void)
 		}
 	}while(0);
 
-	Command_StartPrinting("box_new.g");
+	Command_StartPrinting("box.g");
 
 	while (1)
 	{
