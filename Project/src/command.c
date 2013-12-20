@@ -37,6 +37,8 @@ static int X, Y, Z, F, E;
 static bool isPrinting;
 static uint16_t currentState;
 
+static int codeLine;
+
 static void Command_doNext(void);
 
 static void resetGcodeParams(void)
@@ -63,6 +65,7 @@ bool Command_StartPrinting(const char * file)
 	}
 	isPrinting = true;
 	resetGcodeParams();
+	codeLine = 0;
 
 	return true;
 }
@@ -105,87 +108,31 @@ void Command_Task(void)
 	}
 }
 
-
-static void Command_doNext__(void)
-{
-	static int i = 0, xyza[4];
-	switch(i){
-		case 0:
-			DBG_MSG("Command %d", 0);
-			Motor_PowerOn();
-			Move_Home(X_Axis);
-			Move_Home(Y_Axis);
-			Move_Home(Z_Axis);
-			currentState = MACH_STATE_HOMING;
-			break;
-		case 1:
-			DBG_MSG("Command %d", 1);
-			Extruder_Start_Heating();
-			HeatBed_Start_Heating();
-			currentState = MACH_STATE_WAIT_HEAT;
-			break;
-		case 2:
-			DBG_MSG("Command %d", 2);
-			Motor_PowerOn();
-			// Move_AbsoluteMove(1000*000*20, 1000*000*20);
-			// Extruder_Extrude(1);
-			xyza[0] = 19600;
-			xyza[1] = 0;
-			xyza[2] = 2000;
-			xyza[3] = 957;
-			Move_AbsoluteMove(xyza);
-
-			currentState = MACH_STATE_DRAWING;
-			break;
-		case 3:
-			DBG_MSG("Command %d", 3);
-			// Move_AbsoluteMove(1000*000*20, 1000*000*20);
-			// Extruder_Extrude(1);
-			xyza[0] = 19600;
-			xyza[1] = 19600;
-			xyza[2] = 2000;
-			xyza[3] = 957*2;
-			Move_AbsoluteMove(xyza);
-
-			currentState = MACH_STATE_DRAWING;
-			break;
-		case 4:
-			DBG_MSG("Command %d", 4);
-			// Move_AbsoluteMove(1000*000*20, 1000*000*20);
-			// Extruder_Extrude(1);
-			xyza[1] = 0;
-			xyza[0] = 0;
-			xyza[2] = 2000;
-			xyza[3] = 957*3;
-			Move_AbsoluteMove(xyza);
-
-			currentState = MACH_STATE_DRAWING;
-			break;
-		case 5:
-			DBG_MSG("Command %d", 5);
-			Motor_PowerOff();
-			break;
-		case 6:
-			currentState = MACH_STATE_ENDED;
-			break;
-	}
-	i++;
-}
-
-void doDrawingCmd()
-{
+static void doDrawingCmd()
+{	
 	int xyza[4];
-	xyza[0] = X + 40000;
-	xyza[1] = Y + 40000;
-	xyza[2] = Z + 720;
+	xyza[0] = X + X_OFFSET;
+	xyza[1] = Y + Y_OFFSET;
+	xyza[2] = Z + Z_OFFSET;
 	xyza[3] = E;
 
 	Move_AbsoluteMove(xyza);
 }
+static void setCurrentPos()
+{	
+	int xyza[4];
+	xyza[0] = X + X_OFFSET;
+	xyza[1] = Y + Y_OFFSET;
+	xyza[2] = Z + Z_OFFSET;
+	xyza[3] = E;
+
+	Move_SetCurrentPos(xyza);
+} 
 
 //用于解析指令的三个辅助函数
 static int getnum(char **p);
 static float getfloat(char **p);
+static char getletter(char **p);
 static bool getparam(char **p, char *sym, float *value);
 
 //解析并执行下一条指令
@@ -200,6 +147,13 @@ void Command_doNext()
 		currentState = MACH_STATE_ENDED;
 		return;
 	}
+	codeLine++;
+	DBG_MSG("G code line %d", codeLine);
+	// char *dbg=linebuf;
+	// do{
+	// 	USART_putchar(*dbg);
+	// }while((*dbg++)!='\n');
+	// USART_putchar('\r');
 	p = linebuf;
 	if(*p == 'G'){
 		p++;
@@ -239,13 +193,36 @@ void Command_doNext()
 				doDrawingCmd();
 				currentState = MACH_STATE_DRAWING;
 				break;
+			case G92_SET_POSITION:
+				while(getparam(&p, &sym, &value)){
+					if(sym == 'X')
+						X = UNIT_CONV(value);
+					else if(sym == 'Y')
+						Y = UNIT_CONV(value);
+					else if(sym == 'Z')
+						Z = UNIT_CONV(value);
+					else if(sym == 'E')
+						E = UNIT_CONV(value);
+				}
+				DBG_MSG("G92_SET_POSITION X=%d Y=%d Z=%d E=%d\n",
+					X, Y, Z, E);
+				setCurrentPos();
+				break;
+			case G162_HOME_MAXIMUM:
 			case G161_HOME_MINIMUM:
 				DBG_MSG("G161_HOME_MINIMUM\n", 0);
-
 				Motor_PowerOn();
-				Move_Home(X_Axis);
-				Move_Home(Y_Axis);
-				Move_Home(Z_Axis);
+				while(true){
+					sym=getletter(&p);
+					if(sym == 'X')
+						Move_Home(X_Axis);
+					else if(sym == 'Y')
+						Move_Home(Y_Axis);
+					else if(sym == 'Z')
+						Move_Home(Z_Axis);
+					else
+						break;
+				}
 				currentState = MACH_STATE_HOMING;
 				break;
 			default:
@@ -263,6 +240,7 @@ void Command_doNext()
 
 				Extruder_Start_Heating();
 				HeatBed_Start_Heating();
+				Motor_PowerOff();
 				currentState = MACH_STATE_WAIT_HEAT;
 				break;
 			case M18_DISABLE_MOTORS:
@@ -318,16 +296,26 @@ static float getfloat(char **p)
 	return ret;
 }
 
+static char getletter(char **p)
+{
+	char ret;
+	while((**p) == ' ')
+		(*p)++;
+	if(**p < 'A' || **p > 'Z')
+		return -1;
+	ret = **p;
+	(*p)++;
+	return ret;
+}
+
 static bool getparam(char **p, char *sym, float *value)
 {
 	float tmp;
 	bool neg = false;
-	while((**p) == ' ')
-		(*p)++;
-	if(**p < 'A' || **p > 'Z')
+	char letter = getletter(p);
+	if(letter == -1)
 		return false;
-	*sym = **p;
-	(*p)++;
+	*sym = letter;
 	if(**p == '-'){
 		neg = true;
 		(*p)++;
