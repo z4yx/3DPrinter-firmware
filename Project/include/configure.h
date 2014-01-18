@@ -18,13 +18,13 @@
 
 //三轴最大行程(um)
 #define X_MAX_LIMIT 160000
-#define Y_MAX_LIMIT 160000
+#define Y_MAX_LIMIT 180000
 #define Z_MAX_LIMIT 100000
 
 //从G代码坐标到实际坐标的偏移(um)
-#define X_OFFSET 20000
-#define Y_OFFSET 80000
-#define Z_OFFSET 300
+#define X_OFFSET (X_MAX_LIMIT/2-15000)
+#define Y_OFFSET (Y_MAX_LIMIT/2)
+#define Z_OFFSET 1420
 
 //X轴步进电机旋转一周对应的直线位移(um)
 #define X_DISTANCE_PER_CYCLE 4000
@@ -48,7 +48,9 @@
 #define Z_DIRECTION_ADJ      1
 
 //限位开关最小触发间隔时间(ms)
-#define LIMIT_SWITCH_MIN_TOGGLE_PERIOD 30
+#define LIMIT_SWITCH_MIN_TOGGLE_PERIOD 50
+//限位开关接通有效的阈值(ms)
+#define LIMIT_SWITCH_VALID_TIME 10
 
 //键盘最小触发间隔时间(ms)
 #define KEYBOARD_MIN_TOGGLE_PERIOD 50
@@ -63,7 +65,7 @@
 //挤出器电机方向修正(取值+/-1)
 #define EXTRUDER_MOTOR_DIR -1
 //挤出量系数调整(越大量越少)
-#define EXTRUDER_VOLUME_ADJ 47
+#define EXTRUDER_VOLUME_ADJ 40
 
 //挤出器输出更新频率限制(ms)
 #define EXTRUDER_UPDATE_PERIOD 500
@@ -80,15 +82,15 @@
 //加热板默认温度
 #define HEATBED_DEFAULT_TEMP 105
 //加热板传感器值与温度换算
-#define HEATBED_ADC_TO_TEMP(x) (179-0.0432614*(x))
+#define HEATBED_ADC_TO_TEMP(x) (123.678-0.0893583*(x)+0.0000195876*(x)*(x))
 //加热板PID参数
-#define HEATBED_PID_KP 800
-#define HEATBED_PID_KI 25
-#define HEATBED_PID_KD 700
-#define HEATBED_PID_INIT_SUM 800
+#define HEATBED_PID_KP 500
+#define HEATBED_PID_KI 15
+#define HEATBED_PID_KD 400
+#define HEATBED_PID_INIT_SUM 100
 
 //步进电机脉冲频率(单位Hz)
-#define MOTOR_STEP_FREQ 2500
+#define MOTOR_STEP_FREQ 2400
 
 //SD卡初始化重试次数限制
 #define SD_INIT_RETRY_TIMES 3
