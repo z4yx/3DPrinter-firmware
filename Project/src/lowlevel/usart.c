@@ -45,7 +45,7 @@ void USART_Config(void)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     /* USART1 mode config */
-    USART_InitStructure.USART_BaudRate = 115200;
+    USART_InitStructure.USART_BaudRate = 9600;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits = USART_StopBits_1;
     USART_InitStructure.USART_Parity = USART_Parity_No ;
@@ -152,7 +152,7 @@ static char *itoa(int value, char *string, int radix)
 /*
  * 通过串口发送格式化字符串
  */
-void USART_printf(uint8_t *Data, ...)
+void USART_printf(char *Data, ...)
 {
     const char *s;
     int d;

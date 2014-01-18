@@ -160,7 +160,7 @@ void Motor_Stop(int motor_enum)
 void Motor_Start(int motor_enum, int steps, int skip, int8_t dir)
 {
 	// Motor_Stop();
-	DBG_MSG("steps=%d, skip=%d", (int)steps, (int)skip);
+	// DBG_MSG("steps=%d, skip=%d", (int)steps, (int)skip);
 
 	Motor_Direction[motor_enum] = dir;
 	GPIO_WriteBit(Motor_Dir_Ports[motor_enum],

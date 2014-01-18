@@ -97,14 +97,14 @@ void KeyBoard_Task()
 				lastChange[i] = now;
 				bPressed[i] = cur_state;
 
-				DBG_MSG("State changed key=%d, state=%d", (int)i, (int)cur_state);
+				// DBG_MSG("State changed key=%d, state=%d", (int)i, (int)cur_state);
 			}
 		}else{
 			//长时间按下,开始自动重复
 			if(cur_state && now - lastChange[i] >= KEYBOARD_START_REPEAT_TIME) {
 				if(now - lastRepeat[i] >= KEYBOARD_REPEAT_PERIOD){
 					lastRepeat[i] = now;
-					DBG_MSG("Repeat key=%d, state=%d", (int)i, (int)cur_state);
+					// DBG_MSG("Repeat key=%d, state=%d", (int)i, (int)cur_state);
 				}
 			}
 		}

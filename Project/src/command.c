@@ -35,7 +35,10 @@ static char linebuf[MAX_LINE_LENGTH+1];
 static int X, Y, Z, F, E;
 //是否正在打印
 static bool isPrinting;
+//机器当前状态
 static uint16_t currentState;
+//完成百分比
+static uint8_t Progress;
 
 static int codeLine;
 
@@ -50,6 +53,14 @@ void Command_Init(void)
 {
 	isPrinting = false;
 	currentState = MACH_STATE_READY;
+	Progress = 0;
+}
+
+void Command_GetState(bool *printing, uint16_t *state, uint8_t *progress)
+{
+	*printing = isPrinting;
+	*state = currentState;
+	*progress = Progress;
 }
 
 bool Command_StartPrinting(const char * file)
@@ -103,6 +114,7 @@ void Command_Task(void)
 			DBG_MSG("Printing Finished!", 0);
 			isPrinting = false;
 			currentState = MACH_STATE_READY;
+			Progress = 0;
 			FileManager_Close();
 			break;
 	}
@@ -148,7 +160,7 @@ void Command_doNext()
 		return;
 	}
 	codeLine++;
-	DBG_MSG("G code line %d", codeLine);
+	// DBG_MSG("G code line %d", codeLine);
 	// char *dbg=linebuf;
 	// do{
 	// 	USART_putchar(*dbg);
@@ -168,8 +180,7 @@ void Command_doNext()
 					else if(sym == 'Z')
 						Z = UNIT_CONV(value);
 				}
-				DBG_MSG("G0_RAPID_MOVE X=%d Y=%d Z=%d\n",
-					X, Y, Z);
+				REPORT(INFO_G_G0,"%d,%d,%d", X, Y, Z);
 				Motor_PowerOn();
 				doDrawingCmd();
 				currentState = MACH_STATE_DRAWING;
@@ -187,8 +198,7 @@ void Command_doNext()
 					else if(sym == 'E')
 						E = UNIT_CONV(value);
 				}
-				DBG_MSG("G1_CONTROLLED_MOVE X=%d Y=%d Z=%d F=%d E=%d\n",
-					X, Y, Z, F, E);
+				REPORT(INFO_G_G1,"%d,%d,%d,%d,%d", X, Y, Z, F, E);
 				Motor_PowerOn();
 				doDrawingCmd();
 				currentState = MACH_STATE_DRAWING;
@@ -204,22 +214,26 @@ void Command_doNext()
 					else if(sym == 'E')
 						E = UNIT_CONV(value);
 				}
-				DBG_MSG("G92_SET_POSITION X=%d Y=%d Z=%d E=%d\n",
-					X, Y, Z, E);
+				REPORT(INFO_G_G92,"%d,%d,%d,%d", X, Y, Z, E);
 				setCurrentPos();
 				break;
 			case G162_HOME_MAXIMUM:
 			case G161_HOME_MINIMUM:
-				DBG_MSG("G161_HOME_MINIMUM\n", 0);
 				Motor_PowerOn();
 				while(true){
 					sym=getletter(&p);
-					if(sym == 'X')
+					if(sym == 'X'){
 						Move_Home(X_Axis);
-					else if(sym == 'Y')
+						REPORT(INFO_G_G161,"X", 0);
+					}
+					else if(sym == 'Y'){
 						Move_Home(Y_Axis);
-					else if(sym == 'Z')
+						REPORT(INFO_G_G161,"Y", 0);
+					}
+					else if(sym == 'Z'){
 						Move_Home(Z_Axis);
+						REPORT(INFO_G_G161,"Z", 0);
+					}
 					else
 						break;
 				}
@@ -236,7 +250,7 @@ void Command_doNext()
 			case M6_WAIT_FOR_TOOL:
 				if(getparam(&p, &sym, &value) && sym == 'T')
 					T = value;
-				DBG_MSG("M6_WAIT_FOR_TOOL T=%d\n", T);
+				REPORT(INFO_G_M6,"%d", T);
 
 				Extruder_Start_Heating();
 				HeatBed_Start_Heating();
@@ -244,14 +258,15 @@ void Command_doNext()
 				currentState = MACH_STATE_WAIT_HEAT;
 				break;
 			case M18_DISABLE_MOTORS:
-				DBG_MSG("M18_DISABLE_MOTORS\n", 0);
+				REPORT(INFO_G_M18,"", 0);
 
 				Motor_PowerOff();
 				break;
 			case M73_SET_PROGRESS:
 				if(getparam(&p, &sym, &value) && sym == 'P')
 					P = value;
-				DBG_MSG("M73_SET_PROGRESS P=%d\n", P);
+				Progress = P;
+				REPORT(INFO_G_M73,"%d", P);
 				break;
 			default:
 				break;

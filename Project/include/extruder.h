@@ -5,5 +5,6 @@ void Extruder_Init(void);
 void Extruder_Start_Heating(void);
 void Extruder_Stop_Heating(void);
 bool Extruder_TempReached(void);
+void Extruder_GetState(int16_t *temp, int *output, bool *heating);
 
 #endif /* __EXTRUDER__H__ */

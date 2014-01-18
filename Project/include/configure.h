@@ -101,3 +101,5 @@
 //最多列举的G文件数量
 #define SD_MAX_ITEMS 32
 
+//每次向上位机报告的间隔(ms)
+#define REPORT_PERIOD 1000

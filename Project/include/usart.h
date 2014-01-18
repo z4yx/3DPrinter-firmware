@@ -6,6 +6,6 @@
 void USART_Config(void);
 int USART_putchar(int ch);
 int USART_getchar(void);
-void USART_printf(uint8_t *Data, ...);
+void USART_printf(char *Data, ...);
 
 #endif

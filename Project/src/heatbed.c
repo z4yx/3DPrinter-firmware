@@ -56,15 +56,15 @@ Fit[{
 static bool bHeating;
 static int16_t targetTemp = HEATBED_DEFAULT_TEMP;
 static int16_t currentTemp;
+static int currentOutput;
 static struct PIDController pid;
 static SysTick_t lastUpdatingTime;
-static unsigned int dbgMsgCnt;
 
 void HeatBed_Init()
 {
-	dbgMsgCnt = 0;
 	bHeating = false;
 	currentTemp = -1;
+	currentOutput = 0;
 	ADC_Config(1);
 	ADC_Channel_Config(HeaterBoardTherm_Port, HeaterBoardTherm_Pin, HeaterBoardTherm_ADCChannel, 1);
 	ADC_Start();
@@ -119,8 +119,12 @@ void HeatBedTask(void)
 			output = 0;
 
 		PWM_Channel(2, output, true);
-
-		if(++dbgMsgCnt % 20 == 0)
-			DBG_MSG("temp: %d, output: %d", (int)currentTemp, output);
+		currentOutput = output;
 	}
+}
+void HeatBed_GetState(int16_t *temp, int *output, bool *heating)
+{
+	*temp = currentTemp;
+	*output = currentOutput;
+	*heating = bHeating;
 }

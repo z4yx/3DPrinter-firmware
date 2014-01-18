@@ -29,6 +29,8 @@
 #include "command.h"
 #include "gfiles.h"
 #include "move.h"
+#include "heatbed.h"
+#include "extruder.h"
 
 const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, KeyBoard_Task, Command_Task };
 
@@ -41,7 +43,6 @@ static void periphInit()
 	Extruder_Init();
 	HeatBed_Init();
 	KeyBoard_Init();
-	lcdSerialInit();
 	Command_Init();
 }
 
@@ -86,9 +87,11 @@ int main(void)
 
 	coreInit();
 
-	USART_printf("\r\n\r\n");
-	USART_printf("Clock Source: %d\r\n", RCC_GetSYSCLKSource());
-	USART_printf("SYSCLK: %d, H: %d, P1: %d, P2: %d\r\n",
+	Delay_ms(2000);
+
+	DBG_MSG("\r\n\r\n", 0);
+	DBG_MSG("Clock Source: %d", RCC_GetSYSCLKSource());
+	DBG_MSG("SYSCLK: %d, H: %d, P1: %d, P2: %d",
 		clocks.SYSCLK_Frequency,
 		clocks.HCLK_Frequency,
 		clocks.PCLK1_Frequency,
@@ -96,9 +99,6 @@ int main(void)
 
 	periphInit();
 
-	lcdSerialClear();
-	lcdSerialSetCursor(0,0);
-	lcdSerialWriteString("->");
 	do{
 		char (*files)[][SD_MAX_FILENAME_LEN]
 			= FileManager_ListGFiles();
@@ -106,38 +106,44 @@ int main(void)
 			for(int i=0; i<SD_MAX_ITEMS; i++){
 				if(!(*files)[i][0])
 					break;
-				USART_printf("GCode file: %s\r\n", (*files)[i]);
+				REPORT(INFO_LIST_FILES, "%s", (*files)[i]);
 			}
 		}
 	}while(0);
 
 	Command_StartPrinting("box.g");
 
+	uint8_t led_state = LED_ON;
+	SysTick_t last_report = 0;
 	while (1)
 	{
-		// int c = USART_ReadInt();
-
 
 		//运行系统中声明的任务
 		for(int i = 0; i < sizeof(SystemTasks)/sizeof(Task_t); i++)
 			(SystemTasks[i])();
-		
-		// int ch = USART_getchar();
 
-		LED_Enable(LED1, LED_OFF);
-		LED_Enable(LED2, LED_ON);
+		SysTick_t now = GetSystemTick();
+		if(now - last_report > REPORT_PERIOD){
+			int16_t temp;
+			uint16_t state;
+			uint8_t progress;
+			int output;
+			bool b;
 
-		// Delay_ms(1000);
-		// Delay_us(1000000);
+			last_report = now;
 
-		// LED_Enable(LED1, LED_ON);
-		// LED_Enable(LED2, LED_OFF);
+			Command_GetState(&b, &state, &progress);
+			REPORT(INFO_PRINT, "%d,%d,%d", (int)b, (int)state, (int)progress);
 
-		// Delay_us(1000000);
-		// Delay_ms(1000);
+			Extruder_GetState(&temp, &output, &b);
+			REPORT(INFO_EXTRUDER, "%d,%d,%d", (int)temp, (int)output, (int)b);
 
-		// USART_putchar(ch);
-		// USART_printf("adc %d %d %d\r\n", (int)(GetSystemTick()), (int)ADC_Read_Value(), (int)MAX6675_Read_Value());
+			HeatBed_GetState(&temp, &output, &b);
+			REPORT(INFO_HEATBED, "%d,%d,%d", (int)temp, (int)output, (int)b);
+
+			LED_Enable(LED2, led_state);
+			led_state = (led_state == LED_ON ? LED_OFF : LED_ON);
+		}
 	}
 }
 
