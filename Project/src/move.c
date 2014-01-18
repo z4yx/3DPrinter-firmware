@@ -192,6 +192,23 @@ bool Move_AbsoluteMove(int xyza[4])
 	return true;
 }
 
+bool Move_SetCurrentPos(int xyza[4])
+{
+	if(xyza[X_Axis] < 0 || xyza[X_Axis] > X_MAX_LIMIT)
+		return false;
+	if(xyza[Y_Axis] < 0 || xyza[Y_Axis] > Y_MAX_LIMIT)
+		return false;
+	if(xyza[Z_Axis] < 0 || xyza[Z_Axis] > Z_MAX_LIMIT)
+		return false;
+
+
+	for (int i = 0; i < 4; ++i){
+		currentPos[i] = xyza[i];
+	}
+	
+	return true;
+}
+
 //由限位开关中断调用
 void Move_LimitReached(uint8_t sw_num)
 {

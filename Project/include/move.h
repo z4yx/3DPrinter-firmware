@@ -9,6 +9,7 @@ bool Move_Home(uint8_t axis);
 bool Move_XYZ_Ready(void);
 bool Move_RelativeMove(int xyza[4]);
 bool Move_AbsoluteMove(int xyza[4]);
+bool Move_SetCurrentPos(int xyza[4]);
 
 void Move_LimitReached(uint8_t sw_num);
 void Move_Axis_Eneded(uint8_t axis);
