@@ -22,6 +22,8 @@
 
 #define NUM_MOTORS 4
 
+static volatile bool isPowerOn;
+
 //电机剩余步进数,-1表示无限
 static volatile int Motor_PendingSteps[NUM_MOTORS];
 //步进脉冲计数,用于调速
@@ -174,6 +176,7 @@ void Motor_PowerOn()
 	for(int i=0; i<NUM_MOTORS; i++) {
 		GPIO_SetBits(Motor_En_Ports[i], Motor_En_Pins[i]);
 	}
+	isPowerOn = true;
 }
 
 void Motor_PowerOff()
@@ -181,6 +184,12 @@ void Motor_PowerOff()
 	for(int i=0; i<NUM_MOTORS; i++) {
 		GPIO_ResetBits(Motor_En_Ports[i], Motor_En_Pins[i]);
 	}
+	isPowerOn = false;
+}
+
+bool Motor_isPowerOn()
+{
+	return isPowerOn;
 }
 
 void Motor_Init()
