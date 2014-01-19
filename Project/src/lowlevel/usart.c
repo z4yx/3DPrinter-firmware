@@ -41,7 +41,7 @@ void USART_Config(void)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     /* Configure USART1 Rx (PA.10) as input floating */
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     /* USART1 mode config */
@@ -53,6 +53,21 @@ void USART_Config(void)
     USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
     USART_Init(USART1, &USART_InitStructure);
     USART_Cmd(USART1, ENABLE);
+}
+
+/*
+ * 串口接收中断配置
+ */
+void USART_RxInt_Config(bool bEnabled)
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn; //指定中断源
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;   // 指定响应优先级别
+    NVIC_InitStructure.NVIC_IRQChannelCmd = (bEnabled ? ENABLE : DISABLE);
+    NVIC_Init(&NVIC_InitStructure);
+
+    USART_ITConfig(USART1, USART_IT_RXNE, (bEnabled ? ENABLE : DISABLE));
 }
 
 /*
