@@ -23,6 +23,7 @@
 #include "configure.h"
 #include <stdint.h>
 
+#define NULL ((void*)0)
 #ifndef bool
 #define bool uint8_t
 #define true 1
@@ -59,5 +60,6 @@ void HeatBedTask(void);
 void KeyBoard_Task(void);
 void Command_Task(void);
 void LimitSwitch_Task(void);
+void HostCtrl_Task(void);
 
 #endif /* __COMMON__H__ */
