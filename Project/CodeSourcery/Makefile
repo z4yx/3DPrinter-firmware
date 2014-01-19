@@ -92,6 +92,7 @@ SRC += $(wildcard $(SRC_DIR)../Libraries/STM32F10x_StdPeriph_Driver/src/*.c)
 SRC += $(wildcard $(SRC_DIR)../Project/src/*.c)
 SRC += $(wildcard $(SRC_DIR)../Project/src/lowlevel/*.c)
 SRC += $(wildcard $(SRC_DIR)../Project/src/fatfs/*.c)
+SRC += $(SRC_DIR)../Project/src/fatfs/option/ccsbcs.c
 
 # List C source files here which must be compiled in ARM-Mode.
 # use file-extension c for "c-only"-files
