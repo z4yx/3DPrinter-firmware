@@ -31,8 +31,11 @@
 #include "move.h"
 #include "heatbed.h"
 #include "extruder.h"
+#include "hostctrl.h"
+#include <stdlib.h>
+#include <string.h>
 
-const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, KeyBoard_Task, Command_Task };
+const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, KeyBoard_Task, Command_Task, HostCtrl_Task};
 
 
 static void periphInit()
@@ -44,6 +47,7 @@ static void periphInit()
 	HeatBed_Init();
 	KeyBoard_Init();
 	Command_Init();
+	HostCtrl_Init();
 }
 
 void useHSIClock()
@@ -78,6 +82,32 @@ static void coreInit()
 	USART_Config();
 }
 
+//处理上位机请求
+static void processRequest(char* cmd, char* param)
+{
+	static char (*files)[][SD_MAX_FILENAME_LEN] = NULL;
+	DBG_MSG("Cmd: %s, Param: %s", cmd, param);
+	if(strcmp(cmd, "STOP") == 0){
+		bool ret = Command_StopPrinting();
+		REPORT(INFO_REPLY, "%d", ret);
+	}else if(strcmp(cmd, "LIST") == 0){
+		files = FileManager_ListGFiles();
+		if(files != NULL){
+			for(int i=0; i<SD_MAX_ITEMS; i++){
+				if(!(*files)[i][0])
+					break;
+				REPORT(INFO_LIST_FILES, "%s", (*files)[i]);
+			}
+		}
+	}else if(strcmp(cmd, "START") == 0){
+		int num = atoi(param);
+		if(num >= 0 && num < SD_MAX_ITEMS){
+			bool ret = Command_StartPrinting((*files)[num]);
+			REPORT(INFO_REPLY, "%d", ret);
+		}
+	}
+}
+
 int main(void)
 {
 	RCC_ClocksTypeDef clocks;
@@ -99,22 +129,9 @@ int main(void)
 
 	periphInit();
 
-	do{
-		char (*files)[][SD_MAX_FILENAME_LEN]
-			= FileManager_ListGFiles();
-		if(files != 0){
-			for(int i=0; i<SD_MAX_ITEMS; i++){
-				if(!(*files)[i][0])
-					break;
-				REPORT(INFO_LIST_FILES, "%s", (*files)[i]);
-			}
-		}
-	}while(0);
-
-	Command_StartPrinting("box.g");
-
 	uint8_t led_state = LED_ON;
 	SysTick_t last_report = 0;
+	char *p_cmd, *p_param;
 	while (1)
 	{
 
@@ -143,6 +160,11 @@ int main(void)
 
 			LED_Enable(LED2, led_state);
 			led_state = (led_state == LED_ON ? LED_OFF : LED_ON);
+		}
+
+		if(HostCtrl_GetCmd(&p_cmd, &p_param)){
+			processRequest(p_cmd, p_param);
+			HostCtrl_CmdProcessed();
 		}
 	}
 }
