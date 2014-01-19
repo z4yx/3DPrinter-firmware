@@ -75,13 +75,15 @@ void HeatBed_Init()
 void HeatBed_Start_Heating()
 {
 	PID_Init(&pid, EXTRUDER_PID_KP, EXTRUDER_PID_KI, EXTRUDER_PID_KD, EXTRUDER_PID_INIT_SUM);
-	PWM_Channel(2, 90, true);
+	PWM_Channel(2, 90, false);
+	currentOutput = 0;
 	bHeating = true;
 }
 
 void HeatBed_Stop_Heating()
 {
 	PWM_Channel(2, 10, false);
+	currentOutput = 0;
 	bHeating = false;
 }
 

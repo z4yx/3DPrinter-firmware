@@ -47,7 +47,8 @@ void Extruder_Start_Heating()
 {
 	Fan_Enable(true);
 	PID_Init(&pid, EXTRUDER_PID_KP, EXTRUDER_PID_KI, EXTRUDER_PID_KD, EXTRUDER_PID_INIT_SUM);
-	PWM_Channel(1, 90, true);
+	PWM_Channel(1, 90, false);
+	currentOutput = 0;
 	bHeating = true;
 }
 
@@ -55,6 +56,7 @@ void Extruder_Stop_Heating()
 {
 	Fan_Enable(false);
 	PWM_Channel(1, 10, false);
+	currentOutput = 0;
 	bHeating = false;
 }
 
@@ -64,7 +66,7 @@ bool Extruder_TempReached()
 	if(currentTemp < 0)
 		return false;
 	t = currentTemp - targetTemp;
-	return t >= -2;
+	return t >= -5;
 }
 
 void ExtruderTask(void)
