@@ -23,6 +23,7 @@ extern void IncSysTickCounter(void);
 extern void LimitSwitch_Interrupt(void);
 extern void Motor_Interrupt(void);
 extern void PWM_TIM2_Interrupt(void);
+extern void HostCtrl_Interrupt(void);
 
 /** @addtogroup STM32F10x_StdPeriph_Examples
   * @{
@@ -177,6 +178,13 @@ void TIM2_IRQHandler(void)
 void TIM3_IRQHandler(void)
 {
     Motor_Interrupt();
+}
+
+void USART1_IRQHandler(void)
+{
+  // if(USART_GetITStatus(USART1, USART_FLAG_RXNE) == SET){
+  //   HostCtrl_Interrupt();
+  // }
 }
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
