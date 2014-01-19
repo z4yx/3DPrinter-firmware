@@ -74,9 +74,23 @@ bool Command_StartPrinting(const char * file)
 		ERR_MSG("Failed to open G code file!", 0);
 		return false;
 	}
+	DBG_MSG("Start printing %s", file);
 	isPrinting = true;
 	resetGcodeParams();
 	codeLine = 0;
+
+	return true;
+}
+
+bool Command_StopPrinting()
+{
+	if(!isPrinting)
+		return false;
+
+	Motor_PowerOff();
+	Extruder_Stop_Heating();
+	HeatBed_Stop_Heating();
+	currentState = MACH_STATE_ENDED;
 
 	return true;
 }
