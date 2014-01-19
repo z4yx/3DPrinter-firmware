@@ -120,7 +120,7 @@ void Command_Task(void)
 			break;
 		case MACH_STATE_DRAWING:
 			if(Move_XYZ_Ready()){
-				DBG_MSG("Operation \"Drawing\" Done!", 0);
+				// DBG_MSG("Operation \"Drawing\" Done!", 0);
 				currentState = MACH_STATE_READY;
 			}
 			break;
@@ -194,7 +194,7 @@ void Command_doNext()
 					else if(sym == 'Z')
 						Z = UNIT_CONV(value);
 				}
-				REPORT(INFO_G_G0,"%d,%d,%d", X, Y, Z);
+				// REPORT(INFO_G_G0,"%d,%d,%d", X, Y, Z);
 				Motor_PowerOn();
 				doDrawingCmd();
 				currentState = MACH_STATE_DRAWING;
@@ -212,7 +212,7 @@ void Command_doNext()
 					else if(sym == 'E')
 						E = UNIT_CONV(value);
 				}
-				REPORT(INFO_G_G1,"%d,%d,%d,%d,%d", X, Y, Z, F, E);
+				// REPORT(INFO_G_G1,"%d,%d,%d,%d,%d", X, Y, Z, F, E);
 				Motor_PowerOn();
 				doDrawingCmd();
 				currentState = MACH_STATE_DRAWING;
