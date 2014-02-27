@@ -27,7 +27,9 @@
 #ifndef bool
 #define bool uint8_t
 #define true 1
+#define TRUE true
 #define false 0
+#define FALSE false
 #endif
 
 extern void USART_printf(char *Data, ...);
