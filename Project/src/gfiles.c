@@ -59,6 +59,12 @@ void FileManager_Init(void)
 	no_sd_card = false;
 }
 
+//SD可用
+bool FileManager_SDCardAvailable()
+{
+	return !no_sd_card;
+}
+
 //列举SD卡中的G代码文件
 char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN] 
 {

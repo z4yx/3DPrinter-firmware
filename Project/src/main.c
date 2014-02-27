@@ -46,6 +46,7 @@ static void periphInit()
 	Extruder_Init();
 	HeatBed_Init();
 	KeyBoard_Init();
+	USBDevice_Config();
 	Command_Init();
 	HostCtrl_Init();
 }
@@ -128,6 +129,8 @@ int main(void)
 		clocks.PCLK2_Frequency);
 
 	periphInit();
+
+	DBG_MSG("SD Card Size: %d", SD_GetCapacity());
 
 	uint8_t led_state = LED_ON;
 	SysTick_t last_report = 0;

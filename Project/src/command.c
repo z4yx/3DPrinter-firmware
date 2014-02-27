@@ -23,6 +23,7 @@
 #include "extruder.h"
 #include "gfiles.h"
 #include "gcode.h"
+#include "usb.h"
 
 //最大的代码行长度,超过部分将被丢弃
 #define MAX_LINE_LENGTH 63
@@ -35,6 +36,8 @@ static char linebuf[MAX_LINE_LENGTH+1];
 static int X, Y, Z, F, E;
 //是否正在打印
 static bool isPrinting;
+//是否处于USB模式
+static bool isUSBMode;
 //机器当前状态
 static uint16_t currentState;
 //完成百分比
@@ -52,6 +55,7 @@ static void resetGcodeParams(void)
 void Command_Init(void)
 {
 	isPrinting = false;
+	isUSBMode = false;
 	currentState = MACH_STATE_READY;
 	Progress = 0;
 }
@@ -65,6 +69,10 @@ void Command_GetState(bool *printing, uint16_t *state, uint8_t *progress)
 
 bool Command_StartPrinting(const char * file)
 {
+	if(isUSBMode){
+		ERR_MSG("In USB Mode", 0);
+		return false;
+	}
 	if(isPrinting){
 		ERR_MSG("Printing now", 0);
 		return false;
@@ -97,8 +105,18 @@ bool Command_StopPrinting()
 
 void Command_Task(void)
 {
-	if(!isPrinting)
+	if(!isPrinting){
+		if(isUSBMode && !USBDevice_PlugIn()){
+			DBG_MSG("Disconnect USB host", 0);
+			USBDevice_Disconnect();
+			isUSBMode = false;
+		}else if(!isUSBMode && USBDevice_PlugIn() && FileManager_SDCardAvailable()){
+			DBG_MSG("Try to connect USB host...", 0);
+			USBDevice_Connect();
+			isUSBMode = true;
+		}
 		return;
+	}
 
 	switch(currentState) {
 		case MACH_STATE_READY:

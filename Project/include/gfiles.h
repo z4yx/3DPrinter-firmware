@@ -8,6 +8,7 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN];
 int FileManager_GetLine(char *buf, int buf_size);
 bool FileManager_OpenGcode(const char *file);
 void FileManager_Close(void);
+bool FileManager_SDCardAvailable();
 
 
 #endif /* __GFILES__H__ */

@@ -17,6 +17,7 @@
  */
 
 #include "sd.h"
+#include "common.h"
 #include "stm32f10x.h"
 
 static u8 SD_Type=0;
@@ -579,11 +580,11 @@ u32 SD_GetCapacity(void)
     {
         return 0;
     }
-       
+
     //如果为SDHC卡，按照下面方式计算
     if((csd[0]&0xC0)==0x40)
     {
-        Capacity =  (((u32)csd[8])<<8 + (u32)csd[9] +1)*(u32)1024;
+        Capacity =  (((u32)csd[8]<<8) + (u32)csd[9] +1)*(u32)1024;
     }
     else
     {
@@ -657,7 +658,8 @@ u8 SD_ReadSingleBlock(u32 sector, u8 *buffer)
     SD_SPI_SetSpeed(SPI_SPEED_HIGH);
     
     //如果不是SDHC，将sector地址转成byte地址
-    sector = sector<<9;
+    if(SD_Type!=SD_TYPE_V2HC)
+        sector = sector<<9;
 
 	r1 = SD_SendCommand(CMD17, sector, 0);//读命令
 	
@@ -773,7 +775,8 @@ u8 SD_ReadMultiBlock(u32 sector, u8 *buffer, u8 count)
     SD_SPI_SetSpeed(SPI_SPEED_HIGH);
     
     //如果不是SDHC，将sector地址转成byte地址
-    sector = sector<<9;
+    if(SD_Type!=SD_TYPE_V2HC)
+        sector = sector<<9;
     //SD_WaitReady();
     //发读多块命令
 	r1 = SD_SendCommand(CMD18, sector, 0);//读命令

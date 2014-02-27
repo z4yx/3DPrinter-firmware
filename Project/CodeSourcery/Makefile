@@ -92,7 +92,7 @@ SRC += $(wildcard $(SRC_DIR)../Libraries/STM32F10x_StdPeriph_Driver/src/*.c)
 SRC += $(wildcard $(SRC_DIR)../Project/src/*.c)
 SRC += $(wildcard $(SRC_DIR)../Project/src/lowlevel/*.c)
 SRC += $(wildcard $(SRC_DIR)../Project/src/fatfs/*.c)
-SRC += $(SRC_DIR)../Project/src/fatfs/option/ccsbcs.c
+SRC += $(wildcard $(SRC_DIR)../Project/src/usb_library/src/*.c)
 
 # List C source files here which must be compiled in ARM-Mode.
 # use file-extension c for "c-only"-files
@@ -150,6 +150,7 @@ LINKERSCRIPTPATH = ./
 #EXTRAINCDIRS = ../.. ../../utils ../../lib_src
 EXTRAINCDIRS = $(SRC_DIR)../Project/include
 EXTRAINCDIRS += $(SRC_DIR)../Project/src/fatfs
+EXTRAINCDIRS += $(SRC_DIR)../Project/src/usb_library/inc
 EXTRAINCDIRS += $(SRC_DIR)../Libraries/STM32F10x_StdPeriph_Driver/inc 
 EXTRAINCDIRS += $(SRC_DIR)../Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x
 EXTRAINCDIRS += $(SRC_DIR)../Libraries/CMSIS/CM3/CoreSupport

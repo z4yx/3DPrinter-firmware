@@ -18,6 +18,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
+#include "usb_istr.h"
 
 extern void IncSysTickCounter(void);
 extern void LimitSwitch_Interrupt(void);
@@ -187,4 +188,29 @@ void USART1_IRQHandler(void)
   // }
 }
 
+/*******************************************************************************
+* Function Name  : USB_HP_CAN_TX_IRQHandler
+* Description    : This function handles USB High Priority or CAN TX interrupts 
+*                  requests.
+* Input          : None
+* Output         : None
+* Return         : None
+*/
+void USB_HP_CAN1_TX_IRQHandler(void)
+{
+  //CTR_HP();  
+}
+
+/*******************************************************************************
+* Function Name  : USB_LP_CAN_RX0_IRQHandler
+* Description    : This function handles USB Low Priority or CAN RX0 interrupts 
+*                  requests.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void USB_LP_CAN1_RX0_IRQHandler(void) 
+{
+    USB_Istr();
+}
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
