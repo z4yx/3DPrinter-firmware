@@ -65,7 +65,6 @@ static void TIMx_Config(TIM_TypeDef* TIMx, uint16_t period, uint16_t prescaler)
 
 	TIM_ITConfig(TIMx, TIM_IT_Update, DISABLE);
 
-	// USART_printf("%s period=%d prescaler=%d\r\n", __func__, period, prescaler);
 }
 
 static void TIMx_OCx_Config(TIM_TypeDef* TIMx, int OCx, uint16_t pulse, uint16_t output)

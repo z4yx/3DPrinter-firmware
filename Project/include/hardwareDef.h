@@ -19,6 +19,11 @@
 #ifndef __HARDWARE_DEF__HH__
 #define __HARDWARE_DEF__HH__
 
+#define Debug_USART USART1
+#define Debug_BaudRate 9600
+#define BT_USART USART1
+#define BT_BaudRate 9600
+
 #define Ex1Fan_Pin GPIO_Pin_8
 #define Ex1Heat_Pin GPIO_Pin_0
 #define HBP_Pin GPIO_Pin_1

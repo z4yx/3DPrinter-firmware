@@ -45,6 +45,24 @@ void RCC_GPIOClockCmd(GPIO_TypeDef* GPIOx, FunctionalState state)
 	RCC_APB2PeriphClockCmd(rcc, state);
 }
 
+void RCC_USARTClockCmd(USART_TypeDef* USARTx, FunctionalState state)
+{
+	switch((uint32_t)USARTx) {
+		case (uint32_t)USART1:
+			RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, state);
+			break;
+		case (uint32_t)USART2:
+			RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, state);
+			break;
+		case (uint32_t)USART3:
+			RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, state);
+			break;
+		default:
+			/* Invalid argument! */
+			return;
+	}
+}
+
 //根据频率(Hz)计算TIM的参数
 void Timer_16bit_Calc(int freq, uint16_t *period, uint16_t *prescaler)
 {

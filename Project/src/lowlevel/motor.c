@@ -105,7 +105,6 @@ static void Motor_TIM3_Config(void)
     TIM_ITConfig(TIM3, TIM_IT_CC1, ENABLE);
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
 
-	// USART_printf("%s period=%d prescaler=%d\r\n", __func__, period, prescaler);
 }
 
 static void TIM3_SetInterrupt(FunctionalState state)

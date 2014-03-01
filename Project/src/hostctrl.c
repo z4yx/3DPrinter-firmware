@@ -89,15 +89,15 @@ static void parse_host_cmd(uint8_t byte)
 
 void HostCtrl_Task(void)
 {
-	if(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != SET)
+	if(USART_GetFlagStatus(BT_USART, USART_FLAG_RXNE) != SET)
 		return;
-	uint8_t byte = USART_getchar();
+	uint8_t byte = USART_getchar(BT_USART);
 	parse_host_cmd(byte);
 }
 
 void HostCtrl_Interrupt(void)
 {
-	uint8_t byte = USART_getchar();
-	USART_putchar(byte);
-	USART_ClearITPendingBit(USART1, USART_FLAG_RXNE);
+	uint8_t byte = USART_getchar(BT_USART);
+	USART_putchar(BT_USART, byte);
+	USART_ClearITPendingBit(BT_USART, USART_FLAG_RXNE);
 }

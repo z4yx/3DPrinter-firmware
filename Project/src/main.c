@@ -40,6 +40,7 @@ const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, KeyB
 
 static void periphInit()
 {
+	USART_Config(BT_USART, BT_BaudRate);
 	FileManager_Init();
 	PWM_Init(HEATER_PWM_FREQ);
 	Move_Init();
@@ -80,7 +81,7 @@ static void coreInit()
 	SystemCoreClockUpdate();
 	SysTick_Init();
 	LED_Config();
-	USART_Config();
+	USART_Config(Debug_USART, Debug_BaudRate);
 }
 
 //处理上位机请求

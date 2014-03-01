@@ -192,12 +192,6 @@ void Command_doNext()
 		return;
 	}
 	codeLine++;
-	// DBG_MSG("G code line %d", codeLine);
-	// char *dbg=linebuf;
-	// do{
-	// 	USART_putchar(*dbg);
-	// }while((*dbg++)!='\n');
-	// USART_putchar('\r');
 	p = linebuf;
 	if(*p == 'G'){
 		p++;
