@@ -36,7 +36,7 @@ void LED_Config()
 
 void LED_Enable(int LEDx, bool bEnabled)
 {
-    if (bEnabled)
+    if (!bEnabled)
         GPIO_ResetBits(LED_Port, (LEDx == LED2 ? LED_2 : LED_1));
     else
         GPIO_SetBits(LED_Port, (LEDx == LED2 ? LED_2 : LED_1));

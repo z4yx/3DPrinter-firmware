@@ -22,7 +22,6 @@
 #include "usart.h"
 #include "systick.h"
 #include "pwmOutput.h"
-#include "lcdSerial.h"
 #include "fanControl.h"
 #include "adc.h"
 #include "motor.h"
@@ -35,7 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, KeyBoard_Task, Command_Task, HostCtrl_Task};
+const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, Command_Task, HostCtrl_Task};
 
 
 static void periphInit()
@@ -46,7 +45,6 @@ static void periphInit()
 	Move_Init();
 	Extruder_Init();
 	HeatBed_Init();
-	KeyBoard_Init();
 	USBDevice_Config();
 	Command_Init();
 	HostCtrl_Init();
@@ -162,7 +160,7 @@ int main(void)
 			HeatBed_GetState(&temp, &output, &b);
 			REPORT(INFO_HEATBED, "%d,%d,%d", (int)temp, (int)output, (int)b);
 
-			LED_Enable(LED2, led_state);
+			LED_Enable(LED1, led_state);
 			led_state = (led_state == LED_ON ? LED_OFF : LED_ON);
 		}
 

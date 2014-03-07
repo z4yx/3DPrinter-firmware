@@ -94,26 +94,31 @@ static void InitMemoryInfo()
 void USBDevice_Config()
 {
 
-    // GPIO_InitTypeDef GPIO_InitStructure;
-    // RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
+    GPIO_InitTypeDef GPIO_InitStructure;
+    RCC_GPIOClockCmd(USB_Port, ENABLE);
 
-    // GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-    // GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    // GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;      /* 开漏输出 */
-    // GPIO_Init(GPIOE, &GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Pin = USB_Conn;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;      /* 开漏输出 */
+    GPIO_Init(USB_Port, &GPIO_InitStructure);
+    GPIO_SetBits(USB_Port, USB_Conn);
 
-    // GPIO_SetBits(GPIOE, GPIO_Pin_3);
+    GPIO_InitStructure.GPIO_Pin = USB_Det;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;         /* 下拉输入 */
+    GPIO_Init(USB_Port, &GPIO_InitStructure);
 
     Set_USBClock();
 }
 
 bool USBDevice_PlugIn()
 {
-    return true;
+    bool plugin = GPIO_ReadInputDataBit(USB_Port, USB_Det);
+    return plugin;
 }
 
 void USBDevice_Connect()
 {
+    DBG_MSG("in", 0);
     InitMemoryInfo();
     USB_Interrupts_Config(ENABLE);
     USB_Cable_Config(ENABLE);
@@ -122,6 +127,7 @@ void USBDevice_Connect()
 
 void USBDevice_Disconnect()
 {
+    DBG_MSG("in", 0);
     USB_Interrupts_Config(DISABLE);
     USB_Cable_Config(DISABLE);
 }
