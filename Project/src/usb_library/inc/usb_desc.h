@@ -27,7 +27,7 @@
 
 #define MASS_SIZ_STRING_LANGID            4
 #define MASS_SIZ_STRING_VENDOR            38
-#define MASS_SIZ_STRING_PRODUCT           38
+#define MASS_SIZ_STRING_PRODUCT           22
 #define MASS_SIZ_STRING_SERIAL            26
 #define MASS_SIZ_STRING_INTERFACE         16
 
