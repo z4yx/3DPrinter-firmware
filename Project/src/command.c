@@ -206,6 +206,7 @@ void Command_doNext()
 					else if(sym == 'Z')
 						Z = UNIT_CONV(value);
 				}
+				DBG_MSG("G0_RAPID_MOVE %d,%d,%d", X, Y, Z);
 				// REPORT(INFO_G_G0,"%d,%d,%d", X, Y, Z);
 				Motor_PowerOn();
 				doDrawingCmd();
@@ -224,6 +225,7 @@ void Command_doNext()
 					else if(sym == 'E')
 						E = UNIT_CONV(value);
 				}
+				DBG_MSG("G1_CONTROLLED_MOVE %d,%d,%d,%d,%d", X, Y, Z, F, E);
 				// REPORT(INFO_G_G1,"%d,%d,%d,%d,%d", X, Y, Z, F, E);
 				Motor_PowerOn();
 				doDrawingCmd();
@@ -240,6 +242,7 @@ void Command_doNext()
 					else if(sym == 'E')
 						E = UNIT_CONV(value);
 				}
+				DBG_MSG("G92_SET_POSITION %d,%d,%d,%d", X, Y, Z, E);
 				REPORT(INFO_G_G92,"%d,%d,%d,%d", X, Y, Z, E);
 				setCurrentPos();
 				break;
@@ -250,14 +253,17 @@ void Command_doNext()
 					sym=getletter(&p);
 					if(sym == 'X'){
 						Move_Home(X_Axis);
+						DBG_MSG("G161/162 X", 0);
 						REPORT(INFO_G_G161,"X", 0);
 					}
 					else if(sym == 'Y'){
 						Move_Home(Y_Axis);
+						DBG_MSG("G161/162 Y", 0);
 						REPORT(INFO_G_G161,"Y", 0);
 					}
 					else if(sym == 'Z'){
 						Move_Home(Z_Axis);
+						DBG_MSG("G161/162 Z", 0);
 						REPORT(INFO_G_G161,"Z", 0);
 					}
 					else
@@ -276,6 +282,7 @@ void Command_doNext()
 			case M6_WAIT_FOR_TOOL:
 				if(getparam(&p, &sym, &value) && sym == 'T')
 					T = value;
+				DBG_MSG("M6_WAIT_FOR_TOOL %d", T);
 				REPORT(INFO_G_M6,"%d", T);
 
 				Extruder_Start_Heating();
@@ -284,6 +291,7 @@ void Command_doNext()
 				currentState = MACH_STATE_WAIT_HEAT;
 				break;
 			case M18_DISABLE_MOTORS:
+				DBG_MSG("M18_DISABLE_MOTORS", 0);
 				REPORT(INFO_G_M18,"", 0);
 
 				Motor_PowerOff();
@@ -292,6 +300,7 @@ void Command_doNext()
 				if(getparam(&p, &sym, &value) && sym == 'P')
 					P = value;
 				Progress = P;
+				DBG_MSG("M73_SET_PROGRESS %d", P);
 				REPORT(INFO_G_M73,"%d", P);
 				break;
 			default:
