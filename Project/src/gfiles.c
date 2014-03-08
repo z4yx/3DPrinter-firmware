@@ -160,6 +160,23 @@ void FileManager_Close(void)
 	f_mount(0, 0);
 }
 
+/*
+注意：每一次调用f_read读取内容不能超过一个sector(512bytes)，否则fatfs会使用direct transfer方式，
+直接使用传入的缓冲区，如果传入的缓冲区非4字节对齐，SDIO中的DMA就会出错。
+f_read的官方说明：
+The memory address specified by buff is not that always aligned to word boundary 
+because the type of argument is defined as BYTE*. The misaligned read/write request 
+can occure at direct transfer. If the bus architecture, especially DMA controller, 
+does not allow misaligned memory access, it should be solved in this function. 
+There are some workarounds described below to avoid this issue.
+
+** Convert word transfer to byte transfer in this function. - Recommended.
+** For f_read(), avoid long read request that includes a whole of sector. - Direct transfer will never occure.
+** For f_read(fp, buff, btr, &br), make sure that (((UINT)buff & 3) == (f_tell(fp) & 3)) is true. - Word aligned direct transfer is guaranteed.
+
+Generally, a multiple sector transfer request must not be split into single sector transactions to the storage device, or you will not get good read throughput.
+*/
+
 static int readOneByte(void)
 {
 	uint8_t ch;
