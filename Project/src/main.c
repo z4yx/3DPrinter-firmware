@@ -129,7 +129,7 @@ int main(void)
 
 	periphInit();
 
-	DBG_MSG("SD Card Size: %d", SD_GetCapacity());
+	DBG_MSG("Peripheral init done.", 0);
 
 	uint8_t led_state = LED_ON;
 	SysTick_t last_report = 0;

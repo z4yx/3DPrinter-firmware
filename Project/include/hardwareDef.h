@@ -98,5 +98,7 @@
 
 #define STEPPER_COUNT 4
 
-
+#define SD_DETECT_PIN                    GPIO_Pin_7
+#define SD_DETECT_GPIO_PORT              GPIOC
+#define SD_DETECT_GPIO_CLK               RCC_APB2Periph_GPIOC
 #endif

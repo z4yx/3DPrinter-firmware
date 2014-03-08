@@ -213,4 +213,10 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
 {
     USB_Istr();
 }
+
+void SDIO_IRQHandler(void)
+{
+  /* Process All SDIO Interrupt Sources */
+  SD_ProcessIRQSrc();
+}
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

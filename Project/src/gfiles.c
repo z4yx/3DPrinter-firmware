@@ -19,11 +19,13 @@
 #include "common.h"
 #include "systick.h"
 #include "gfiles.h"
+#include "sdio.h"
 #include "ff.h"
 #include <string.h>
 
 static bool no_sd_card = true;
 FATFS fileSystem;
+static SD_CardInfo SDCardInfo;
 
 char GCodeFiles[SD_MAX_ITEMS][SD_MAX_FILENAME_LEN];
 
@@ -33,30 +35,42 @@ FIL * currentOpened;
 //初始化文件系统及SD卡
 void FileManager_Init(void)
 {
-	int res;
+	SD_Error Status = SD_OK;
 
 	currentOpened = 0;
-
-	SD_SPI_Configuration();
+	no_sd_card = true;
 
 	for(int i=0;i<SD_INIT_RETRY_TIMES;i++)
 	{
-		if((res = SD_Init()) != 0){
+		if((Status = SD_Init()) != SD_OK){
 			DBG_MSG("SD Card Init Failed! Retrying...", 0);
 		}
 		else
 		{
-			DBG_MSG("SD Card Init OK!", 0);
 			break;
 		}
 	}
-	if(res != 0) {
+	if(Status != SD_OK) {
 		ERR_MSG("No SD card found!", 0);
-		no_sd_card = true;
 		return;
 	}
 
+	Status = SD_GetCardInfo( &SDCardInfo );
+    if(Status != SD_OK)
+        return;
+
+    DBG_MSG("CardCapacity: %dK, %d Blocks, Block Size %d",
+    	SDCardInfo.CardCapacity/1024,
+    	SDCardInfo.CardCapacity/SDCardInfo.CardBlockSize,
+    	SDCardInfo.CardBlockSize);
+
 	no_sd_card = false;
+	DBG_MSG("SD Card Init OK!", 0);
+}
+
+const SD_CardInfo* FileManager_GetCardInfo(void)
+{
+	return &SDCardInfo;
 }
 
 //SD可用
@@ -94,6 +108,7 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 			int length;
 			if(info.fattrib & AM_DIR)
 				continue;
+			DBG_MSG("File: %s", info.fname);
 			length = strlen(info.fname);
 			if(length > 2 && strcasecmp(info.fname+length-2, ".g") == 0) {
 				strcpy(GCodeFiles[cur_file], info.fname);

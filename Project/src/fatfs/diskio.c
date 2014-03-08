@@ -7,8 +7,8 @@
 /*-----------------------------------------------------------------------*/
 #include <string.h>
 #include "diskio.h"
-#include "stm32f10x.h"
-#include "sd.h"
+#include "common.h"
+#include "sdio.h"
 
 /*-----------------------------------------------------------------------*/
 /* Correspondence between physical drive number and physical drive.      */
@@ -20,6 +20,9 @@
 //#define SST25_SECTOR_SIZE 4096
 //#define SST25_BLOCK_SIZE 512 
 
+#define SECTOR_SIZE            512 /* Block Size in Bytes */
+static u32 buff2[SECTOR_SIZE/4];
+
 /*-----------------------------------------------------------------------*/
 /* Inidialize a Drive                                                    */
 
@@ -27,25 +30,18 @@ DSTATUS disk_initialize (
 	BYTE drv				/* Physical drive nmuber (0..) */
 )
 {
-	u8 state;
     if(drv)
     {
         return STA_NOINIT;  //仅支持磁盘0的操作
     }
 
-    state = SD_Init();
-    if(state == STA_NODISK)
+    if (SD_Init() == SD_OK)
     {
-        return STA_NODISK;
+        return RES_OK;
     }
-    else if(state != 0)
-    {
-        return STA_NOINIT;  //其他错误：初始化失败
-    }
-    else
-    {
-        return 0;           //初始化成功
-    }
+    
+    return STA_NOINIT;
+    
 }
 
 
@@ -62,12 +58,7 @@ DSTATUS disk_status (
         return STA_NOINIT;  //仅支持磁盘0操作
     }
 
-    //检查SD卡是否插入
-    if(!SD_DET())
-    {
-        return STA_NODISK;
-    }
-    return 0;
+    return RES_OK;
 }
 
 
@@ -82,46 +73,27 @@ DRESULT disk_read (
 	BYTE count		/* Number of sectors to read (1..255) */
 )
 {
-	u8 res=0;
-    if (drv || !count)
-    {    
-        return RES_PARERR;  //仅支持单磁盘操作，count不能等于0，否则返回参数错误
-    }
-    if(!SD_DET())
-    {
-        return RES_NOTRDY;  //没有检测到SD卡，报NOT READY错误
-    }
-
-    
+    SD_Error res = SD_OK;
 	
-    if(count==1)            //1个sector的读操作      
-    {                                                
-        res = SD_ReadSingleBlock(sector, buff);      
-    }                                                
-    else                    //多个sector的读操作     
-    {                                                
-        res = SD_ReadMultiBlock(sector, buff, count);
-    }                                                
-	/*
-    do                           
-    {                                          
-        if(SD_ReadSingleBlock(sector, buff)!=0)
-        {                                      
-            res = 1;                           
-            break;                             
-        }                                      
-        buff+=512;                             
-    }while(--count);                                         
-    */
-    //处理返回值，将SPI_SD_driver.c的返回值转成ff.c的返回值
-    if(res == 0x00)
+    if(count==1)
+    {
+        res = SD_ReadBlock(buff,sector << 9  ,SECTOR_SIZE);        
+    }
+    else
+    {
+        res =  SD_ReadMultiBlocks(buff,sector << 9 ,SECTOR_SIZE,count);        
+    } 
+    // DBG_MSG("count=%d,sector=%d,res=%d", (int)count, sector, res);
+    // DBG_MSG("%d,%d,%d,%d,%d,%d,%d,%d", buff[0], buff[1], buff[2], buff[3], buff[4], buff[5], buff[6], buff[7]);
+    
+    if(res == SD_OK)
     {
         return RES_OK;
     }
     else
     {
         return RES_ERROR;
-    }
+    } 
 }
 
 
@@ -137,28 +109,18 @@ DRESULT disk_write (
 	BYTE count			/* Number of sectors to write (1..255) */
 )
 {
-	u8 res;
-
-    if (drv || !count)
-    {    
-        return RES_PARERR;  //仅支持单磁盘操作，count不能等于0，否则返回参数错误
-    }
-    if(!SD_DET())
-    {
-        return RES_NOTRDY;  //没有检测到SD卡，报NOT READY错误
-    }
-
-    // 读写操作
-    if(count == 1)
-    {
-        res = SD_WriteSingleBlock(sector, buff);
+    SD_Error res = SD_OK;
+	
+    if(count==1)
+    {          
+        res =SD_WriteBlock((u8 *)buff,sector << 9 ,SECTOR_SIZE);
     }
     else
-    {
-        res = SD_WriteMultiBlock(sector, buff, count);
+    {          
+        res = SD_WriteMultiBlocks((u8 *)buff,sector <<9 ,SECTOR_SIZE,count);
     }
-    // 返回值转换
-    if(res == 0)
+        
+    if(res == SD_OK)
     {
         return RES_OK;
     }
@@ -180,15 +142,12 @@ DRESULT disk_ioctl (
 	void *buff		/* Buffer to send/receive control data */
 )
 {
-    DRESULT res;
-
-
-    if (drv)
-    {    
-        return RES_PARERR;  //仅支持单磁盘操作，否则返回参数错误
-    }
     
+    return RES_OK;
+
     //FATFS目前版本仅需处理CTRL_SYNC，GET_SECTOR_COUNT，GET_BLOCK_SIZ三个命令
+    /*
+    DRESULT res;
     switch(ctrl)
     {
     case CTRL_SYNC:
@@ -218,7 +177,7 @@ DRESULT disk_ioctl (
         break;
     }
 
-    return res;
+    return res;*/
 }
 
 
@@ -240,5 +199,6 @@ DWORD get_fattime (void)
 //            (t.tm_hour<<11)|(t.tm_min<<5)|(t.tm_sec);
 //
 //    return date;
+    return 0;
 }
 

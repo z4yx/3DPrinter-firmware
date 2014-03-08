@@ -58,7 +58,7 @@ TCHAIN = arm-none-eabi
 
 # MCU name and submodel
 MCU      = cortex-m3
-SUBMDL   = stm32f10x_md
+SUBMDL   = stm32f10x_hd
 
 STM32LIB_CHIP_TYPE = $(shell echo $(SUBMDL) | tr a-z A-Z)
 
