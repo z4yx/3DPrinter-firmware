@@ -20,6 +20,8 @@
 #include "usb_bot.h"
 #include "usb_regs.h"
 #include "hw_config.h"
+#include "sdio.h"
+#include "common.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -63,7 +65,10 @@ void Read_Memory(void)
     unsigned int a = 0, b = 0;
 
     if (!Block_Read_count) {
-        SD_ReadSingleBlock(Memory_Offset>>9, Data_Buffer);
+        SD_Error ret_code;
+        ret_code = SD_ReadBlock(Data_Buffer,Memory_Offset ,512);
+        // DBG_MSG("SD_ReadBlock(addr=%d)=%d", Memory_Offset, ret_code);
+        while(SD_GetStatus() != SD_TRANSFER_OK);
         b = 0; a = 0;
         while (a < 512) {
             Data1_Buffer[a] = (u8) (Data_Buffer[b]);
@@ -128,7 +133,8 @@ void Write_Memory(void)
             a = a + 4;
             b++;
         }
-        SD_WriteSingleBlock((Memory_Offset - 512)>>9, Data_Buffer);
+        SD_WriteBlock(Data_Buffer, Memory_Offset-512, 512);
+        while(SD_GetStatus() != SD_TRANSFER_OK);
     }
 
     CSW.dDataResidue -= Data_Len;

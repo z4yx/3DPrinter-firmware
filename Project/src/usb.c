@@ -17,7 +17,7 @@
  */
 #include "usb.h"
 #include "usb_lib.h"
-#include "sd.h"
+#include "sdio.h"
 
 
 /* 被usb库使用 */
@@ -73,22 +73,34 @@ static void USB_Interrupts_Config(FunctionalState cmd)
 void USB_Cable_Config (FunctionalState NewState)
 {
 
-    //  if (NewState != DISABLE)
-    //  {
-    //    GPIO_ResetBits(GPIOE, GPIO_Pin_3);                    /* USB全速模式 */
-    //  }
-    //  else
-    //  {
-    //    GPIO_SetBits(GPIOE, GPIO_Pin_3);                      /* 普通模式 */
-    //  }
+    if (NewState != DISABLE)
+    {
+        GPIO_ResetBits(USB_Port, USB_Conn);
+    }
+    else
+    {
+        GPIO_SetBits(USB_Port, USB_Conn);
+    }
 }
 
-static void InitMemoryInfo()
+static bool InitMemoryInfo()
 {
-    Mass_Block_Count = SD_GetCapacity();
-    Mass_Block_Size = 512;
+    SD_CardInfo card_info;
+    if (SD_Init() != SD_OK)
+    {
+        ERR_MSG("Failed to init card.", 0);
+        return false;
+    }
 
-    Mass_Memory_Size = (Mass_Block_Count * Mass_Block_Size);
+    if (SD_GetCardInfo( &card_info ) != SD_OK){
+        ERR_MSG("Failed to get card info.", 0);
+        return false;
+    }
+
+    Mass_Block_Count = card_info.CardCapacity / card_info.CardBlockSize;
+    Mass_Block_Size = card_info.CardBlockSize;
+
+    Mass_Memory_Size = card_info.CardCapacity;
 }
 
 void USBDevice_Config()
@@ -112,14 +124,16 @@ void USBDevice_Config()
 
 bool USBDevice_PlugIn()
 {
+    // return false;///////////////////
     bool plugin = GPIO_ReadInputDataBit(USB_Port, USB_Det);
     return plugin;
 }
 
 void USBDevice_Connect()
 {
-    DBG_MSG("in", 0);
-    InitMemoryInfo();
+    DBG_MSG("called", 0);
+    if(!InitMemoryInfo())
+        return;
     USB_Interrupts_Config(ENABLE);
     USB_Cable_Config(ENABLE);
     USB_Init();
@@ -127,7 +141,7 @@ void USBDevice_Connect()
 
 void USBDevice_Disconnect()
 {
-    DBG_MSG("in", 0);
+    DBG_MSG("called", 0);
     USB_Interrupts_Config(DISABLE);
     USB_Cable_Config(DISABLE);
 }
