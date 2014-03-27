@@ -143,11 +143,11 @@ int main(void)
 
 		SysTick_t now = GetSystemTick();
 		if(now - last_report > REPORT_PERIOD){
+			uint8_t b;
 			int16_t temp;
 			uint16_t state;
 			uint8_t progress;
 			int output;
-			bool b;
 
 			last_report = now;
 

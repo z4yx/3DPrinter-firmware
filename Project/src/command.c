@@ -34,11 +34,9 @@
 static char linebuf[MAX_LINE_LENGTH+1];
 //G代码中的几个参数
 static int X, Y, Z, F, E;
-//是否正在打印
-static bool isPrinting;
-//是否处于USB模式
-static bool isUSBMode;
-//机器当前状态
+//是否正在打印，或连接着USB
+static uint8_t currentMode;
+//机器当前状态（在打印中时）
 static uint16_t currentState;
 //完成百分比
 static uint8_t Progress;
@@ -54,26 +52,25 @@ static void resetGcodeParams(void)
 
 void Command_Init(void)
 {
-	isPrinting = false;
-	isUSBMode = false;
+	currentMode = MACH_MODE_STANDBY;
 	currentState = MACH_STATE_READY;
 	Progress = 0;
 }
 
-void Command_GetState(bool *printing, uint16_t *state, uint8_t *progress)
+void Command_GetState(uint8_t *mode, uint16_t *state, uint8_t *progress)
 {
-	*printing = isPrinting;
+	*mode = currentMode;
 	*state = currentState;
 	*progress = Progress;
 }
 
 bool Command_StartPrinting(const char * file)
 {
-	if(isUSBMode){
+	if(currentMode == MACH_MODE_USB){
 		ERR_MSG("In USB Mode", 0);
 		return false;
 	}
-	if(isPrinting){
+	if(currentMode == MACH_MODE_PRINT){
 		ERR_MSG("Printing now", 0);
 		return false;
 	}
@@ -83,7 +80,7 @@ bool Command_StartPrinting(const char * file)
 		return false;
 	}
 	DBG_MSG("Start printing %s", file);
-	isPrinting = true;
+	currentMode = MACH_MODE_PRINT;
 	resetGcodeParams();
 	codeLine = 0;
 
@@ -92,8 +89,10 @@ bool Command_StartPrinting(const char * file)
 
 bool Command_StopPrinting()
 {
-	if(!isPrinting)
+	if(currentMode != MACH_MODE_PRINT){
+		ERR_MSG("NOT printing now", 0);
 		return false;
+	}
 
 	Motor_PowerOff();
 	Extruder_Stop_Heating();
@@ -105,15 +104,15 @@ bool Command_StopPrinting()
 
 void Command_Task(void)
 {
-	if(!isPrinting){
-		if(isUSBMode && !USBDevice_PlugIn()){
+	if(currentMode != MACH_MODE_PRINT){
+		if(currentMode==MACH_MODE_USB && !USBDevice_PlugIn()){
 			DBG_MSG("Disconnect USB host", 0);
 			USBDevice_Disconnect();
-			isUSBMode = false;
-		}else if(!isUSBMode && USBDevice_PlugIn() && FileManager_SDCardAvailable()){
+			currentMode = MACH_MODE_STANDBY;
+		}else if(currentMode!=MACH_MODE_USB && USBDevice_PlugIn() && FileManager_SDCardAvailable()){
 			DBG_MSG("Try to connect USB host...", 0);
 			USBDevice_Connect();
-			isUSBMode = true;
+			currentMode = MACH_MODE_USB;
 		}
 		return;
 	}
@@ -144,7 +143,7 @@ void Command_Task(void)
 			break;
 		case MACH_STATE_ENDED:
 			DBG_MSG("Printing Finished!", 0);
-			isPrinting = false;
+			currentMode = MACH_MODE_STANDBY;
 			currentState = MACH_STATE_READY;
 			Progress = 0;
 			FileManager_Close();
