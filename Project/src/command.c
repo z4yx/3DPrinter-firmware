@@ -60,12 +60,11 @@ void Command_Init(void)
 	Progress = 0;
 }
 
-void Command_GetState(bool *printing, uint16_t *state, uint8_t *progress, bool *usb)
+void Command_GetState(bool *printing, uint16_t *state, uint8_t *progress)
 {
 	*printing = isPrinting;
 	*state = currentState;
 	*progress = Progress;
-	*usb = isUSBMode;
 }
 
 bool Command_StartPrinting(const char * file)

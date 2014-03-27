@@ -91,15 +91,6 @@ static void processRequest(char* cmd, char* param)
 		bool ret = Command_StopPrinting();
 		REPORT(INFO_REPLY, "%d", ret);
 	}else if(strcmp(cmd, "LIST") == 0){
-		uint16_t state;
-		uint8_t progress;
-		bool b, usb;
-		Command_GetState(&b, &state, &progress, &usb);
-		//在usb模式下访问存储卡文件系统会冲突
-		if(usb){
-			ERR_MSG("In USB Mode", 0);
-			return;
-		}
 		files = FileManager_ListGFiles();
 		if(files != NULL){
 			for(int i=0; i<SD_MAX_ITEMS; i++){
@@ -156,11 +147,11 @@ int main(void)
 			uint16_t state;
 			uint8_t progress;
 			int output;
-			bool b, usb;
+			bool b;
 
 			last_report = now;
 
-			Command_GetState(&b, &state, &progress, &usb);
+			Command_GetState(&b, &state, &progress);
 			REPORT(INFO_PRINT, "%d,%d,%d", (int)b, (int)state, (int)progress);
 
 			Extruder_GetState(&temp, &output, &b);
