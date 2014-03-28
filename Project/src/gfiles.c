@@ -23,7 +23,7 @@
 #include "ff.h"
 #include <string.h>
 
-static bool no_sd_card = true;
+static uint8_t card_status;
 FATFS fileSystem;
 static SD_CardInfo SDCardInfo;
 
@@ -38,7 +38,7 @@ void FileManager_Init(void)
 	SD_Error Status = SD_OK;
 
 	currentOpened = 0;
-	no_sd_card = true;
+	card_status   = FM_NO_CARD;
 
 	for(int i=0;i<SD_INIT_RETRY_TIMES;i++)
 	{
@@ -64,7 +64,7 @@ void FileManager_Init(void)
     	SDCardInfo.CardCapacity/SDCardInfo.CardBlockSize,
     	SDCardInfo.CardBlockSize);
 
-	no_sd_card = false;
+	card_status = FM_CARD_FREE;
 	DBG_MSG("SD Card Init OK!", 0);
 }
 
@@ -76,7 +76,21 @@ const SD_CardInfo* FileManager_GetCardInfo(void)
 //SD可用
 bool FileManager_SDCardAvailable()
 {
-	return !no_sd_card;
+	return card_status == FM_CARD_FREE;
+}
+
+bool FileManager_SetInUSBMode(bool usbMode)
+{
+	if(card_status == FM_CARD_FREE && usbMode) {
+		card_status = FM_CARD_BUSY;
+		return true;
+	}
+	if(card_status == FM_CARD_BUSY && !usbMode) {
+		card_status = FM_CARD_FREE;
+		return true;
+	}
+	ERR_MSG("Failed. card_status=%d but usbMode=%d", (int)card_status, (int)usbMode);
+	return false;
 }
 
 //列举SD卡中的G代码文件
@@ -87,18 +101,23 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 	DIR rootDir;
 	int cur_file;
 
-	if(no_sd_card)
+	if(card_status != FM_CARD_FREE){
+		ERR_MSG("Failed. card_status=%d", (int)card_status);
 		return 0;
+	}
 
 	if(f_mount(0, &fileSystem) != FR_OK){
 		ERR_MSG("Failed to mount SD card!", 0);
 		return 0;
 	}
 
+	card_status == FM_CARD_MOUNTED;
+
 	res = f_opendir(&rootDir, SD_GFILES_DIR);
 	if(FR_OK != res){
 		ERR_MSG("Failed to open root dir! result=%d", (int)res);
 		f_mount(0, 0);
+		card_status == FM_CARD_FREE;
 		return 0;
 	}
 
@@ -122,6 +141,7 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 		GCodeFiles[cur_file][0] = '\0';
 
 	f_mount(0, 0);
+	card_status == FM_CARD_FREE;
 
 	return &GCodeFiles;
 }
@@ -130,17 +150,22 @@ bool FileManager_OpenGcode(const char *file)
 {
 	static FIL fileObj; //must be static
 
-	if(no_sd_card)
+	if(card_status != FM_CARD_FREE){
+		ERR_MSG("Failed. card_status=%d", (int)card_status);
 		return false;
+	}
 
 	if(f_mount(0, &fileSystem) != FR_OK){
 		ERR_MSG("Failed to mount SD card!", 0);
 		return false;
 	}
 
+	card_status == FM_CARD_MOUNTED;
+
 	if(f_open(&fileObj, file, FA_OPEN_EXISTING|FA_READ) != FR_OK){
 		ERR_MSG("Failed to open %s!", file);
 		f_mount(0, 0);
+		card_status == FM_CARD_FREE;
 		return false;
 	}
 
@@ -158,6 +183,7 @@ void FileManager_Close(void)
 	currentOpened = 0;
 
 	f_mount(0, 0);
+	card_status == FM_CARD_FREE;
 }
 
 /*

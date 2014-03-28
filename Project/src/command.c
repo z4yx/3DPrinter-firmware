@@ -108,9 +108,11 @@ void Command_Task(void)
 		if(currentMode==MACH_MODE_USB && !USBDevice_PlugIn()){
 			DBG_MSG("Disconnect USB host", 0);
 			USBDevice_Disconnect();
+			FileManager_SetInUSBMode(false);
 			currentMode = MACH_MODE_STANDBY;
 		}else if(currentMode!=MACH_MODE_USB && USBDevice_PlugIn() && FileManager_SDCardAvailable()){
 			DBG_MSG("Try to connect USB host...", 0);
+			FileManager_SetInUSBMode(true);
 			USBDevice_Connect();
 			currentMode = MACH_MODE_USB;
 		}
