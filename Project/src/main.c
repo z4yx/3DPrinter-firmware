@@ -31,8 +31,6 @@
 #include "heatbed.h"
 #include "extruder.h"
 #include "hostctrl.h"
-#include <stdlib.h>
-#include <string.h>
 
 const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, Command_Task, HostCtrl_Task};
 
@@ -82,32 +80,6 @@ static void coreInit()
 	USART_Config(Debug_USART, Debug_BaudRate);
 }
 
-//处理上位机请求
-static void processRequest(char* cmd, char* param)
-{
-	static char (*files)[][SD_MAX_FILENAME_LEN] = NULL;
-	DBG_MSG("Cmd: %s, Param: %s", cmd, param);
-	if(strcmp(cmd, "STOP") == 0){
-		bool ret = Command_StopPrinting();
-		REPORT(INFO_REPLY, "%d", ret);
-	}else if(strcmp(cmd, "LIST") == 0){
-		files = FileManager_ListGFiles();
-		if(files != NULL){
-			for(int i=0; i<SD_MAX_ITEMS; i++){
-				if(!(*files)[i][0])
-					break;
-				REPORT(INFO_LIST_FILES, "%s", (*files)[i]);
-			}
-		}
-	}else if(strcmp(cmd, "START") == 0){
-		int num = atoi(param);
-		if(num >= 0 && num < SD_MAX_ITEMS){
-			bool ret = Command_StartPrinting((*files)[num]);
-			REPORT(INFO_REPLY, "%d", ret);
-		}
-	}
-}
-
 int main(void)
 {
 	RCC_ClocksTypeDef clocks;
@@ -131,43 +103,12 @@ int main(void)
 
 	DBG_MSG("Peripheral init done.", 0);
 
-	uint8_t led_state = LED_ON;
-	SysTick_t last_report = 0;
-	char *p_cmd, *p_param;
 	while (1)
 	{
 
 		//运行系统中声明的任务
 		for(int i = 0; i < sizeof(SystemTasks)/sizeof(Task_t); i++)
 			(SystemTasks[i])();
-
-		SysTick_t now = GetSystemTick();
-		if(now - last_report > REPORT_PERIOD){
-			uint8_t b;
-			int16_t temp;
-			uint16_t state;
-			uint8_t progress;
-			int output;
-
-			last_report = now;
-
-			Command_GetState(&b, &state, &progress);
-			REPORT(INFO_PRINT, "%d,%d,%d", (int)b, (int)state, (int)progress);
-
-			Extruder_GetState(&temp, &output, &b);
-			REPORT(INFO_EXTRUDER, "%d,%d,%d", (int)temp, (int)output, (int)b);
-
-			HeatBed_GetState(&temp, &output, &b);
-			REPORT(INFO_HEATBED, "%d,%d,%d", (int)temp, (int)output, (int)b);
-
-			LED_Enable(LED1, led_state);
-			led_state = (led_state == LED_ON ? LED_OFF : LED_ON);
-		}
-
-		if(HostCtrl_GetCmd(&p_cmd, &p_param)){
-			processRequest(p_cmd, p_param);
-			HostCtrl_CmdProcessed();
-		}
 	}
 }
 
