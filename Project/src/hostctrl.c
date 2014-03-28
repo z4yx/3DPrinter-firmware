@@ -95,13 +95,33 @@ static void parse_host_cmd(uint8_t byte)
 	}
 }
 
+static void reportState()
+{
+	uint8_t b;
+	int16_t temp;
+	uint16_t state;
+	uint8_t progress;
+	int output;
+
+	Command_GetState(&b, &state, &progress);
+	REPORT(INFO_PRINT, "%d,%d,%d", (int)b, (int)state, (int)progress);
+
+	Extruder_GetState(&temp, &output, &b);
+	REPORT(INFO_EXTRUDER, "%d,%d,%d", (int)temp, (int)output, (int)b);
+
+	HeatBed_GetState(&temp, &output, &b);
+	REPORT(INFO_HEATBED, "%d,%d,%d", (int)temp, (int)output, (int)b);
+
+}
 
 //处理上位机请求
 static void processRequest(char* cmd, char* param)
 {
 	static char (*files)[][SD_MAX_FILENAME_LEN] = NULL;
 	DBG_MSG("Cmd: %s, Param: %s", cmd, param);
-	if(strcmp(cmd, "STOP") == 0){
+	if(strcmp(cmd, "QRY") == 0){
+		reportState();
+	}else if(strcmp(cmd, "STOP") == 0){
 		bool ret = Command_StopPrinting();
 		REPORT(INFO_REPLY, "%d", ret);
 	}else if(strcmp(cmd, "LIST") == 0){
@@ -130,22 +150,8 @@ static void fetchHostCmd(void)
 	char *p_cmd, *p_param;
 	SysTick_t now = GetSystemTick();
 	if(now - last_report > REPORT_PERIOD){
-		uint8_t b;
-		int16_t temp;
-		uint16_t state;
-		uint8_t progress;
-		int output;
 
 		last_report = now;
-
-		Command_GetState(&b, &state, &progress);
-		REPORT(INFO_PRINT, "%d,%d,%d", (int)b, (int)state, (int)progress);
-
-		Extruder_GetState(&temp, &output, &b);
-		REPORT(INFO_EXTRUDER, "%d,%d,%d", (int)temp, (int)output, (int)b);
-
-		HeatBed_GetState(&temp, &output, &b);
-		REPORT(INFO_HEATBED, "%d,%d,%d", (int)temp, (int)output, (int)b);
 
 		LED_Enable(LED1, led_state);
 		led_state = (led_state == LED_ON ? LED_OFF : LED_ON);
