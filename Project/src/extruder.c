@@ -69,6 +69,17 @@ bool Extruder_TempReached()
 	return t >= -5;
 }
 
+void Extruder_SetOutput(int output)
+{
+	if(output > 100)
+		output = 100;
+	else if(output < 0)
+		output = 0;
+
+	PWM_Channel(1, output, true);
+	currentOutput = output;
+}
+
 void ExtruderTask(void)
 {
 	SysTick_t now = GetSystemTick();
@@ -86,13 +97,8 @@ void ExtruderTask(void)
 		
 		//转为百分比
 		output /= 400;
-		if(output > 100)
-			output = 100;
-		else if(output < 0)
-			output = 0;
 
-		PWM_Channel(1, output, true);
-		currentOutput = output;
+		Extruder_SetOutput(output);
 	}
 }
 

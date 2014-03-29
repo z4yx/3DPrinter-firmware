@@ -7,5 +7,6 @@ void HeatBed_Stop_Heating(void);
 bool HeatBed_TempReached(void);
 void HeatBed_GetState(int16_t *temp, int *output, bool *heating);
 
+void HeatBed_SetOutput(int output);
 
 #endif /* __HEATBED__H__ */

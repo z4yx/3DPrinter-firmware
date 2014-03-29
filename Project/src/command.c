@@ -57,6 +57,11 @@ void Command_Init(void)
 	Progress = 0;
 }
 
+bool Command_IsStandBy(void)
+{
+	return currentMode == MACH_MODE_STANDBY;
+}
+
 void Command_GetState(uint8_t *mode, uint16_t *state, uint8_t *progress)
 {
 	*mode = currentMode;

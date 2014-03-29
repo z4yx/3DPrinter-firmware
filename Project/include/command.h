@@ -8,5 +8,6 @@ bool Command_StartPrinting(const char * file);
 bool Command_StopPrinting();
 void Command_Init(void);
 void Command_GetState(uint8_t *mode, uint16_t *state, uint8_t *progress);
+bool Command_IsStandBy(void);
 
 #endif /* __COMMAND__H__ */

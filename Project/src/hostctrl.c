@@ -22,9 +22,11 @@
 #include "usart.h"
 #include "led.h"
 #include "command.h"
+#include "move.h"
 #include "heatbed.h"
 #include "extruder.h"
 #include "gfiles.h"
+#include "fanControl.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -138,6 +140,36 @@ static void processRequest(char* cmd, char* param)
 		if(num >= 0 && num < SD_MAX_ITEMS){
 			bool ret = Command_StartPrinting((*files)[num]);
 			REPORT(INFO_REPLY, "%d", ret);
+		}
+	}else if(strcmp(cmd, "DBG") == 0){
+		uint8_t tmp;
+		int val[4] = {0};
+		if(!Command_IsStandBy()){
+			REPORT(INFO_REPLY, "0", 0);
+		}else{
+			switch(*param){
+				case 'X':
+				case 'Y':
+				case 'Z':
+				case 'A':
+					if(*param == 'A')
+						tmp = 3;
+					else
+						tmp = *param-'X';
+					val[tmp] = atoi(param+1)*1000; //um->mm
+					Move_RelativeMove(val);
+					break;
+				case 'e':
+					Extruder_SetOutput(atoi(param+1));
+					break;
+				case 'h':
+					HeatBed_SetOutput(atoi(param+1));
+					break;
+				case 'f':
+					Fan_Enable(*(param+1) == '1');
+					break;
+			}
+			REPORT(INFO_REPLY, "1", 0);
 		}
 	}
 }

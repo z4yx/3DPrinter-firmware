@@ -96,6 +96,17 @@ bool HeatBed_TempReached()
 	return t >= -2;
 }
 
+void HeatBed_SetOutput(int output)
+{
+	if(output > 100)
+		output = 100;
+	else if(output < 0)
+		output = 0;
+
+	PWM_Channel(2, output, true);
+	currentOutput = output;
+}
+
 void HeatBedTask(void)
 {
 	SysTick_t now = GetSystemTick();
@@ -115,13 +126,8 @@ void HeatBedTask(void)
 		
 		//转为百分比
 		output /= 400;
-		if(output > 100)
-			output = 100;
-		else if(output < 0)
-			output = 0;
 
-		PWM_Channel(2, output, true);
-		currentOutput = output;
+		HeatBed_SetOutput(output);
 	}
 }
 void HeatBed_GetState(int16_t *temp, int *output, bool *heating)
