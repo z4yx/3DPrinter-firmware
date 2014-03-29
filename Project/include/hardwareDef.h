@@ -25,7 +25,7 @@
 #define BT_BaudRate 9600
 
 #define Ex1Fan_Pin GPIO_Pin_15
-#define Ex1_Port GPIOA
+#define Ex1Fan_Port GPIOC
 /*Defined by PWM*/
 // #define Ex1Heat_Pin GPIO_Pin_0
 // #define HBP_Pin GPIO_Pin_1
