@@ -147,6 +147,7 @@ static void processRequest(char* cmd, char* param)
 		if(!Command_IsStandBy()){
 			REPORT(INFO_REPLY, "0", 0);
 		}else{
+			int result = 1;
 			switch(*param){
 				case 'X':
 				case 'Y':
@@ -157,7 +158,8 @@ static void processRequest(char* cmd, char* param)
 					else
 						tmp = *param-'X';
 					val[tmp] = atoi(param+1)*1000; //um->mm
-					Move_RelativeMove(val);
+					Motor_PowerOn();
+					result = Move_RelativeMove(val);
 					break;
 				case 'e':
 					Extruder_SetOutput(atoi(param+1));
@@ -169,7 +171,7 @@ static void processRequest(char* cmd, char* param)
 					Fan_Enable(*(param+1) == '1');
 					break;
 			}
-			REPORT(INFO_REPLY, "1", 0);
+			REPORT(INFO_REPLY, "%d", result);
 		}
 	}
 }
