@@ -79,7 +79,7 @@ static void Motor_Output_Config(void)
 		RCC_GPIOClockCmd(Motor_OE_Ports[i], ENABLE);
 		GPIO_InitStructure.GPIO_Pin = Motor_OE_Pins[i];
 		GPIO_Init(Motor_OE_Ports[i], &GPIO_InitStructure);
-		GPIO_ResetBits(Motor_OE_Ports[i], Motor_OE_Pins[i]);
+		GPIO_SetBits(Motor_OE_Ports[i], Motor_OE_Pins[i]);
 	}
 
 }
@@ -150,8 +150,11 @@ void Motor_Interrupt(void)
 				GPIO_SetBits(Motor_Step_Ports[i], Motor_Step_Pins[i]);
 				if(Motor_PendingSteps[i] > 0){
 					Motor_PendingSteps[i] --;
-					if(!Motor_PendingSteps[i])
+					if(!Motor_PendingSteps[i]){
+						//attenuate holding current
+						GPIO_SetBits(Motor_OE_Ports[i], Motor_OE_Pins[i]);
 						Move_Axis_Eneded(i);
+					}
 				}
 			}
 		}
@@ -174,6 +177,10 @@ void Motor_Start(int motor_enum, int steps, int skip, int8_t dir)
 	GPIO_WriteBit(Motor_Dir_Ports[motor_enum],
 		Motor_Dir_Pins[motor_enum],
 		(dir > 0 ? Bit_SET : Bit_RESET));
+
+	// set current to 100%
+	GPIO_ResetBits(Motor_OE_Ports[motor_enum], Motor_OE_Pins[motor_enum]);
+
 	Motor_PendingSteps[motor_enum] = steps;
 	Motor_PulseSkip[motor_enum] = skip;
 	Motor_PulseCount[motor_enum] = 0;
