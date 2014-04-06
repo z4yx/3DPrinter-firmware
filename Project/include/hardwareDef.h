@@ -31,10 +31,10 @@
 // #define HBP_Pin GPIO_Pin_1
 // #define HBP_Port GPIOA
 
-#define ThermcoupleSck_Pin GPIO_Pin_9
-#define ThermcoupleCs_Pin GPIO_Pin_8
-#define ThermcoupleDo_Pin GPIO_Pin_7
-#define Thermcouple_Port GPIOC
+#define ThermcoupleSck_Pin GPIO_Pin_5
+#define ThermcoupleCs_Pin GPIO_Pin_4
+#define ThermcoupleDo_Pin GPIO_Pin_3
+#define Thermcouple_Port GPIOB
 
 #define HeaterBoardTherm_Pin GPIO_Pin_0
 #define HeaterBoardTherm_Port GPIOC

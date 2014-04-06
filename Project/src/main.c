@@ -78,6 +78,10 @@ static void coreInit()
 	SysTick_Init();
 	LED_Config();
 	USART_Config(Debug_USART, Debug_BaudRate);
+
+	//enable remap for max6675 pins
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
 }
 
 int main(void)
