@@ -75,6 +75,8 @@ static void TIMx_OCx_Config(TIM_TypeDef* TIMx, int OCx, uint16_t pulse, uint16_t
     TIM_OCInitStructure.TIM_OutputState = output;   
     TIM_OCInitStructure.TIM_Pulse = pulse;      //设置跳变值，当计数器计数到这个值时，电平发生跳变
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;  //当定时器计数值小于CCR1_Val时为高电平
+    if (DRIVER_BOARD_POLARITY)
+        TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
 
     TIM_OCxInit[OCx - 1](TIMx, &TIM_OCInitStructure);
 

@@ -32,11 +32,15 @@ void Fan_Config()
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
 	GPIO_Init(Ex1Fan_Port, &GPIO_InitStructure);
+	Fan_Enable(false);
 
 }
 
 void Fan_Enable(bool bEnabled)
 {
+	if (DRIVER_BOARD_POLARITY)
+		bEnabled = !bEnabled;
+
     if (bEnabled)
         GPIO_SetBits(Ex1Fan_Port, Ex1Fan_Pin);
     else
