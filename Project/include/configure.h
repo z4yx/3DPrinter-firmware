@@ -17,8 +17,8 @@
  */
 
 //三轴最大行程(um)
-#define X_MAX_LIMIT 160000
-#define Y_MAX_LIMIT 180000
+#define X_MAX_LIMIT 100000
+#define Y_MAX_LIMIT 100000
 #define Z_MAX_LIMIT 100000
 
 //从G代码坐标到实际坐标的偏移(um)
@@ -27,25 +27,25 @@
 #define Z_OFFSET 1420
 
 //X轴步进电机旋转一周对应的直线位移(um)
-#define X_DISTANCE_PER_CYCLE 4000
+#define X_DISTANCE_PER_CYCLE 150000
 //X轴步进电机旋转一周需要的脉冲数量(考虑细分)
-#define X_PULSES_PER_CYCLE   (4*200)
+#define X_PULSES_PER_CYCLE   (16*200)
 //X轴运行方向调整(取值+/-1)
-#define X_DIRECTION_ADJ      1 
+#define X_DIRECTION_ADJ      -1 
 
 //Y轴步进电机旋转一周对应的直线位移(um)
-#define Y_DISTANCE_PER_CYCLE 4000
+#define Y_DISTANCE_PER_CYCLE 150000
 //Y轴步进电机旋转一周需要的脉冲数量(考虑细分)
-#define Y_PULSES_PER_CYCLE (4*200)
+#define Y_PULSES_PER_CYCLE (16*200)
 //Y轴运行方向调整(取值+/-1)
-#define Y_DIRECTION_ADJ      -1 
+#define Y_DIRECTION_ADJ      1 
 
 //Z轴步进电机旋转一周对应的直线位移(um)
 #define Z_DISTANCE_PER_CYCLE 4000
 //Z轴步进电机旋转一周需要的脉冲数量(考虑细分)
-#define Z_PULSES_PER_CYCLE (4*200)
+#define Z_PULSES_PER_CYCLE (16*200)
 //Z轴运行方向调整(取值+/-1)
-#define Z_DIRECTION_ADJ      1
+#define Z_DIRECTION_ADJ      -1
 
 //限位开关最小触发间隔时间(ms)
 #define LIMIT_SWITCH_MIN_TOGGLE_PERIOD 50
@@ -63,7 +63,7 @@
 #define HEATER_PWM_FREQ 50
 
 //挤出器电机方向修正(取值+/-1)
-#define EXTRUDER_MOTOR_DIR -1
+#define EXTRUDER_MOTOR_DIR 1
 //挤出量系数调整(越大量越少)
 #define EXTRUDER_VOLUME_ADJ 40
 
@@ -83,6 +83,7 @@
 #define HEATBED_DEFAULT_TEMP 100
 //加热板传感器值与温度换算
 #define HEATBED_ADC_TO_TEMP(x) (123.678-0.0893583*(x)+0.0000195876*(x)*(x))
+// #define HEATBED_ADC_TO_TEMP(x) (211.122- 0.0477002 * x)
 //加热板PID参数
 #define HEATBED_PID_KP 500
 #define HEATBED_PID_KI 15
