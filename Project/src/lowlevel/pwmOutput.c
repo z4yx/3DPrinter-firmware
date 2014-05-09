@@ -26,17 +26,26 @@ const uint16_t ITx[4] = {TIM_IT_CC1, TIM_IT_CC2, TIM_IT_CC3, TIM_IT_CC4};
 
 static uint32_t currentPeriod;
 
-static void TIM2_Output_Config(void) 
+static void TIM2_Output_Config(bool bConnectToPWM, uint16_t pins) 
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	RCC_GPIOClockCmd(GPIOA, ENABLE); 
 
-	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_0 | GPIO_Pin_1;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStructure.GPIO_Pin = pins;
+	if(bConnectToPWM)
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	else
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	if(!bConnectToPWM){
+		if(DRIVER_BOARD_POLARITY)
+			GPIO_SetBits(GPIOA, GPIO_InitStructure.GPIO_Pin);
+		else
+			GPIO_ResetBits(GPIOA, GPIO_InitStructure.GPIO_Pin);
+	}
 }
 
 static void TIMx_Config(TIM_TypeDef* TIMx, uint16_t period, uint16_t prescaler)
@@ -136,7 +145,7 @@ void PWM_Init(int freq)
 	for(int i=1; i<=4; i++)
 		PWM_Channel(i, 50, false);
 
-	TIM2_Output_Config();
+	TIM2_Output_Config(false, GPIO_Pin_0|GPIO_Pin_1);
 
 	TIMx_Enable(TIM2);
 
@@ -152,4 +161,5 @@ void PWM_Channel(int channel, int percent, uint8_t bEnabled)
 	if(pulse < 0)
 		pulse = 0;
 	TIMx_OCx_Config(TIM2, channel, pulse, (bEnabled ? ENABLE : DISABLE));
+	TIM2_Output_Config(bEnabled, channel==1?GPIO_Pin_0:GPIO_Pin_1);
 }
