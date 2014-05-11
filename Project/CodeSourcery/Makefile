@@ -342,13 +342,16 @@ ALL_ASFLAGS = -mcpu=$(MCU) $(THUMB_IW) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: begin gccversion sizebefore build sizeafter finished end
 
+flash: all
+	st-flash --reset write $(TARGET).bin 0x08000000
+
 ifeq ($(FORMAT),ihex)
-build: elf hex lss sym
+build: elf hex
 hex: $(TARGET).hex
 IMGEXT=hex
 else 
 ifeq ($(FORMAT),binary)
-build: elf bin lss sym
+build: elf bin
 bin: $(TARGET).bin
 IMGEXT=bin
 else 
