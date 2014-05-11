@@ -31,7 +31,7 @@ static void TIM2_Output_Config(bool bConnectToPWM, uint16_t pins)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	RCC_GPIOClockCmd(GPIOA, ENABLE); 
+	RCC_GPIOClockCmd(PWM2_Port, ENABLE); 
 
 	GPIO_InitStructure.GPIO_Pin = pins;
 	if(bConnectToPWM)
@@ -40,12 +40,12 @@ static void TIM2_Output_Config(bool bConnectToPWM, uint16_t pins)
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(PWM2_Port, &GPIO_InitStructure);
 	if(!bConnectToPWM){
 #ifdef DRIVER_BOARD_POLARITY
-		GPIO_SetBits(GPIOA, GPIO_InitStructure.GPIO_Pin);
+		GPIO_SetBits(PWM2_Port, GPIO_InitStructure.GPIO_Pin);
 #else
-		GPIO_ResetBits(GPIOA, GPIO_InitStructure.GPIO_Pin);
+		GPIO_ResetBits(PWM2_Port, GPIO_InitStructure.GPIO_Pin);
 #endif
 	}
 }
