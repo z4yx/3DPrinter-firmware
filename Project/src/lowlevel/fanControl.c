@@ -38,8 +38,9 @@ void Fan_Config()
 
 void Fan_Enable(bool bEnabled)
 {
-	if (DRIVER_BOARD_POLARITY)
-		bEnabled = !bEnabled;
+#ifdef DRIVER_BOARD_POLARITY
+	bEnabled = !bEnabled;
+#endif
 
     if (bEnabled)
         GPIO_SetBits(Ex1Fan_Port, Ex1Fan_Pin);
