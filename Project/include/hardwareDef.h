@@ -26,6 +26,16 @@
 
 #define Ex1Fan_Pin GPIO_Pin_15
 #define Ex1Fan_Port GPIOC
+
+#define PWM2_Port    GPIOA
+#define PWM2_Ch1_Pin GPIO_Pin_0
+#define PWM2_Ch2_Pin GPIO_Pin_1
+#define PWM2_Ch3_Pin GPIO_Pin_2
+#define PWM2_Ch4_Pin GPIO_Pin_3
+
+#define Ex1Heat_Ch   1
+#define HBP_Ch       2
+
 /*Defined by PWM*/
 // #define Ex1Heat_Pin GPIO_Pin_0
 // #define HBP_Pin GPIO_Pin_1

@@ -23,6 +23,7 @@
 typedef void (*TIM_OCxInit_t)(TIM_TypeDef* , TIM_OCInitTypeDef*);
 const TIM_OCxInit_t TIM_OCxInit[4] = {TIM_OC1Init, TIM_OC2Init, TIM_OC3Init, TIM_OC4Init};
 const uint16_t ITx[4] = {TIM_IT_CC1, TIM_IT_CC2, TIM_IT_CC3, TIM_IT_CC4};
+const uint16_t PWM2_Pins[4] = {PWM2_Ch1_Pin, PWM2_Ch2_Pin, PWM2_Ch3_Pin, PWM2_Ch4_Pin};
 
 static uint32_t currentPeriod;
 
@@ -41,10 +42,11 @@ static void TIM2_Output_Config(bool bConnectToPWM, uint16_t pins)
 
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	if(!bConnectToPWM){
-		if(DRIVER_BOARD_POLARITY)
-			GPIO_SetBits(GPIOA, GPIO_InitStructure.GPIO_Pin);
-		else
-			GPIO_ResetBits(GPIOA, GPIO_InitStructure.GPIO_Pin);
+#ifdef DRIVER_BOARD_POLARITY
+		GPIO_SetBits(GPIOA, GPIO_InitStructure.GPIO_Pin);
+#else
+		GPIO_ResetBits(GPIOA, GPIO_InitStructure.GPIO_Pin);
+#endif
 	}
 }
 
@@ -83,9 +85,11 @@ static void TIMx_OCx_Config(TIM_TypeDef* TIMx, int OCx, uint16_t pulse, uint16_t
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;       //配置为PWM模式1
     TIM_OCInitStructure.TIM_OutputState = output;   
     TIM_OCInitStructure.TIM_Pulse = pulse;      //设置跳变值，当计数器计数到这个值时，电平发生跳变
+#ifdef DRIVER_BOARD_POLARITY
+    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
+#else
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;  //当定时器计数值小于CCR1_Val时为高电平
-    if (DRIVER_BOARD_POLARITY)
-        TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
+#endif
 
     TIM_OCxInit[OCx - 1](TIMx, &TIM_OCInitStructure);
 
@@ -145,8 +149,6 @@ void PWM_Init(int freq)
 	for(int i=1; i<=4; i++)
 		PWM_Channel(i, 50, false);
 
-	TIM2_Output_Config(false, GPIO_Pin_0|GPIO_Pin_1);
-
 	TIMx_Enable(TIM2);
 
 	// TIM2_SetInterrupt();
@@ -161,5 +163,5 @@ void PWM_Channel(int channel, int percent, uint8_t bEnabled)
 	if(pulse < 0)
 		pulse = 0;
 	TIMx_OCx_Config(TIM2, channel, pulse, (bEnabled ? ENABLE : DISABLE));
-	TIM2_Output_Config(bEnabled, channel==1?GPIO_Pin_0:GPIO_Pin_1);
+	TIM2_Output_Config(bEnabled, PWM2_Pins[channel-1]);
 }
