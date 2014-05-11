@@ -25,14 +25,12 @@
 #include "fanControl.h"
 #include "adc.h"
 #include "motor.h"
-#include "command.h"
+#include "usb.h"
 #include "gfiles.h"
 #include "move.h"
-#include "heatbed.h"
-#include "extruder.h"
 #include "hostctrl.h"
 
-const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, Command_Task, HostCtrl_Task};
+const Task_t SystemTasks[] = { LimitSwitch_Task, HostCtrl_Task};
 
 
 static void periphInit()
@@ -40,33 +38,16 @@ static void periphInit()
 	USART_Config(BT_USART, BT_BaudRate);
 	FileManager_Init();
 	PWM_Init(HEATER_PWM_FREQ);
+	Fan_Config();
+
+	ADC_Config(1);
+	ADC_Channel_Config(HeaterBoardTherm_Port, HeaterBoardTherm_Pin, HeaterBoardTherm_ADCChannel, 1);
+	ADC_Start();
+
+	MAX6675_Config();
 	Move_Init();
-	Extruder_Init();
-	HeatBed_Init();
 	USBDevice_Config();
-	Command_Init();
 	HostCtrl_Init();
-}
-
-void useHSIClock()
-{
-	// RCC_HSEConfig(RCC_HSE_ON);
-	// while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)//等待HSE使能成功
-	// {
-	// }
-	RCC_HSICmd(ENABLE);
-	while(RCC_GetFlagStatus(RCC_FLAG_HSIRDY) == RESET);//等待HSI使能成功
-
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
-
-	RCC_PLLCmd(DISABLE);
-	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_10);
-
-	RCC_PLLCmd(ENABLE);
-	while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET);
-
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-	while(RCC_GetSYSCLKSource() != 0x08);
 }
 
 //核心组件初始化,包括串口(用于打印调试信息)
@@ -86,22 +67,11 @@ static void coreInit()
 
 int main(void)
 {
-	RCC_ClocksTypeDef clocks;
-	// useHSIClock();
 	RCC_PCLK1Config(RCC_HCLK_Div1);
-	RCC_GetClocksFreq(&clocks);
 
 	coreInit();
 
 	Delay_ms(2000);
-
-	DBG_MSG("\r\n\r\n", 0);
-	DBG_MSG("Clock Source: %d", RCC_GetSYSCLKSource());
-	DBG_MSG("SYSCLK: %d, H: %d, P1: %d, P2: %d",
-		clocks.SYSCLK_Frequency,
-		clocks.HCLK_Frequency,
-		clocks.PCLK1_Frequency,
-		clocks.PCLK2_Frequency);
 
 	periphInit();
 

@@ -21,10 +21,7 @@
 #include "hostctrl.h"
 #include "usart.h"
 #include "led.h"
-#include "command.h"
 #include "move.h"
-#include "heatbed.h"
-#include "extruder.h"
 #include "gfiles.h"
 #include "fanControl.h"
 #include <string.h>
@@ -105,14 +102,14 @@ static void reportState()
 	uint8_t progress;
 	int output;
 
-	Command_GetState(&b, &state, &progress);
-	REPORT(INFO_PRINT, "%d,%d,%d", (int)b, (int)state, (int)progress);
+	// Command_GetState(&b, &state, &progress);
+	// REPORT(INFO_PRINT, "%d,%d,%d", (int)b, (int)state, (int)progress);
 
-	Extruder_GetState(&temp, &output, &b);
-	REPORT(INFO_EXTRUDER, "%d,%d,%d", (int)temp, (int)output, (int)b);
+	// Extruder_GetState(&temp, &output, &b);
+	// REPORT(INFO_EXTRUDER, "%d,%d,%d", (int)temp, (int)output, (int)b);
 
-	HeatBed_GetState(&temp, &output, &b);
-	REPORT(INFO_HEATBED, "%d,%d,%d", (int)temp, (int)output, (int)b);
+	// HeatBed_GetState(&temp, &output, &b);
+	// REPORT(INFO_HEATBED, "%d,%d,%d", (int)temp, (int)output, (int)b);
 
 }
 
@@ -124,8 +121,9 @@ static void processRequest(char* cmd, char* param)
 	if(strcmp(cmd, "QRY") == 0){
 		reportState();
 	}else if(strcmp(cmd, "STOP") == 0){
-		bool ret = Command_StopPrinting();
-		REPORT(INFO_REPLY, "%d", ret);
+		// TODO
+		// bool ret = Command_StopPrinting();
+		// REPORT(INFO_REPLY, "%d", ret);
 	}else if(strcmp(cmd, "LIST") == 0){
 		files = FileManager_ListGFiles();
 		if(files != NULL){
@@ -138,15 +136,14 @@ static void processRequest(char* cmd, char* param)
 	}else if(strcmp(cmd, "START") == 0){
 		int num = atoi(param);
 		if(num >= 0 && num < SD_MAX_ITEMS){
-			bool ret = Command_StartPrinting((*files)[num]);
-			REPORT(INFO_REPLY, "%d", ret);
+			// TODO
+			// bool ret = Command_StartPrinting((*files)[num]);
+			// REPORT(INFO_REPLY, "%d", ret);
 		}
 	}else if(strcmp(cmd, "DBG") == 0){
 		uint8_t tmp;
 		int val[4] = {0};
-		if(!Command_IsStandBy()){
-			REPORT(INFO_REPLY, "0", 0);
-		}else{
+		{
 			int result = 1;
 			switch(*param){
 				case 'X':
@@ -162,10 +159,12 @@ static void processRequest(char* cmd, char* param)
 					result = Move_RelativeMove(val);
 					break;
 				case 'e':
-					Extruder_SetOutput(atoi(param+1));
+					// TODO
+					// Extruder_SetOutput(atoi(param+1));
 					break;
 				case 'h':
-					HeatBed_SetOutput(atoi(param+1));
+					// TODO
+					// HeatBed_SetOutput(atoi(param+1));
 					break;
 				case 'f':
 					Fan_Enable(*(param+1) == '1');
