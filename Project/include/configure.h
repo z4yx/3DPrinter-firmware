@@ -90,7 +90,7 @@
 #define HEATBED_PID_INIT_SUM 100
 
 //功率输出板极性反转,影响PWM,风扇等
-// #define DRIVER_BOARD_POLARITY
+#define DRIVER_BOARD_POLARITY
 
 //步进电机脉冲频率(单位Hz)
 #define MOTOR_STEP_FREQ 2400
