@@ -38,8 +38,8 @@ ResumeS;
 /* Private function prototypes -----------------------------------------------*/
 /* Extern function prototypes ------------------------------------------------*/
 extern void USB_Cable_Config (FunctionalState NewState);
-extern void Enter_LowPowerMode(void);
-extern void Leave_LowPowerMode(void);
+//extern void Enter_LowPowerMode(void);
+//extern void Leave_LowPowerMode(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -127,7 +127,7 @@ void Suspend(void)
 
   /* switch-off the clocks */
   /* ... */
-  Enter_LowPowerMode();
+//  Enter_LowPowerMode();
 
 }
 
@@ -152,7 +152,7 @@ void Resume_Init(void)
 
   /* restore full power */
   /* ... on connected devices */
-  Leave_LowPowerMode();
+//  Leave_LowPowerMode();
 
   /* reset FSUSP bit */
   _SetCNTR(IMR_MSK);

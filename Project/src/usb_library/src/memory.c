@@ -66,7 +66,7 @@ void Read_Memory(void)
 
     if (!Block_Read_count) {
         SD_Error ret_code;
-        ret_code = SD_ReadBlock(Data_Buffer,Memory_Offset ,512);
+        ret_code = SD_ReadBlock((u8*)Data_Buffer,Memory_Offset ,512);
         // DBG_MSG("SD_ReadBlock(addr=%d)=%d", Memory_Offset, ret_code);
         while(SD_GetStatus() != SD_TRANSFER_OK);
         b = 0; a = 0;
@@ -133,7 +133,7 @@ void Write_Memory(void)
             a = a + 4;
             b++;
         }
-        SD_WriteBlock(Data_Buffer, Memory_Offset-512, 512);
+        SD_WriteBlock((u8*)Data_Buffer, Memory_Offset-512, 512);
         while(SD_GetStatus() != SD_TRANSFER_OK);
     }
 
