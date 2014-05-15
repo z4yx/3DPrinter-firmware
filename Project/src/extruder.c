@@ -26,7 +26,7 @@
 #include "motor.h"
 
 static bool bHeating;
-static int16_t targetTemp = EXTRUDER_DEFAULT_TEMP;
+static int16_t targetTemp;
 static int16_t currentTemp;
 static int currentOutput;
 static struct PIDController pid;
@@ -43,13 +43,14 @@ void Extruder_Init()
 	lastUpdatingTime = GetSystemTick();
 }
 
-void Extruder_Start_Heating()
+void Extruder_Start_Heating(uint16_t _target)
 {
 	Fan_Enable(true);
 	PID_Init(&pid, EXTRUDER_PID_KP, EXTRUDER_PID_KI, EXTRUDER_PID_KD, EXTRUDER_PID_INIT_SUM);
 	PWM_Channel(HBP_Ch, 90, false);
 	currentOutput = 0;
 	bHeating = true;
+	targetTemp = _target;
 }
 
 void Extruder_Stop_Heating()

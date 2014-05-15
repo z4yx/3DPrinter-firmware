@@ -291,8 +291,8 @@ void Command_doNext()
 				DBG_MSG("M6_WAIT_FOR_TOOL %d", T);
 				REPORT(INFO_G_M6,"%d", T);
 
-				Extruder_Start_Heating();
-				HeatBed_Start_Heating();
+				Extruder_Start_Heating(EXTRUDER_DEFAULT_TEMP);
+				HeatBed_Start_Heating(HEATBED_DEFAULT_TEMP);
 				Motor_PowerOff();
 				currentState = MACH_STATE_WAIT_HEAT;
 				break;

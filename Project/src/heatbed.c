@@ -54,7 +54,7 @@ Fit[{
 */
 
 static bool bHeating;
-static int16_t targetTemp = HEATBED_DEFAULT_TEMP;
+static int16_t targetTemp;
 static int16_t currentTemp;
 static int currentOutput;
 static struct PIDController pid;
@@ -72,12 +72,13 @@ void HeatBed_Init()
 	lastUpdatingTime = GetSystemTick();
 }
 
-void HeatBed_Start_Heating()
+void HeatBed_Start_Heating(uint16_t _target)
 {
 	PID_Init(&pid, EXTRUDER_PID_KP, EXTRUDER_PID_KI, EXTRUDER_PID_KD, EXTRUDER_PID_INIT_SUM);
 	PWM_Channel(HBP_Ch, 90, false);
 	currentOutput = 0;
 	bHeating = true;
+	targetTemp = _target;
 }
 
 void HeatBed_Stop_Heating()

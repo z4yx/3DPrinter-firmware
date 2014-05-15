@@ -164,8 +164,26 @@ static void processRequest(char* cmd, char* param)
 				case 'e':
 					Extruder_SetOutput(atoi(param+1));
 					break;
+				case 'E':
+					if(*(param+1)){
+						if(*(param+1) == '-'){
+							Extruder_Stop_Heating();
+						}else{
+							Extruder_Start_Heating(atoi(param+1));
+						}
+					}
+					break;
 				case 'h':
 					HeatBed_SetOutput(atoi(param+1));
+					break;
+				case 'H':
+					if(*(param+1)){
+						if(*(param+1) == '-'){
+							HeatBed_Stop_Heating();
+						}else{
+							HeatBed_Start_Heating(atoi(param+1));
+						}
+					}
 					break;
 				case 'f':
 					Fan_Enable(*(param+1) == '1');
