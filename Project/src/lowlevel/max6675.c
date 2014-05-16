@@ -36,7 +36,7 @@ void MAX6675_Config()
 
     GPIO_Init(Thermcouple_Port, &GPIO_InitStructure);
 
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
     GPIO_InitStructure.GPIO_Pin = ThermcoupleDo_Pin;
 
     GPIO_Init(Thermcouple_Port, &GPIO_InitStructure);
