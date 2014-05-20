@@ -178,7 +178,6 @@ void TIM2_IRQHandler(void)
 
 void TIM3_IRQHandler(void)
 {
-    Motor_Interrupt();
 }
 
 void USART1_IRQHandler(void)

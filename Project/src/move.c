@@ -102,17 +102,9 @@ bool Move_Home(uint8_t axis)
 
 	currentState[axis] = Axis_State_Homing;
 	//一直运动直到触碰限位开关
-	Motor_Start(axis, -1, 1, Move_Dir_Back * motorDirFix[axis]);
+	// Motor_Start(axis, -1, 1, Move_Dir_Back * motorDirFix[axis]);
 
 	return true;
-}
-
-//根据距离计算步进数量
-int calc_step(int axis, int um)
-{
-	if(um < 0)
-		um = -um;
-	return um/um_per_pulse[axis];
 }
 
 //三轴相对移动及挤出器旋转
@@ -126,30 +118,17 @@ bool Move_RelativeMove(int xyza[4])
 	for (int i = 0; i < 4; ++i)
 		tmp[i] = currentPos[i] + xyza[i];
 
-	if(tmp[X_Axis] < 0 || tmp[X_Axis] > X_MAX_LIMIT)
-		return false;
-	if(tmp[Y_Axis] < 0 || tmp[Y_Axis] > Y_MAX_LIMIT)
-		return false;
-	if(tmp[Z_Axis] < 0 || tmp[Z_Axis] > Z_MAX_LIMIT)
-		return false;
+	// if(tmp[X_Axis] < 0 || tmp[X_Axis] > X_MAX_LIMIT)
+	// 	return false;
+	// if(tmp[Y_Axis] < 0 || tmp[Y_Axis] > Y_MAX_LIMIT)
+	// 	return false;
+	// if(tmp[Z_Axis] < 0 || tmp[Z_Axis] > Z_MAX_LIMIT)
+	// 	return false;
 
 	for (int i = 0; i < 4; ++i)
 		currentPos[i] = tmp[i];
 
-	for (int i = 0; i < 4; ++i){
-		tmp[i] = calc_step(i, xyza[i]);
-		if(tmp[i] > max_step)
-			max_step = tmp[i];
-	}
-
-	for (int i = 0; i < 4; ++i)
-	{
-		if(!tmp[i])
-			continue;
-		currentState[i] = Axis_State_Moving;
-		Motor_Start(i, tmp[i], max_step/tmp[i],
-			motorDirFix[i] * (xyza[i] > 0 ? Move_Dir_Forward : Move_Dir_Back) );
-	}
+	Motor_MoveCmd(xyza);
 
 	return true;
 }
@@ -174,20 +153,7 @@ bool Move_AbsoluteMove(int xyza[4])
 		currentPos[i] = xyza[i];
 	}
 
-	for (int i = 0; i < 4; ++i){
-		tmp[i] = calc_step(i, delta[i]);
-		if(tmp[i] > max_step)
-			max_step = tmp[i];
-	}
-
-	for (int i = 0; i < 4; ++i)
-	{
-		if(!tmp[i])
-			continue;
-		currentState[i] = Axis_State_Moving;
-		Motor_Start(i, tmp[i], max_step/tmp[i],
-			motorDirFix[i] * (delta[i] > 0 ? Move_Dir_Forward : Move_Dir_Back) );
-	}
+	Motor_MoveCmd(delta);
 
 	return true;
 }

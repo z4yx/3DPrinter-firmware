@@ -32,7 +32,7 @@
 #include "extruder.h"
 #include "hostctrl.h"
 
-const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, Command_Task, HostCtrl_Task};
+const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, Command_Task, HostCtrl_Task, Motor_Task};
 
 
 static void periphInit()

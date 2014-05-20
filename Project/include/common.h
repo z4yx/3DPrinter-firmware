@@ -63,5 +63,6 @@ void HeatBedTask(void);
 void Command_Task(void);
 void LimitSwitch_Task(void);
 void HostCtrl_Task(void);
+void Motor_Task(void);
 
 #endif /* __COMMON__H__ */
