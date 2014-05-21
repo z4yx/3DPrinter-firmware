@@ -54,7 +54,7 @@
 # - 11. Nov. 2006  - FLASH_TOOL-config, TCHAIN-config (mth)
 
 # Toolchain prefix (i.e arm-none-eabi -> arm-none-eabi-gcc.exe)
-TCHAIN = arm-none-eabi
+TCHAIN = /usr/local/stm32/bin/arm-none-eabi
 
 # MCU name and submodel
 MCU      = cortex-m3
