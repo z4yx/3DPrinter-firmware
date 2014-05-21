@@ -24,7 +24,7 @@
 #define NUM_MOTORS 4
 
 #define MOTOR_USART USART2
-#define MOTOR_BAUD  115200
+#define MOTOR_BAUD  9600
 
 static volatile bool isPowerOn;
 
