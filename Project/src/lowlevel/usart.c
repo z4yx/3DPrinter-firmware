@@ -19,6 +19,7 @@
 #include "stm32f10x.h"
 #include "common.h"
 #include "usart.h"
+#include "systick.h"
 #include <stdarg.h>
 
 /*
@@ -101,7 +102,9 @@ int USART_putchar(USART_TypeDef* USARTx, int ch)
 
     USART_SendData(USARTx, (unsigned char) ch);
     while (!(USARTx->SR & USART_FLAG_TXE));
-
+    if (USARTx == USART2) {
+        Delay_ms(10);
+    }
     return (ch);
 }
 

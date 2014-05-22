@@ -2,6 +2,7 @@
 #define __MOVE__H__
 
 enum { Axis_State_Ready, Axis_State_Moving, Axis_State_Homing };
+enum { Move_Dir_Back = -1, Move_Dir_Forward = 1 };
 
 void Move_Init(void);
 bool Move_Home(uint8_t axis);
