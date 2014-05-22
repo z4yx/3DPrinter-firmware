@@ -62,7 +62,6 @@ void HostCtrl_CmdProcessed()
 
 static void parse_host_cmd(uint8_t byte)
 {
-	DBG_MSG("%d", byte);
     static int cmd_buf_i = 0, param_buf_i = 0;
 	switch(parse_stage){
 		case PARSE_INITIAL:
