@@ -35,6 +35,15 @@ void Motor_Stop(int motor_enum)
 	USART_putchar(MOTOR_USART, motor_enum);
 }
 
+void Motor_InfinitelyRun(int motor_enum, int dir)
+{
+	USART_putchar(MOTOR_USART, 0x03);
+	if(dir == Move_Dir_Back)
+		USART_putchar(MOTOR_USART, 0x20|motor_enum);
+	else
+		USART_putchar(MOTOR_USART, 0x10|motor_enum);
+}
+
 void Motor_Task(void)
 {
 	if(USART_GetFlagStatus(MOTOR_USART, USART_FLAG_RXNE) == SET){
