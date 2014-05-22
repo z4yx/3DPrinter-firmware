@@ -20,6 +20,7 @@
 #include "common.h"
 #include "usart.h"
 #include <stdarg.h>
+#include "systick.h"
 
 /*
  * 初始化串口配置
@@ -101,6 +102,9 @@ int USART_putchar(USART_TypeDef* USARTx, int ch)
 
     USART_SendData(USARTx, (unsigned char) ch);
     while (!(USARTx->SR & USART_FLAG_TXE));
+    if (USARTx == USART2) {
+        Delay_ms(10);
+    }
 
     return (ch);
 }
