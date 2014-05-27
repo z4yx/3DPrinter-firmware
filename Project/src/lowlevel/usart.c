@@ -19,8 +19,8 @@
 #include "stm32f10x.h"
 #include "common.h"
 #include "usart.h"
-#include <stdarg.h>
 #include "systick.h"
+#include <stdarg.h>
 
 /*
  * 初始化串口配置
@@ -105,7 +105,6 @@ int USART_putchar(USART_TypeDef* USARTx, int ch)
     if (USARTx == USART2) {
         Delay_ms(10);
     }
-
     return (ch);
 }
 

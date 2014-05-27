@@ -20,6 +20,7 @@
 #include "motor.h"
 #include "move.h"
 #include "usart.h"
+#include "systick.h"
 
 #define NUM_MOTORS 4
 

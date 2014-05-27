@@ -125,8 +125,10 @@ bool Move_RelativeMove(int xyza[4])
 	// if(tmp[Z_Axis] < 0 || tmp[Z_Axis] > Z_MAX_LIMIT)
 	// 	return false;
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 4; ++i){
+		currentState[i] = Axis_State_Moving;
 		currentPos[i] = tmp[i];
+	}
 
 	Motor_MoveCmd(xyza);
 
@@ -150,6 +152,7 @@ bool Move_AbsoluteMove(int xyza[4])
 
 	for (int i = 0; i < 4; ++i){
 		delta[i] = xyza[i] - currentPos[i];
+		currentState[i] = Axis_State_Moving;
 		currentPos[i] = xyza[i];
 	}
 
