@@ -137,7 +137,7 @@ void Command_Task(void)
 			break;
 		case MACH_STATE_WAIT_HEAT:
 			// DBG_MSG("MACH_STATE_WAIT_HEAT", 0);
-			if(1 || Extruder_TempReached() && HeatBed_TempReached()) {
+			if(Extruder_TempReached() && HeatBed_TempReached()) {
 				DBG_MSG("Temperature Reached!", 0);
 				currentState = MACH_STATE_READY;
 			}
