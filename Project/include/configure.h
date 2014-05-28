@@ -70,7 +70,7 @@
 //挤出器输出更新频率限制(ms)
 #define EXTRUDER_UPDATE_PERIOD 500
 //挤出器默认温度
-#define EXTRUDER_DEFAULT_TEMP 245
+#define EXTRUDER_DEFAULT_TEMP 60
 //挤出器温度PID控制参数
 #define EXTRUDER_PID_KP 800
 #define EXTRUDER_PID_KI 25
