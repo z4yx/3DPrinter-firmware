@@ -2,7 +2,6 @@
 #define __STM32_EVAL_SDIO_SD_LOWLEVEL_H
 
 #include "stm32f10x.h"
-#include "hardwareDef.h"
 /** @addtogroup STM3210E_EVAL_LOW_LEVEL_SD_FLASH
   * @{
   */
@@ -10,9 +9,7 @@
   * @brief  SD FLASH SDIO Interface
   */ 
 
-// #define SD_DETECT_PIN                    GPIO_Pin_11                 /* PF.11 */
-// #define SD_DETECT_GPIO_PORT              GPIOF                       /* GPIOF */
-// #define SD_DETECT_GPIO_CLK               RCC_APB2Periph_GPIOF
+#include "hardwareDef.h"
 
 #define SDIO_FIFO_ADDRESS                ((uint32_t)0x40018080)
 /** 
@@ -24,6 +21,15 @@
   */
 #define SDIO_TRANSFER_CLK_DIV            ((uint8_t)0x1) 
 
+#define SD_SDIO_DMA                      DMA2
+#define SD_SDIO_DMA_CLK                  RCC_AHBPeriph_DMA2
+#define SD_SDIO_DMA_CHANNEL              DMA2_Channel4
+#define SD_SDIO_DMA_FLAG_TC              DMA2_FLAG_TC4
+#define SD_SDIO_DMA_FLAG_TE              DMA2_FLAG_TE4
+#define SD_SDIO_DMA_FLAG_HT              DMA2_FLAG_HT4
+#define SD_SDIO_DMA_FLAG_GL              DMA2_FLAG_GL4
+#define SD_SDIO_DMA_IRQn                 DMA2_Channel4_5_IRQn
+#define SD_SDIO_DMA_IRQHANDLER           DMA2_Channel4_5_IRQHandler
 /**
   * @}
   */ 

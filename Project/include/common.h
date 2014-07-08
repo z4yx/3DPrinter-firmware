@@ -23,14 +23,10 @@
 #include "configure.h"
 #include <stdint.h>
 
-#define NULL ((void*)0)
-#ifndef bool
-#define bool uint8_t
-#define true 1
-#define TRUE true
-#define false 0
-#define FALSE false
-#endif
+//for NULL and bool
+#include "usb_type.h"
+#define true TRUE
+#define false FALSE
 
 extern void USART_printf(USART_TypeDef* USARTx, char *Data, ...);
 

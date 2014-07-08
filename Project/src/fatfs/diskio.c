@@ -83,6 +83,10 @@ DRESULT disk_read (
     {
         res =  SD_ReadMultiBlocks(buff,sector << 9 ,SECTOR_SIZE,count);        
     } 
+    res = SD_WaitReadOperation();
+    while(SD_GetStatus() != SD_TRANSFER_OK)
+    {
+    }
     // DBG_MSG("count=%d,sector=%d,res=%d", (int)count, sector, res);
     // DBG_MSG("%d,%d,%d,%d,%d,%d,%d,%d", buff[0], buff[1], buff[2], buff[3], buff[4], buff[5], buff[6], buff[7]);
     
@@ -119,6 +123,8 @@ DRESULT disk_write (
     {          
         res = SD_WriteMultiBlocks((u8 *)buff,sector <<9 ,SECTOR_SIZE,count);
     }
+    res = SD_WaitWriteOperation();  
+    while(SD_GetStatus() != SD_TRANSFER_OK);
         
     if(res == SD_OK)
     {

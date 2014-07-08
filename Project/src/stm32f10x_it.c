@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
 #include "usb_istr.h"
+#include "sdioLL.h"
 
 extern void IncSysTickCounter(void);
 extern void LimitSwitch_Interrupt(void);
@@ -214,9 +215,29 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
     USB_Istr();
 }
 
+/*******************************************************************************
+* Function Name  : USB_FS_WKUP_IRQHandler
+* Description    : This function handles USB WakeUp interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+
+void USBWakeUp_IRQHandler(void)
+{
+  EXTI_ClearITPendingBit(EXTI_Line18);
+}
+
 void SDIO_IRQHandler(void)
 {
   /* Process All SDIO Interrupt Sources */
   SD_ProcessIRQSrc();
 }
+
+void SD_SDIO_DMA_IRQHANDLER(void)
+{
+  /* Process DMA2 Stream3 or DMA2 Stream6 Interrupt Sources */
+  SD_ProcessDMAIRQ();
+}
+
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
