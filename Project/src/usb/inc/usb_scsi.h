@@ -131,7 +131,7 @@ void SCSI_TestUnitReady_Cmd (uint8_t lun);
 void SCSI_Format_Cmd (uint8_t lun);
 
 //#define SCSI_TestUnitReady_Cmd           SCSI_Valid_Cmd
-#define SCSI_Prevent_Removal_Cmd         SCSI_Valid_Cmd
+// #define SCSI_Prevent_Removal_Cmd         SCSI_Valid_Cmd
 
 /* Invalid (Unsupported) commands */
 #define SCSI_READ_CAPACITY16_Cmd         SCSI_Invalid_Cmd

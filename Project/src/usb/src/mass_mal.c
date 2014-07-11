@@ -42,6 +42,8 @@ __IO uint32_t Status = 0;
 
 SD_CardInfo mSDCardInfo;
 
+static bool ejected;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 /*******************************************************************************
@@ -54,6 +56,8 @@ SD_CardInfo mSDCardInfo;
 uint16_t MAL_Init(uint8_t lun)
 {
   uint16_t status = MAL_OK;
+
+  ejected = false;
 
   switch (lun)
   {
@@ -79,6 +83,8 @@ uint16_t MAL_Init(uint8_t lun)
 *******************************************************************************/
 uint16_t MAL_Write(uint8_t lun, uint32_t Memory_Offset, uint32_t *Writebuff, uint16_t Transfer_Length)
 {
+  if(ejected)
+    return MAL_FAIL;
 
   switch (lun)
   {
@@ -113,6 +119,8 @@ uint16_t MAL_Write(uint8_t lun, uint32_t Memory_Offset, uint32_t *Writebuff, uin
 *******************************************************************************/
 uint16_t MAL_Read(uint8_t lun, uint32_t Memory_Offset, uint32_t *Readbuff, uint16_t Transfer_Length)
 {
+  if(ejected)
+    return MAL_FAIL;
 
   switch (lun)
   {
@@ -163,6 +171,9 @@ uint16_t MAL_GetStatus (uint8_t lun)
 
 //   uint32_t NumberOfBlocks = 0;
 // #endif
+
+  if(ejected)
+    return MAL_FAIL;
 
   if (lun == 0)
   {
@@ -225,6 +236,19 @@ uint16_t MAL_GetStatus (uint8_t lun)
 // #endif /* USE_STM3210E_EVAL */
   // STM_EVAL_LEDOn(LED2);
   return MAL_FAIL;
+}
+
+/*******************************************************************************
+* Function Name  : MAL_Eject
+* Description    : Eject medium
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+uint16_t MAL_Eject (uint8_t lun)
+{
+  ejected = true;
+  return MAL_OK;
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

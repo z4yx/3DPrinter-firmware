@@ -19,6 +19,7 @@
 #include "usb_lib.h"
 #include "sdio.h"
 #include "usbcommon.h"
+#include "usbstorage.h"
 
 void USBDevice_Config()
 {
@@ -43,6 +44,8 @@ bool USBDevice_PlugIn()
 
 void USBDevice_Connect()
 {
+    /* MAL configuration */
+    MAL_Config();
     USB_Init();
 }
 

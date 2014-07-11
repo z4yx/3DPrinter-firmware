@@ -215,6 +215,9 @@ void Set_Scsi_Sense_Data(uint8_t lun, uint8_t Sens_Key, uint8_t Asc)
 *******************************************************************************/
 void SCSI_Start_Stop_Unit_Cmd(uint8_t lun)
 {
+  if((CBW.CB[4] & 2) && !(CBW.CB[4] & 1)){
+    MAL_Eject(lun);
+  }
   Set_CSW (CSW_CMD_PASSED, SEND_CSW_ENABLE);
 }
 
@@ -341,6 +344,25 @@ void SCSI_TestUnitReady_Cmd(uint8_t lun)
     Set_CSW (CSW_CMD_FAILED, SEND_CSW_ENABLE);
     Bot_Abort(DIR_IN);
     return;
+  }
+  else
+  {
+    Set_CSW (CSW_CMD_PASSED, SEND_CSW_ENABLE);
+  }
+}
+/*******************************************************************************
+* Function Name  : SCSI_Prevent_Removal_Cmd
+* Description    : Valid Commands routine.
+* Input          : None.
+* Output         : None.
+* Return         : None.
+*******************************************************************************/
+void SCSI_Prevent_Removal_Cmd(uint8_t lun)
+{
+  if (CBW.CB[4]) //disable (prevent) removal of the medium
+  {
+    Set_Scsi_Sense_Data(CBW.bLUN, ILLEGAL_REQUEST, INVALID_FIELED_IN_COMMAND);
+    Set_CSW (CSW_CMD_FAILED, SEND_CSW_ENABLE);
   }
   else
   {
