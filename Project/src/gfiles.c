@@ -111,13 +111,13 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 		return 0;
 	}
 
-	card_status == FM_CARD_MOUNTED;
+	card_status = FM_CARD_MOUNTED;
 
 	res = f_opendir(&rootDir, SD_GFILES_DIR);
 	if(FR_OK != res){
 		ERR_MSG("Failed to open root dir! result=%d", (int)res);
 		f_mount(0, 0);
-		card_status == FM_CARD_FREE;
+		card_status = FM_CARD_FREE;
 		return 0;
 	}
 
@@ -141,7 +141,7 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 		GCodeFiles[cur_file][0] = '\0';
 
 	f_mount(0, 0);
-	card_status == FM_CARD_FREE;
+	card_status = FM_CARD_FREE;
 
 	return &GCodeFiles;
 }
@@ -160,12 +160,12 @@ bool FileManager_OpenGcode(const char *file)
 		return false;
 	}
 
-	card_status == FM_CARD_MOUNTED;
+	card_status = FM_CARD_MOUNTED;
 
 	if(f_open(&fileObj, file, FA_OPEN_EXISTING|FA_READ) != FR_OK){
 		ERR_MSG("Failed to open %s!", file);
 		f_mount(0, 0);
-		card_status == FM_CARD_FREE;
+		card_status = FM_CARD_FREE;
 		return false;
 	}
 
@@ -183,7 +183,7 @@ void FileManager_Close(void)
 	currentOpened = 0;
 
 	f_mount(0, 0);
-	card_status == FM_CARD_FREE;
+	card_status = FM_CARD_FREE;
 }
 
 /*
