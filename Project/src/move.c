@@ -25,6 +25,9 @@
 //三轴当前位置(相对原点的距离,单位um),及挤出器累计旋转量
 static int currentPos[4];
 
+//当前位置(以电机的步进数量为单位)
+static int currentSteps[4];
+
 //步进电机每个脉冲产生的位移
 static float um_per_pulse[4];
 
@@ -65,6 +68,7 @@ static void homingDone(uint8_t axis)
 	DBG_MSG("Axis %d homing Done", (int)axis);
 	Motor_Stop(axis);
 	currentPos[axis] = 0;
+	currentSteps[axis] = 0;
 	currentState[axis] = Axis_State_Ready;
 }
 
@@ -110,8 +114,6 @@ bool Move_Home(uint8_t axis)
 //根据距离计算步进数量
 int calc_step(int axis, int um)
 {
-	if(um < 0)
-		um = -um;
 	return um/um_per_pulse[axis];
 }
 
@@ -138,8 +140,12 @@ bool Move_RelativeMove(int xyza[4])
 
 	for (int i = 0; i < 4; ++i){
 		tmp[i] = calc_step(i, xyza[i]);
+		currentSteps[i] += tmp[i];
+		tmp[i] = abs(tmp[i]);
 		if(tmp[i] > max_step)
 			max_step = tmp[i];
+
+		DBG_MSG("%d theory-real = %dum",i, currentPos[i] - (int)(currentSteps[i]*um_per_pulse[i]));
 	}
 
 	for (int i = 0; i < 4; ++i)
@@ -176,8 +182,12 @@ bool Move_AbsoluteMove(int xyza[4])
 
 	for (int i = 0; i < 4; ++i){
 		tmp[i] = calc_step(i, delta[i]);
+		currentSteps[i] += tmp[i];
+		tmp[i] = abs(tmp[i]);
 		if(tmp[i] > max_step)
 			max_step = tmp[i];
+
+		DBG_MSG("%d theory-real = %dum",i, currentPos[i] - (int)(currentSteps[i]*um_per_pulse[i]));
 	}
 
 	for (int i = 0; i < 4; ++i)
@@ -204,6 +214,7 @@ bool Move_SetCurrentPos(int xyza[4])
 
 	for (int i = 0; i < 4; ++i){
 		currentPos[i] = xyza[i];
+		currentSteps[i] = calc_step(i, xyza[i]);
 	}
 	
 	return true;
