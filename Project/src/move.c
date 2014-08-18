@@ -118,50 +118,18 @@ int calc_step(int axis, int um)
 }
 
 //三轴相对移动及挤出器旋转
-bool Move_RelativeMove(int xyza[4])
+bool Move_RelativeMove(int xyza[4], int feedrate)
 {
-	int tmp[4], max_step = 0;
-
-	if(!Move_XYZ_Ready())
-		return false;
+	int tmp[4];
 
 	for (int i = 0; i < 4; ++i)
 		tmp[i] = currentPos[i] + xyza[i];
 
-	if(tmp[X_Axis] < 0 || tmp[X_Axis] > X_MAX_LIMIT)
-		return false;
-	if(tmp[Y_Axis] < 0 || tmp[Y_Axis] > Y_MAX_LIMIT)
-		return false;
-	if(tmp[Z_Axis] < 0 || tmp[Z_Axis] > Z_MAX_LIMIT)
-		return false;
-
-	for (int i = 0; i < 4; ++i)
-		currentPos[i] = tmp[i];
-
-	for (int i = 0; i < 4; ++i){
-		tmp[i] = calc_step(i, xyza[i]);
-		currentSteps[i] += tmp[i];
-		tmp[i] = abs(tmp[i]);
-		if(tmp[i] > max_step)
-			max_step = tmp[i];
-
-		DBG_MSG("%d theory-real = %dum",i, currentPos[i] - (int)(currentSteps[i]*um_per_pulse[i]));
-	}
-
-	for (int i = 0; i < 4; ++i)
-	{
-		if(!tmp[i])
-			continue;
-		currentState[i] = Axis_State_Moving;
-		Motor_Start(i, tmp[i], max_step/tmp[i],
-			motorDirFix[i] * (xyza[i] > 0 ? Move_Dir_Forward : Move_Dir_Back) );
-	}
-
-	return true;
+	return Move_AbsoluteMove(tmp, feedrate);
 }
 
 //三轴绝对移动及挤出器旋转
-bool Move_AbsoluteMove(int xyza[4])
+bool Move_AbsoluteMove(int xyza[4], int feedrate)
 {
 	int tmp[4], delta[4], max_step = 0;
 
@@ -176,17 +144,14 @@ bool Move_AbsoluteMove(int xyza[4])
 		return false;
 
 	for (int i = 0; i < 4; ++i){
-		delta[i] = xyza[i] - currentPos[i];
+		int step = calc_step(i, xyza[i]);
+		delta[i] = step - currentSteps[i];
 		currentPos[i] = xyza[i];
-	}
+		currentSteps[i] = step;
 
-	for (int i = 0; i < 4; ++i){
-		tmp[i] = calc_step(i, delta[i]);
-		currentSteps[i] += tmp[i];
-		tmp[i] = abs(tmp[i]);
+		tmp[i] = abs(delta[i]);
 		if(tmp[i] > max_step)
 			max_step = tmp[i];
-
 		DBG_MSG("%d theory-real = %dum",i, currentPos[i] - (int)(currentSteps[i]*um_per_pulse[i]));
 	}
 
@@ -218,6 +183,11 @@ bool Move_SetCurrentPos(int xyza[4])
 	}
 	
 	return true;
+}
+
+void Move_ResetAxisA()
+{
+	currentPos[A_Axis] = currentSteps[A_Axis] = 0;
 }
 
 //由限位开关中断调用

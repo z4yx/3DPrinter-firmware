@@ -159,7 +159,7 @@ static void processRequest(char* cmd, char* param)
 						tmp = *param-'X';
 					val[tmp] = atoi(param+1)*1000; //um->mm
 					Motor_PowerOn();
-					result = Move_RelativeMove(val);
+					result = Move_RelativeMove(val, DEFAULT_FEEDRATE);
 					break;
 				case 'e':
 					Extruder_SetOutput(atoi(param+1));

@@ -48,6 +48,7 @@ static void Command_doNext(void);
 static void resetGcodeParams(void)
 {
 	X = Y = Z = E = F = 0;
+	F = DEFAULT_FEEDRATE;
 }
 
 void Command_Init(void)
@@ -130,6 +131,8 @@ void Command_Task(void)
 			break;
 		case MACH_STATE_HOMING:
 			if(Move_XYZ_Ready()){
+				//三轴回原点后，设置挤出器坐标为0
+				Move_ResetAxisA();
 				DBG_MSG("Operation \"Homing\" Done!", 0);
 				currentState = MACH_STATE_READY;
 				Motor_PowerOff();
@@ -166,7 +169,7 @@ static void doDrawingCmd()
 	xyza[2] = Z + Z_OFFSET;
 	xyza[3] = E;
 
-	Move_AbsoluteMove(xyza);
+	Move_AbsoluteMove(xyza, F);
 }
 static void setCurrentPos()
 {	
@@ -212,6 +215,7 @@ void Command_doNext()
 					else if(sym == 'Z')
 						Z = UNIT_CONV(value);
 				}
+				F = DEFAULT_FEEDRATE;
 				DBG_MSG("G0_RAPID_MOVE %d,%d,%d", X, Y, Z);
 				// REPORT(INFO_G_G0,"%d,%d,%d", X, Y, Z);
 				Motor_PowerOn();
@@ -227,7 +231,7 @@ void Command_doNext()
 					else if(sym == 'Z')
 						Z = UNIT_CONV(value);
 					else if(sym == 'F')
-						F = (value);
+						F = UNIT_CONV(value);
 					else if(sym == 'E')
 						E = UNIT_CONV(value);
 				}
