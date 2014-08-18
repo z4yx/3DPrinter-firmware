@@ -1,0 +1,1 @@
+#define PWM_Channel(ch, percent, bEnable) ((void)0)
