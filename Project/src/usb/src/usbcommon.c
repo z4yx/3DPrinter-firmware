@@ -5,9 +5,7 @@
 #include "usbcommon.h"
 #include "usbstorage.h"
 
-ErrorStatus HSEStartUpStatus;
-USART_InitTypeDef USART_InitStructure;
-EXTI_InitTypeDef EXTI_InitStructure;
+static EXTI_InitTypeDef EXTI_InitStructure;
 
 /*******************************************************************************
 * Function Name  : Set_System
@@ -91,6 +89,7 @@ static void Set_System(void)
   /* Configure the EXTI line 18 connected internally to the USB IP */
   EXTI_ClearITPendingBit(EXTI_Line18);
   EXTI_InitStructure.EXTI_Line = EXTI_Line18; 
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);

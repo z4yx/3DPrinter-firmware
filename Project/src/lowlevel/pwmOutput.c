@@ -53,14 +53,13 @@ static void TIM2_Output_Config(bool bConnectToPWM, uint16_t pins)
 static void TIMx_Config(TIM_TypeDef* TIMx, uint16_t period, uint16_t prescaler)
 {
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE); 
 
 	/* Time base configuration */		 
 	TIM_TimeBaseStructure.TIM_Period = period;
 	TIM_TimeBaseStructure.TIM_Prescaler = prescaler;	        //设置预分频
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;                //设置时钟分频系数
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; //向上计数模式
 
 	TIM_TimeBaseInit(TIMx, &TIM_TimeBaseStructure);
 
@@ -81,6 +80,7 @@ static void TIMx_Config(TIM_TypeDef* TIMx, uint16_t period, uint16_t prescaler)
 static void TIMx_OCx_Config(TIM_TypeDef* TIMx, int OCx, uint16_t pulse, uint16_t output)
 {
     TIM_OCInitTypeDef  TIM_OCInitStructure;
+    TIM_OCStructInit(&TIM_OCInitStructure);
 
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;       //配置为PWM模式1
     TIM_OCInitStructure.TIM_OutputState = output;   

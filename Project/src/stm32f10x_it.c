@@ -23,7 +23,7 @@
 
 extern void IncSysTickCounter(void);
 extern void LimitSwitch_Interrupt(void);
-extern void Motor_Interrupt(void);
+extern void Motor_Interrupt(TIM_TypeDef *tim);
 extern void PWM_TIM2_Interrupt(void);
 extern void HostCtrl_Interrupt(void);
 
@@ -177,9 +177,24 @@ void TIM2_IRQHandler(void)
     PWM_TIM2_Interrupt();
 }
 
-void TIM3_IRQHandler(void)
+void TIM4_IRQHandler(void)
 {
-    Motor_Interrupt();
+    Motor_Interrupt(TIM4);
+}
+
+void TIM5_IRQHandler(void)
+{
+    Motor_Interrupt(TIM5);
+}
+
+void TIM6_IRQHandler(void)
+{
+    Motor_Interrupt(TIM6);
+}
+
+void TIM7_IRQHandler(void)
+{
+    Motor_Interrupt(TIM7);
 }
 
 void USART1_IRQHandler(void)
