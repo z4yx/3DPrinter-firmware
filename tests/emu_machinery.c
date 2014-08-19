@@ -71,7 +71,6 @@ void EMUMACH_TIM_Set(uint8_t tim, uint16_t period, uint16_t prescaler, uint16_t 
 }
 void EMUMACH_TIM_Cmd(uint8_t tim, uint8_t enable)
 {
-    printf("%d enable:%d\n", tim, enable);
     tims[tim].en = enable;
 }
 uint8_t EMUMACH_TIM_UpdateFlag(uint8_t tim)
