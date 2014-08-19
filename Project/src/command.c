@@ -30,6 +30,8 @@
 //G代码中使用mm,而程序中使用um
 #define UNIT_CONV(x) (1000*(x))
 
+enum {AbsolutePositioning, RelativePositioning};
+
 //G代码行缓冲
 static char linebuf[MAX_LINE_LENGTH+1];
 //G代码中的几个参数
@@ -40,6 +42,8 @@ static uint8_t currentMode;
 static uint16_t currentState;
 //完成百分比
 static uint8_t Progress;
+//当前坐标模式(绝对/相对)
+static uint8_t PositioningMode;
 
 static int codeLine;
 
@@ -49,6 +53,7 @@ static void resetGcodeParams(void)
 {
 	X = Y = Z = E = F = 0;
 	F = DEFAULT_FEEDRATE;
+	PositioningMode = AbsolutePositioning;
 }
 
 void Command_Init(void)
@@ -207,39 +212,70 @@ void Command_doNext()
 		cmd = getnum(&p);
 		switch(cmd){
 			case G0_RAPID_MOVE:
-				while(getparam(&p, &sym, &value)){
-					if(sym == 'X')
-						X = UNIT_CONV(value);
-					else if(sym == 'Y')
-						Y = UNIT_CONV(value);
-					else if(sym == 'Z')
-						Z = UNIT_CONV(value);
-				}
-				F = DEFAULT_FEEDRATE;
-				DBG_MSG("G0_RAPID_MOVE %d,%d,%d", X, Y, Z);
-				// REPORT(INFO_G_G0,"%d,%d,%d", X, Y, Z);
-				Motor_PowerOn();
-				doDrawingCmd();
-				currentState = MACH_STATE_DRAWING;
-				break;
 			case G1_CONTROLLED_MOVE:
 				while(getparam(&p, &sym, &value)){
+					int *t = NULL;
 					if(sym == 'X')
-						X = UNIT_CONV(value);
+						t = &X;
 					else if(sym == 'Y')
-						Y = UNIT_CONV(value);
+						t = &Y;
 					else if(sym == 'Z')
-						Z = UNIT_CONV(value);
+						t = &Z;
 					else if(sym == 'F')
 						F = UNIT_CONV(value);
 					else if(sym == 'E')
-						E = UNIT_CONV(value);
+						t = &E;
+					if(t){
+						*t = (PositioningMode == AbsolutePositioning ?
+								UNIT_CONV(value) : *t + UNIT_CONV(value));
+					}
 				}
-				DBG_MSG("G1_CONTROLLED_MOVE %d,%d,%d,%d,%d", X, Y, Z, F, E);
+				if(cmd == G0_RAPID_MOVE){
+					F = DEFAULT_FEEDRATE;
+					DBG_MSG("G0_RAPID_MOVE %d,%d,%d", X, Y, Z);
+				}else{
+					DBG_MSG("G1_CONTROLLED_MOVE %d,%d,%d,%d,%d", X, Y, Z, F, E);
+				}
 				// REPORT(INFO_G_G1,"%d,%d,%d,%d,%d", X, Y, Z, F, E);
 				Motor_PowerOn();
 				doDrawingCmd();
 				currentState = MACH_STATE_DRAWING;
+				break;
+			case G28_MOVE_TO_ORIGIN:
+				Motor_PowerOn();
+				sym=getletter(&p);
+				if(sym < 'X' || sym > 'Z'){
+					//if no axis is specified, then home all
+					Move_Home(X_Axis);
+					Move_Home(Y_Axis);
+					Move_Home(Z_Axis);
+					DBG_MSG("G28_MOVE_TO_ORIGIN all axes", 0);
+				}
+				for(; 'X'<=sym && sym<='Z'; sym=getletter(&p)){
+					switch(sym) {
+						case 'X':
+							Move_Home(X_Axis);
+							break;
+						case 'Y':
+							Move_Home(Y_Axis);
+							break;
+						case 'Z':
+							Move_Home(Z_Axis);
+							break;
+					}
+					char out[] = {sym, '\0'};
+					DBG_MSG("G28_MOVE_TO_ORIGIN %s", out);
+					REPORT(INFO_G_G28, "%s", out);
+				}
+				currentState = MACH_STATE_HOMING;
+				break;
+			case G90_ABSOLUTE_COORD:
+				DBG_MSG("G90_ABSOLUTE_COORD", 0);
+				PositioningMode = AbsolutePositioning;
+				break;
+			case G91_RELATIVE_COORD:
+				DBG_MSG("G91_RELATIVE_COORD", 0);
+				PositioningMode = RelativePositioning;
 				break;
 			case G92_SET_POSITION:
 				while(getparam(&p, &sym, &value)){
@@ -304,6 +340,10 @@ void Command_doNext()
 				DBG_MSG("M18_DISABLE_MOTORS", 0);
 				REPORT(INFO_G_M18,"", 0);
 
+				Motor_PowerOff();
+				break;
+			case M84_STOP_IDLE_HOLD:
+				DBG_MSG("M84_STOP_IDLE_HOLD", 0);
 				Motor_PowerOff();
 				break;
 			case M73_SET_PROGRESS:
