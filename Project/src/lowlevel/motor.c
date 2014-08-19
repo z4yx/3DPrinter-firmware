@@ -143,6 +143,7 @@ void Motor_Interrupt(TIM_TypeDef *tim)
 						if(!Motor_PendingSteps[i]){
 							//attenuate holding current
 							GPIO_SetBits(Motor_OE_Ports[i], Motor_OE_Pins[i]);
+							GPIO_ResetBits(Motor_Step_Ports[i], Motor_Step_Pins[i]);
 							TIM_Cmd(tim, DISABLE);
 							Move_Axis_Eneded(i);
 						}
@@ -158,6 +159,7 @@ void Motor_Interrupt(TIM_TypeDef *tim)
 void Motor_Stop(int motor_enum)
 {
 	GPIO_SetBits(Motor_OE_Ports[motor_enum], Motor_OE_Pins[motor_enum]);
+	GPIO_ResetBits(Motor_Step_Ports[motor_enum], Motor_Step_Pins[motor_enum]);
 	TIM_Cmd(Motor_TIM[motor_enum], DISABLE);
 	Motor_PendingSteps[motor_enum] = 0;
 }
@@ -174,6 +176,7 @@ void Motor_Start(int motor_enum, int steps, int8_t dir, uint32_t freq)
 
 	// set current to 100%
 	GPIO_ResetBits(Motor_OE_Ports[motor_enum], Motor_OE_Pins[motor_enum]);
+	GPIO_ResetBits(Motor_Step_Ports[motor_enum], Motor_Step_Pins[motor_enum]);
 
 	Motor_OutputLevel[motor_enum] = 1;
 
