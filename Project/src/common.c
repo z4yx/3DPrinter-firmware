@@ -18,6 +18,7 @@
 
 #include "stm32f10x.h"
 #include "common.h"
+#include <math.h>
 
 void RCC_GPIOClockCmd(GPIO_TypeDef* GPIOx, FunctionalState state)
 {
@@ -74,5 +75,9 @@ void Timer_16bit_Calc(int freq, uint16_t *period, uint16_t *prescaler)
 	}
 	(*prescaler) --;
 	*period = tmp-1;
-	}
+}
+
+float Distance3D(float dx, float dy, float dz)
+{
+	return sqrt(dx*dx + dy*dy + dz*dz);
 }
