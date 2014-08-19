@@ -160,10 +160,17 @@ bool Move_AbsoluteMove(int xyza[4], int feedrate)
 		DBG_MSG("%d theory-real = %dum",i, currentPos[i] - (int)(currentSteps[i]*um_per_pulse[i]));
 	}
 
-	float duration = 
-		Distance3D(delta[X_Axis], delta[Y_Axis], delta[Z_Axis]) / feedrate * MIN2SEC;
+	float distance = Distance3D(delta[X_Axis], delta[Y_Axis], delta[Z_Axis]);
+	if(distance < 1) {
+		distance = delta[A_Axis];
+		if(distance < 1) {
+			ERR_MSG("Move distance < 1", 0);
+			return false;
+		}
+	}
+	float duration = distance / feedrate * MIN2SEC;
 
-	DBG_MSG("duration: %d", (int)duration);
+	DBG_MSG("duration: %dms", (int)(duration*1000));
 
 	for (int i = 0; i < 4; ++i)
 	{
