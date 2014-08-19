@@ -35,6 +35,7 @@ uint8_t EMUMACH_GetLimitSwitch(uint8_t sw)
             break;
         default:
             ERR_MSG("Invalid switch number %d", sw);
+            asm("int $3");
             return false;
     }
     // printf("limitSwitch %d: state: %d\n", motor, emu_steppers[motor].steps > 0);
@@ -59,6 +60,7 @@ void EMUMACH_SetStepperStepHigh(uint8_t motor)
         // printf("motor %d: steps: %lld\n", motor, emu_steppers[motor].steps);
     }else{
         printf("error: %s\n", "not raise edge");
+        asm("int $3");
     }
 }
 void EMUMACH_TIM_Set(uint8_t tim, uint16_t period, uint16_t prescaler, uint16_t oc)
@@ -69,11 +71,16 @@ void EMUMACH_TIM_Set(uint8_t tim, uint16_t period, uint16_t prescaler, uint16_t 
 }
 void EMUMACH_TIM_Cmd(uint8_t tim, uint8_t enable)
 {
+    printf("%d enable:%d\n", tim, enable);
     tims[tim].en = enable;
 }
 uint8_t EMUMACH_TIM_UpdateFlag(uint8_t tim)
 {
     return tims[tim].update_flag;
+}
+void EMUMACH_TIM_ClearUpdateFlag(uint8_t tim)
+{
+    tims[tim].update_flag = 0;
 }
 uint8_t EMUMACH_TIM_CC1Flag(uint8_t tim)
 {
@@ -81,23 +88,24 @@ uint8_t EMUMACH_TIM_CC1Flag(uint8_t tim)
 }
 void sigroutine(int signo)
 { 
-    // for (int i = 0; i < 8; ++i)
-    // {
-        int i = 3;
+    for (int i = 0; i < 8; ++i)
+    {
         if(tims[i].en) {
-            tims[i].count++;
-            if(tims[i].count==1){
-                tims[i].oc_flag = 1;
-                tims[i].update_flag=0;
-                Motor_Interrupt();
-            }else if(tims[i].count==2){
-                tims[i].oc_flag = 0;
-                tims[i].update_flag=1;
-                tims[i].count = 0;
-                Motor_Interrupt();
-            }
+            // tims[i].count++;
+            // if(tims[i].count==1){
+            //     tims[i].oc_flag = 1;
+            //     tims[i].update_flag=0;
+            //     Motor_Interrupt();
+            // }else if(tims[i].count==2){
+            //     tims[i].oc_flag = 0;
+            //     tims[i].update_flag=1;
+            //     tims[i].count = 0;
+            //     Motor_Interrupt();
+            // }
+            tims[i].update_flag=1;
+            Motor_Interrupt_emu(i);
         }
-    // }
+    }
 }
 void *thread_tim(void *arg)
 {

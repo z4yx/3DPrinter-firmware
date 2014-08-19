@@ -5,7 +5,7 @@ FIRMWARE_OBJS=$(patsubst %.c,firmware_%.o,$(FIRMWARE_SRC))
 EMU_SRC = systick.c common.c gfiles.c limitSwitch.c motor.c machinery.c
 EMU_OBJS=$(patsubst %.c,emu_%.o,$(EMU_SRC))
 
-CFLAGS += -std=gnu99 -Wno-format-extra-args -pthread
+CFLAGS += -std=gnu99 -Wno-format-extra-args -pthread -g
 EXTRA_INC = -I.
 
 CC = gcc-4.9

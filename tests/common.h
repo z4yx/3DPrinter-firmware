@@ -8,6 +8,8 @@
 
 #define SystemCoreClock 72000000
 
+typedef int TIM_TypeDef;
+
 typedef enum bool_t{FALSE = 0, TRUE = !FALSE}bool;
 #define true TRUE
 #define false FALSE
@@ -32,6 +34,7 @@ typedef enum bool_t{FALSE = 0, TRUE = !FALSE}bool;
 #define RCC_GPIOClockCmd(x) ((void)0)
 #define RCC_USARTClockCmd(x) ((void)0)
 void Timer_16bit_Calc(int freq, uint16_t *period, uint16_t *prescaler);
+float Distance3D(float dx, float dy, float dz);
 
 typedef void (*Task_t)(void);
 
