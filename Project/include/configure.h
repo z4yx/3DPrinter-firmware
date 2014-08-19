@@ -92,9 +92,6 @@
 //功率输出板极性反转,影响PWM,风扇等
 // #define DRIVER_BOARD_POLARITY
 
-//步进电机脉冲频率(单位Hz)
-#define MOTOR_STEP_FREQ 8000
-
 //默认给进速度(um/min)
 #define DEFAULT_FEEDRATE (1000*1000)
 

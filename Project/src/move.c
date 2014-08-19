@@ -21,6 +21,9 @@
 #include "move.h"
 #include "systick.h"
 #include "limitSwitch.h"
+#include <stdlib.h>
+
+#define MIN2SEC 60
 
 //三轴当前位置(相对原点的距离,单位um),及挤出器累计旋转量
 static int currentPos[4];
@@ -131,7 +134,7 @@ bool Move_RelativeMove(int xyza[4], int feedrate)
 //三轴绝对移动及挤出器旋转
 bool Move_AbsoluteMove(int xyza[4], int feedrate)
 {
-	int tmp[4], delta[4], max_step = 0;
+	int tmp[4], delta[4], dir[4];
 
 	if(!Move_XYZ_Ready())
 		return false;
@@ -145,23 +148,29 @@ bool Move_AbsoluteMove(int xyza[4], int feedrate)
 
 	for (int i = 0; i < 4; ++i){
 		int step = calc_step(i, xyza[i]);
-		delta[i] = step - currentSteps[i];
+		int d = step - currentSteps[i];
+
+		dir[i] = motorDirFix[i] * (d > 0 ? Move_Dir_Forward : Move_Dir_Back);
+		tmp[i] = abs(d);
+		delta[i] = xyza[i] - currentPos[i];
+
 		currentPos[i] = xyza[i];
 		currentSteps[i] = step;
 
-		tmp[i] = abs(delta[i]);
-		if(tmp[i] > max_step)
-			max_step = tmp[i];
 		DBG_MSG("%d theory-real = %dum",i, currentPos[i] - (int)(currentSteps[i]*um_per_pulse[i]));
 	}
+
+	float duration = 
+		Distance3D(delta[X_Axis], delta[Y_Axis], delta[Z_Axis]) / feedrate * MIN2SEC;
+
+	DBG_MSG("duration: %d", (int)duration);
 
 	for (int i = 0; i < 4; ++i)
 	{
 		if(!tmp[i])
 			continue;
 		currentState[i] = Axis_State_Moving;
-		Motor_Start(i, tmp[i], max_step/tmp[i],
-			motorDirFix[i] * (delta[i] > 0 ? Move_Dir_Forward : Move_Dir_Back) );
+		Motor_Start(i, tmp[i], dir[i], (uint32_t)(tmp[i]/duration));
 	}
 
 	return true;
