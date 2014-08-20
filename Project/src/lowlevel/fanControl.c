@@ -38,6 +38,7 @@ void Fan_Config()
 
 void Fan_Enable(bool bEnabled)
 {
+	DBG_MSG("Enable=%d", bEnabled);
 #ifdef DRIVER_BOARD_POLARITY
 	bEnabled = !bEnabled;
 #endif

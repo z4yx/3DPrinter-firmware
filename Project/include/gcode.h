@@ -37,9 +37,13 @@
 #endif
 #define M18_DISABLE_MOTORS 18
 #define M84_STOP_IDLE_HOLD 84
+#define M106_FAN_ON        106
+#define M107_FAN_OFF       107
 #if GCODE_FLAVOR == FLAVOR_REPLICATORG
 #define M104_EXTRUDER_SET  104
 #define M109_HEATBED_SET   109
+#define M126_FAN_ON        126
+#define M127_FAN_OFF       127
 #else
 #define M104_EXTRUDER_SET  104
 #define M109_EXTRUDER_WAIT 109

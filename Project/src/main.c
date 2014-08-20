@@ -42,6 +42,7 @@ static void periphInit()
 	PWM_Init(HEATER_PWM_FREQ);
 	Move_Init();
 	Extruder_Init();
+	Fan_Config();
 	HeatBed_Init();
 	USBDevice_Config();
 	Command_Init();

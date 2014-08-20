@@ -21,6 +21,7 @@
 #include "motor.h"
 #include "heatbed.h"
 #include "extruder.h"
+#include "fanControl.h"
 #include "gfiles.h"
 #include "gcode.h"
 #include "usb.h"
@@ -369,6 +370,31 @@ void Command_doNext()
 				REPORT(INFO_G_M73,"%d", P);
 				break;
 #endif
+			case M106_FAN_ON:
+			case M107_FAN_OFF:
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
+			case M126_FAN_ON:
+			case M127_FAN_OFF:
+#endif
+				value = -1;
+				sym = 0;
+				while(getparam(&p, &sym, &value) && sym != 'S');
+				if(cmd == M107_FAN_OFF
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
+					|| cmd == M127_FAN_OFF
+#endif
+					){
+
+					DBG_MSG("M107_FAN_OFF", 0);
+					Fan_Enable(false);
+				}else if(sym == 'S' && value == 0){
+					DBG_MSG("M106_FAN_ON S=%d", (int)value);
+					Fan_Enable(false);
+				}else{
+					DBG_MSG("M106_FAN_ON S=%d", (int)value);
+					Fan_Enable(true);
+				}
+				break;
 #if GCODE_FLAVOR == FLAVOR_REPLICATORG
 			case M104_EXTRUDER_SET:
 			case M109_HEATBED_SET:
