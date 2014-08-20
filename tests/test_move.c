@@ -19,7 +19,7 @@ int main(int argc, char const *argv[])
 
 	DBG_MSG("Peripheral init done.", 0);
 
-	Command_StartPrinting("/Users/zhang/Downloads/gcode/gear.gcode");
+	Command_StartPrinting("/Users/zhang/Downloads/gcode/slic3r_box.gcode");
 
 	while (1)
 	{
