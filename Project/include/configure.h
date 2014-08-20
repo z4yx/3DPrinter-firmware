@@ -16,15 +16,30 @@
  * =====================================================================================
  */
 
+#define FLAVOR_REPLICATORG 1
+#define FLAVOR_CURA        2
+#define FLAVOR_SLIC3R      3
+
+//G代码生成工具,选择一个
+// #define GCODE_FLAVOR FLAVOR_REPLICATORG
+// #define GCODE_FLAVOR FLAVOR_CURA
+#define GCODE_FLAVOR FLAVOR_SLIC3R
+
 //三轴最大行程(um)
 #define X_MAX_LIMIT 160000
 #define Y_MAX_LIMIT 180000
 #define Z_MAX_LIMIT 100000
 
 //从G代码坐标到实际坐标的偏移(um)
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
 #define X_OFFSET (X_MAX_LIMIT/2-15000)
 #define Y_OFFSET (Y_MAX_LIMIT/2)
 #define Z_OFFSET 1720
+#else
+#define X_OFFSET 0
+#define Y_OFFSET 0
+#define Z_OFFSET 0
+#endif
 
 //X轴步进电机旋转一周对应的直线位移(um)
 #define X_DISTANCE_PER_CYCLE 4000

@@ -45,6 +45,7 @@ void Extruder_Init()
 
 void Extruder_Start_Heating(uint16_t _target)
 {
+	DBG_MSG("Target=%d", _target);
 	Fan_Enable(true);
 	PID_Init(&pid, EXTRUDER_PID_KP, EXTRUDER_PID_KI, EXTRUDER_PID_KD, EXTRUDER_PID_INIT_SUM);
 	PWM_Channel(Ex1Heat_Ch, 90, false);

@@ -150,6 +150,18 @@ void Command_Task(void)
 				currentState = MACH_STATE_READY;
 			}
 			break;
+		case MACH_STATE_WAIT_EXTRUDER:
+			if(Extruder_TempReached()) {
+				DBG_MSG("Extruder Temperature Reached!", 0);
+				currentState = MACH_STATE_READY;
+			}
+			break;
+		case MACH_STATE_WAIT_HEATBED:
+			if(HeatBed_TempReached()) {
+				DBG_MSG("HeatBed Temperature Reached!", 0);
+				currentState = MACH_STATE_READY;
+			}
+			break;
 		case MACH_STATE_DRAWING:
 			if(Move_XYZ_Ready()){
 				// DBG_MSG("Operation \"Drawing\" Done!", 0);
@@ -292,6 +304,7 @@ void Command_doNext()
 				REPORT(INFO_G_G92,"%d,%d,%d,%d", X, Y, Z, E);
 				setCurrentPos();
 				break;
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
 			case G162_HOME_MAXIMUM:
 			case G161_HOME_MINIMUM:
 				Motor_PowerOn();
@@ -317,6 +330,7 @@ void Command_doNext()
 				}
 				currentState = MACH_STATE_HOMING;
 				break;
+#endif
 			default:
 				break;
 		}
@@ -325,17 +339,17 @@ void Command_doNext()
 		p++;
 		cmd = getnum(&p);
 		switch(cmd){
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
 			case M6_WAIT_FOR_TOOL:
 				if(getparam(&p, &sym, &value) && sym == 'T')
 					T = value;
 				DBG_MSG("M6_WAIT_FOR_TOOL %d", T);
 				REPORT(INFO_G_M6,"%d", T);
 
-				Extruder_Start_Heating(EXTRUDER_DEFAULT_TEMP);
-				HeatBed_Start_Heating(HEATBED_DEFAULT_TEMP);
 				Motor_PowerOff();
 				currentState = MACH_STATE_WAIT_HEAT;
 				break;
+#endif
 			case M18_DISABLE_MOTORS:
 				DBG_MSG("M18_DISABLE_MOTORS", 0);
 				REPORT(INFO_G_M18,"", 0);
@@ -346,12 +360,51 @@ void Command_doNext()
 				DBG_MSG("M84_STOP_IDLE_HOLD", 0);
 				Motor_PowerOff();
 				break;
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
 			case M73_SET_PROGRESS:
 				if(getparam(&p, &sym, &value) && sym == 'P')
 					P = value;
 				Progress = P;
 				DBG_MSG("M73_SET_PROGRESS %d", P);
 				REPORT(INFO_G_M73,"%d", P);
+				break;
+#endif
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
+			case M104_EXTRUDER_SET:
+			case M109_HEATBED_SET:
+#else
+			case M104_EXTRUDER_SET:
+			case M109_EXTRUDER_WAIT:
+			case M140_HEATBED_SET:
+			case M190_HEATBED_WAIT:
+#endif
+				sym = 0;
+				while(getparam(&p, &sym, &value) && sym != 'S');
+				if(sym != 'S'){
+					ERR_MSG("No Param S", 0);
+					break;
+				}
+				if(cmd == M104_EXTRUDER_SET
+#ifdef M109_EXTRUDER_WAIT
+					|| cmd == M109_EXTRUDER_WAIT
+#endif
+					){
+					Extruder_Start_Heating(value);
+				}else{
+					HeatBed_Start_Heating(value);
+				}
+#if GCODE_FLAVOR != FLAVOR_REPLICATORG
+				if(cmd == M109_EXTRUDER_WAIT){
+					DBG_MSG("M109_EXTRUDER_WAIT", 0);
+					Motor_PowerOff();
+					currentState = MACH_STATE_WAIT_EXTRUDER;
+				}
+				if(cmd == M190_HEATBED_WAIT){
+					DBG_MSG("M190_HEATBED_WAIT", 0);
+					Motor_PowerOff();
+					currentState = MACH_STATE_WAIT_HEATBED;
+				}
+#endif
 				break;
 			default:
 				break;
