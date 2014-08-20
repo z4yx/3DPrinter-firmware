@@ -162,7 +162,7 @@ bool Move_AbsoluteMove(int xyza[4], int feedrate)
 
 	float distance = Distance3D(delta[X_Axis], delta[Y_Axis], delta[Z_Axis]);
 	if(distance < 1) {
-		distance = delta[A_Axis];
+		distance = abs(delta[A_Axis]);
 		if(distance < 1) {
 			ERR_MSG("Move distance < 1", 0);
 			return false;
