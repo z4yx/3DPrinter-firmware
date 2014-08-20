@@ -24,6 +24,7 @@ typedef enum bool_t{FALSE = 0, TRUE = !FALSE}bool;
 #define INFO_PRINT       "PRT"
 #define INFO_G_G0        "G0"
 #define INFO_G_G1        "G1"
+#define INFO_G_G28       "G28"
 #define INFO_G_G92       "G92"
 #define INFO_G_G161      "G161"
 #define INFO_G_M6        "M6"
