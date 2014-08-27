@@ -122,15 +122,22 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 	}
 
 	for(cur_file = 0; cur_file < SD_MAX_ITEMS; ){
+		info.lfname = GCodeFiles[cur_file];
+		info.lfsize = SD_MAX_FILENAME_LEN;
 		res = f_readdir(&rootDir, &info);
 		if(FR_OK == res && info.fname[0] != '\0') {
 			int length;
 			if(info.fattrib & AM_DIR)
 				continue;
 			DBG_MSG("File: %s", info.fname);
-			length = strlen(info.fname);
-			if(length > 2 && strcasecmp(info.fname+length-2, ".g") == 0) {
+			DBG_MSG("LFN: %s", info.lfname);
+			length = strlen(info.lfname);
+			if(length == 0) {
+				//LFN not available, using DOS 8.3 instead
+				length = strlen(info.fname);
 				strcpy(GCodeFiles[cur_file], info.fname);
+			}
+			if(length > 2 && strcasecmp(GCodeFiles[cur_file]+length-2, ".g") == 0) {
 				cur_file++;
 			}
 		}else {
