@@ -156,8 +156,6 @@ bool Move_AbsoluteMove(int xyza[4], int feedrate)
 
 		currentPos[i] = xyza[i];
 		currentSteps[i] = step;
-
-		DBG_MSG("%d theory-real = %dum",i, currentPos[i] - (int)(currentSteps[i]*um_per_pulse[i]));
 	}
 
 	float distance = Distance3D(delta[X_Axis], delta[Y_Axis], delta[Z_Axis]);
