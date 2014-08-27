@@ -93,6 +93,11 @@ bool FileManager_SetInUSBMode(bool usbMode)
 	return false;
 }
 
+static bool extMatch(const char *name, size_t name_len, const char * ext, size_t ext_len)
+{
+	return name_len > ext_len && strcasecmp(name + name_len - ext_len, ext) == 0;
+}
+
 //列举SD卡中的G代码文件
 char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN] 
 {
@@ -137,7 +142,8 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 				length = strlen(info.fname);
 				strcpy(GCodeFiles[cur_file], info.fname);
 			}
-			if(length > 2 && strcasecmp(GCodeFiles[cur_file]+length-2, ".g") == 0) {
+			if(extMatch(GCodeFiles[cur_file], length, ".g", 2)
+				|| extMatch(GCodeFiles[cur_file], length, ".gcode", 6)) {
 				cur_file++;
 			}
 		}else {
