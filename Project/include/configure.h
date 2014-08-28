@@ -62,6 +62,13 @@
 //Z轴运行方向调整(取值+/-1)
 #define Z_DIRECTION_ADJ      1
 
+//挤出器步进电机旋转一周对应的原料丝运动长度(um)
+#define A_DISTANCE_PER_CYCLE 34540
+//挤出器步进电机旋转一周需要的脉冲数量(考虑细分)
+#define A_PULSES_PER_CYCLE (16*200)
+//挤出器运行方向调整(取值+/-1)
+#define A_DIRECTION_ADJ      1
+
 //限位开关最小触发间隔时间(ms)
 #define LIMIT_SWITCH_MIN_TOGGLE_PERIOD 50
 //限位开关接通有效的阈值(ms)
@@ -76,11 +83,6 @@
 
 //加热器PWM输出频率(单位Hz)
 #define HEATER_PWM_FREQ 90
-
-//挤出器电机方向修正(取值+/-1)
-#define EXTRUDER_MOTOR_DIR 1
-//挤出量系数调整(越大量越少)
-#define EXTRUDER_VOLUME_ADJ 10
 
 //挤出器输出更新频率限制(ms)
 #define EXTRUDER_UPDATE_PERIOD 500

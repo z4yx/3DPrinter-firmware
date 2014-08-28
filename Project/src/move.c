@@ -37,7 +37,7 @@ static float um_per_pulse[4];
 //三轴当前状态
 static volatile uint8_t currentState[3];
 
-static const int8_t motorDirFix[4] = {X_DIRECTION_ADJ, Y_DIRECTION_ADJ, Z_DIRECTION_ADJ, EXTRUDER_MOTOR_DIR};
+static const int8_t motorDirFix[4] = {X_DIRECTION_ADJ, Y_DIRECTION_ADJ, Z_DIRECTION_ADJ, A_DIRECTION_ADJ};
 
 void Move_Init()
 {
@@ -47,7 +47,7 @@ void Move_Init()
 	um_per_pulse[X_Axis] = (float)X_DISTANCE_PER_CYCLE / X_PULSES_PER_CYCLE;
 	um_per_pulse[Y_Axis] = (float)Y_DISTANCE_PER_CYCLE / Y_PULSES_PER_CYCLE;
 	um_per_pulse[Z_Axis] = (float)Z_DISTANCE_PER_CYCLE / Z_PULSES_PER_CYCLE;
-	um_per_pulse[A_Axis] = EXTRUDER_VOLUME_ADJ;
+	um_per_pulse[A_Axis] = (float)A_DISTANCE_PER_CYCLE / A_PULSES_PER_CYCLE;
 
 	for (int i = 0; i < 3; ++i)
 	{
