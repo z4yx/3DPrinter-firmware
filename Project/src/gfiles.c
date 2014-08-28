@@ -106,13 +106,11 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 	DIR rootDir;
 	int cur_file;
 
-	DBG_MSG("1");
 	if(card_status != FM_CARD_FREE){
 		ERR_MSG("Failed. card_status=%d", (int)card_status);
 		return 0;
 	}
 
-	DBG_MSG("2");
 	if(f_mount(0, &fileSystem) != FR_OK){
 		ERR_MSG("Failed to mount SD card!", 0);
 		return 0;
@@ -120,7 +118,6 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 
 	card_status = FM_CARD_MOUNTED;
 
-	DBG_MSG("3");
 	res = f_opendir(&rootDir, SD_GFILES_DIR);
 	if(FR_OK != res){
 		ERR_MSG("Failed to open root dir! result=%d", (int)res);
@@ -128,7 +125,6 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 		card_status = FM_CARD_FREE;
 		return 0;
 	}
-	DBG_MSG("OK");
 
 	for(cur_file = 0; cur_file < SD_MAX_ITEMS; ){
 		info.lfname = GCodeFiles[cur_file];
@@ -146,6 +142,8 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 				length = strlen(info.fname);
 				strcpy(GCodeFiles[cur_file], info.fname);
 			}
+			if(GCodeFiles[cur_file][0] == '.')
+				continue;
 			if(extMatch(GCodeFiles[cur_file], length, ".g", 2)
 				|| extMatch(GCodeFiles[cur_file], length, ".gcode", 6)) {
 				cur_file++;
