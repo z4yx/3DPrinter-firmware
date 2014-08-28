@@ -59,10 +59,10 @@ void FileManager_Init(void)
     if(Status != SD_OK)
         return;
 
-    DBG_MSG("CardCapacity: %dK, %d Blocks, Block Size %d",
-    	SDCardInfo.CardCapacity/1024,
-    	SDCardInfo.CardCapacity/SDCardInfo.CardBlockSize,
-    	SDCardInfo.CardBlockSize);
+    DBG_MSG("CardCapacity: %dM, Block Size %d",
+    	(int)(SDCardInfo.CardCapacity/1024/1024),
+    	(int)SDCardInfo.CardBlockSize);
+    DBG_MSG("CardType: %d", (int)SDCardInfo.CardType);
 
 	card_status = FM_CARD_FREE;
 	DBG_MSG("SD Card Init OK!", 0);
@@ -106,11 +106,13 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 	DIR rootDir;
 	int cur_file;
 
+	DBG_MSG("1");
 	if(card_status != FM_CARD_FREE){
 		ERR_MSG("Failed. card_status=%d", (int)card_status);
 		return 0;
 	}
 
+	DBG_MSG("2");
 	if(f_mount(0, &fileSystem) != FR_OK){
 		ERR_MSG("Failed to mount SD card!", 0);
 		return 0;
@@ -118,6 +120,7 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 
 	card_status = FM_CARD_MOUNTED;
 
+	DBG_MSG("3");
 	res = f_opendir(&rootDir, SD_GFILES_DIR);
 	if(FR_OK != res){
 		ERR_MSG("Failed to open root dir! result=%d", (int)res);
@@ -125,6 +128,7 @@ char (*FileManager_ListGFiles(void))[][SD_MAX_FILENAME_LEN]
 		card_status = FM_CARD_FREE;
 		return 0;
 	}
+	DBG_MSG("OK");
 
 	for(cur_file = 0; cur_file < SD_MAX_ITEMS; ){
 		info.lfname = GCodeFiles[cur_file];
