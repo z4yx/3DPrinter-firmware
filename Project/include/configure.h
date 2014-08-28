@@ -93,7 +93,7 @@
 #define DRIVER_BOARD_POLARITY
 
 //默认给进速度(um/min)
-#define DEFAULT_FEEDRATE (1000*1000)
+#define DEFAULT_FEEDRATE (500*1000)
 
 //SD卡初始化重试次数限制
 #define SD_INIT_RETRY_TIMES 3
