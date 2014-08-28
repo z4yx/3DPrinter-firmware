@@ -53,7 +53,7 @@
 //Y轴步进电机旋转一周需要的脉冲数量(考虑细分)
 #define Y_PULSES_PER_CYCLE (16*200)
 //Y轴运行方向调整(取值+/-1)
-#define Y_DIRECTION_ADJ      -1 
+#define Y_DIRECTION_ADJ      1 
 
 //Z轴步进电机旋转一周对应的直线位移(um)
 #define Z_DISTANCE_PER_CYCLE 4000
@@ -75,10 +75,10 @@
 #define KEYBOARD_REPEAT_PERIOD 250
 
 //加热器PWM输出频率(单位Hz)
-#define HEATER_PWM_FREQ 50
+#define HEATER_PWM_FREQ 90
 
 //挤出器电机方向修正(取值+/-1)
-#define EXTRUDER_MOTOR_DIR -1
+#define EXTRUDER_MOTOR_DIR 1
 //挤出量系数调整(越大量越少)
 #define EXTRUDER_VOLUME_ADJ 10
 
@@ -105,7 +105,7 @@
 #define HEATBED_PID_INIT_SUM 100
 
 //功率输出板极性反转,影响PWM,风扇等
-// #define DRIVER_BOARD_POLARITY
+#define DRIVER_BOARD_POLARITY
 
 //默认给进速度(um/min)
 #define DEFAULT_FEEDRATE (1000*1000)
