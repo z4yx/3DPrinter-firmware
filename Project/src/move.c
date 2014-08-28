@@ -109,7 +109,7 @@ bool Move_Home(uint8_t axis)
 
 	currentState[axis] = Axis_State_Homing;
 	//一直运动直到触碰限位开关
-	Motor_Start(axis, -1, 1, Move_Dir_Back * motorDirFix[axis]);
+	Motor_Start(axis, -1, Move_Dir_Back * motorDirFix[axis], DEFAULT_FEEDRATE / MIN2SEC / um_per_pulse[axis]);
 
 	return true;
 }
