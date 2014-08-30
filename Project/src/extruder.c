@@ -37,7 +37,6 @@ void Extruder_Init()
 	bHeating = false;
 	currentTemp = -1;
 	currentOutput = 0;
-	Fan_Config();
 	MAX6675_Config();
 
 	lastUpdatingTime = GetSystemTick();
@@ -45,7 +44,7 @@ void Extruder_Init()
 
 void Extruder_Start_Heating(uint16_t _target)
 {
-	Fan_Enable(true);
+	DBG_MSG("Target=%d", _target);
 	PID_Init(&pid, EXTRUDER_PID_KP, EXTRUDER_PID_KI, EXTRUDER_PID_KD, EXTRUDER_PID_INIT_SUM);
 	PWM_Channel(Ex1Heat_Ch, 90, false);
 	currentOutput = 0;
@@ -55,7 +54,6 @@ void Extruder_Start_Heating(uint16_t _target)
 
 void Extruder_Stop_Heating()
 {
-	Fan_Enable(false);
 	PWM_Channel(Ex1Heat_Ch, 10, false);
 	currentOutput = 0;
 	bHeating = false;

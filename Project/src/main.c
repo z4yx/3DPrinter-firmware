@@ -42,6 +42,7 @@ static void periphInit()
 	PWM_Init(HEATER_PWM_FREQ);
 	Move_Init();
 	Extruder_Init();
+	Fan_Config();
 	HeatBed_Init();
 	USBDevice_Config();
 	Command_Init();
@@ -69,10 +70,28 @@ void useHSIClock()
 	while(RCC_GetSYSCLKSource() != 0x08);
 }
 
+static void NVIC_DeInit(void)
+{
+  u32 index = 0;
+  
+  NVIC->ICER[0] = 0xFFFFFFFF;
+  NVIC->ICER[1] = 0x0FFFFFFF;
+  NVIC->ICPR[0] = 0xFFFFFFFF;
+  NVIC->ICPR[1] = 0x0FFFFFFF;
+  
+  for(index = 0; index < 0x0F; index++)
+  {
+     NVIC->IP[index] = 0x00000000;
+  } 
+}
+
 //核心组件初始化,包括串口(用于打印调试信息)
 static void coreInit()
 {
+	__disable_irq();
+	NVIC_DeInit();
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	__enable_irq();
 	
 	SystemCoreClockUpdate();
 	SysTick_Init();

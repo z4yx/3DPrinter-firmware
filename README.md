@@ -8,6 +8,16 @@
  - Project/src/fatfs: FatFs文件系统库
  - Project/src/usb_library: USB设备库
  - Project/src/lowlevel: 底层设备操作封装
+
+###资源使用
+
+ - ADC1: 温度测量
+ - SDIO: 存储卡访问
+ - TIM2: 加热用PWM输出
+ - TIM4-7: 步进电机脉冲产生
+ - USART1: 调试串口
+ - USART3: 蓝牙串口
+ - USB: 大容量存储设备
  
 ###组件说明
 详细参数及细节请参考源文件

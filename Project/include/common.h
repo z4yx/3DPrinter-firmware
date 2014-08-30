@@ -40,6 +40,7 @@ extern void USART_printf(USART_TypeDef* USARTx, char *Data, ...);
 #define INFO_PRINT       "PRT"
 #define INFO_G_G0        "G0"
 #define INFO_G_G1        "G1"
+#define INFO_G_G28       "G28"
 #define INFO_G_G92       "G92"
 #define INFO_G_G161      "G161"
 #define INFO_G_M6        "M6"
@@ -50,6 +51,7 @@ extern void USART_printf(USART_TypeDef* USARTx, char *Data, ...);
 void RCC_GPIOClockCmd(GPIO_TypeDef* GPIOx, FunctionalState state);
 void RCC_USARTClockCmd(USART_TypeDef* USARTx, FunctionalState state);
 void Timer_16bit_Calc(int freq, uint16_t *period, uint16_t *prescaler);
+float Distance3D(float dx, float dy, float dz);
 
 typedef void (*Task_t)(void);
 

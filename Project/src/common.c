@@ -18,6 +18,7 @@
 
 #include "stm32f10x.h"
 #include "common.h"
+#include <math.h>
 
 void RCC_GPIOClockCmd(GPIO_TypeDef* GPIOx, FunctionalState state)
 {
@@ -66,14 +67,17 @@ void RCC_USARTClockCmd(USART_TypeDef* USARTx, FunctionalState state)
 //根据频率(Hz)计算TIM的参数
 void Timer_16bit_Calc(int freq, uint16_t *period, uint16_t *prescaler)
 {
-	*period = SystemCoreClock / freq;
+	uint32_t tmp = SystemCoreClock / freq;
+	*prescaler = 1;
+	while(tmp > 0xffff){
+		*prescaler <<= 1;
+		tmp >>= 1;
+	}
+	(*prescaler) --;
+	*period = tmp-1;
+}
 
-	if(*period > 60000) {
-		*period = SystemCoreClock / 5000 / freq - 1;
-		*prescaler = 5000 - 1;
-	}
-	else {
-		(*period)--;
-		*prescaler = 0;
-	}
+float Distance3D(float dx, float dy, float dz)
+{
+	return sqrt(dx*dx + dy*dy + dz*dz);
 }

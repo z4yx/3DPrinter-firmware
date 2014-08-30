@@ -43,6 +43,7 @@ __IO uint32_t Status = 0;
 SD_CardInfo mSDCardInfo;
 
 static bool ejected;
+static bool inited;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -58,6 +59,7 @@ uint16_t MAL_Init(uint8_t lun)
   uint16_t status = MAL_OK;
 
   ejected = false;
+  inited = false;
 
   switch (lun)
   {
@@ -178,6 +180,8 @@ uint16_t MAL_GetStatus (uint8_t lun)
   if (lun == 0)
   {
 // #if defined (USE_STM3210E_EVAL)  || defined(USE_STM32L152D_EVAL)
+    if (inited)
+      return MAL_OK;
     if (SD_Init() == SD_OK)
     {
       SD_GetCardInfo(&mSDCardInfo);
@@ -213,6 +217,7 @@ uint16_t MAL_GetStatus (uint8_t lun)
 //     Mass_Memory_Size[0] = (Mass_Block_Count[0] * Mass_Block_Size[0]);
 // #endif /* USE_STM3210E_EVAL */
       Mass_Memory_Size[0] = Mass_Block_Count[0] * Mass_Block_Size[0];
+      inited = true;
       // STM_EVAL_LEDOn(LED2);
       return MAL_OK;
 
@@ -248,6 +253,7 @@ uint16_t MAL_GetStatus (uint8_t lun)
 uint16_t MAL_Eject (uint8_t lun)
 {
   ejected = true;
+  inited = false;
   return MAL_OK;
 }
 

@@ -16,36 +16,58 @@
  * =====================================================================================
  */
 
+#define FLAVOR_REPLICATORG 1
+#define FLAVOR_CURA        2
+#define FLAVOR_SLIC3R      3
+
+//G代码生成工具,选择一个
+// #define GCODE_FLAVOR FLAVOR_REPLICATORG
+// #define GCODE_FLAVOR FLAVOR_CURA
+#define GCODE_FLAVOR FLAVOR_SLIC3R
+
 //三轴最大行程(um)
 #define X_MAX_LIMIT 160000
 #define Y_MAX_LIMIT 180000
 #define Z_MAX_LIMIT 100000
 
 //从G代码坐标到实际坐标的偏移(um)
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
 #define X_OFFSET (X_MAX_LIMIT/2-15000)
 #define Y_OFFSET (Y_MAX_LIMIT/2)
 #define Z_OFFSET 1720
+#else
+#define X_OFFSET 0
+#define Y_OFFSET 0
+#define Z_OFFSET 0
+#endif
 
 //X轴步进电机旋转一周对应的直线位移(um)
-#define X_DISTANCE_PER_CYCLE 4000
+#define X_DISTANCE_PER_CYCLE 47500
 //X轴步进电机旋转一周需要的脉冲数量(考虑细分)
 #define X_PULSES_PER_CYCLE   (16*200)
 //X轴运行方向调整(取值+/-1)
 #define X_DIRECTION_ADJ      1 
 
 //Y轴步进电机旋转一周对应的直线位移(um)
-#define Y_DISTANCE_PER_CYCLE 4000
+#define Y_DISTANCE_PER_CYCLE 66000
 //Y轴步进电机旋转一周需要的脉冲数量(考虑细分)
 #define Y_PULSES_PER_CYCLE (16*200)
 //Y轴运行方向调整(取值+/-1)
-#define Y_DIRECTION_ADJ      -1 
+#define Y_DIRECTION_ADJ      1 
 
 //Z轴步进电机旋转一周对应的直线位移(um)
-#define Z_DISTANCE_PER_CYCLE 4000
+#define Z_DISTANCE_PER_CYCLE 8000
 //Z轴步进电机旋转一周需要的脉冲数量(考虑细分)
 #define Z_PULSES_PER_CYCLE (16*200)
 //Z轴运行方向调整(取值+/-1)
 #define Z_DIRECTION_ADJ      1
+
+//挤出器步进电机旋转一周对应的原料丝运动长度(um)
+#define A_DISTANCE_PER_CYCLE 34540
+//挤出器步进电机旋转一周需要的脉冲数量(考虑细分)
+#define A_PULSES_PER_CYCLE (16*200)
+//挤出器运行方向调整(取值+/-1)
+#define A_DIRECTION_ADJ      1
 
 //限位开关最小触发间隔时间(ms)
 #define LIMIT_SWITCH_MIN_TOGGLE_PERIOD 50
@@ -60,12 +82,7 @@
 #define KEYBOARD_REPEAT_PERIOD 250
 
 //加热器PWM输出频率(单位Hz)
-#define HEATER_PWM_FREQ 50
-
-//挤出器电机方向修正(取值+/-1)
-#define EXTRUDER_MOTOR_DIR -1
-//挤出量系数调整(越大量越少)
-#define EXTRUDER_VOLUME_ADJ 10
+#define HEATER_PWM_FREQ 90
 
 //挤出器输出更新频率限制(ms)
 #define EXTRUDER_UPDATE_PERIOD 500
@@ -90,10 +107,10 @@
 #define HEATBED_PID_INIT_SUM 100
 
 //功率输出板极性反转,影响PWM,风扇等
-// #define DRIVER_BOARD_POLARITY
+#define DRIVER_BOARD_POLARITY
 
-//步进电机脉冲频率(单位Hz)
-#define MOTOR_STEP_FREQ 8000
+//默认给进速度(um/min)
+#define DEFAULT_FEEDRATE (500*1000)
 
 //SD卡初始化重试次数限制
 #define SD_INIT_RETRY_TIMES 3

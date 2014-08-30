@@ -21,6 +21,7 @@
 #include "motor.h"
 #include "heatbed.h"
 #include "extruder.h"
+#include "fanControl.h"
 #include "gfiles.h"
 #include "gcode.h"
 #include "usb.h"
@@ -29,6 +30,8 @@
 #define MAX_LINE_LENGTH 63
 //G代码中使用mm,而程序中使用um
 #define UNIT_CONV(x) (1000*(x))
+
+enum {AbsolutePositioning, RelativePositioning};
 
 //G代码行缓冲
 static char linebuf[MAX_LINE_LENGTH+1];
@@ -40,6 +43,8 @@ static uint8_t currentMode;
 static uint16_t currentState;
 //完成百分比
 static uint8_t Progress;
+//当前坐标模式(绝对/相对)
+static uint8_t PositioningMode;
 
 static int codeLine;
 
@@ -48,6 +53,8 @@ static void Command_doNext(void);
 static void resetGcodeParams(void)
 {
 	X = Y = Z = E = F = 0;
+	F = DEFAULT_FEEDRATE;
+	PositioningMode = AbsolutePositioning;
 }
 
 void Command_Init(void)
@@ -130,6 +137,8 @@ void Command_Task(void)
 			break;
 		case MACH_STATE_HOMING:
 			if(Move_XYZ_Ready()){
+				//三轴回原点后，设置挤出器坐标为0
+				Move_ResetAxisA();
 				DBG_MSG("Operation \"Homing\" Done!", 0);
 				currentState = MACH_STATE_READY;
 				Motor_PowerOff();
@@ -139,6 +148,18 @@ void Command_Task(void)
 			// DBG_MSG("MACH_STATE_WAIT_HEAT", 0);
 			if(Extruder_TempReached() && HeatBed_TempReached()) {
 				DBG_MSG("Temperature Reached!", 0);
+				currentState = MACH_STATE_READY;
+			}
+			break;
+		case MACH_STATE_WAIT_EXTRUDER:
+			if(Extruder_TempReached()) {
+				DBG_MSG("Extruder Temperature Reached!", 0);
+				currentState = MACH_STATE_READY;
+			}
+			break;
+		case MACH_STATE_WAIT_HEATBED:
+			if(HeatBed_TempReached()) {
+				DBG_MSG("HeatBed Temperature Reached!", 0);
 				currentState = MACH_STATE_READY;
 			}
 			break;
@@ -166,7 +187,7 @@ static void doDrawingCmd()
 	xyza[2] = Z + Z_OFFSET;
 	xyza[3] = E;
 
-	Move_AbsoluteMove(xyza);
+	Move_AbsoluteMove(xyza, F);
 }
 static void setCurrentPos()
 {	
@@ -204,38 +225,70 @@ void Command_doNext()
 		cmd = getnum(&p);
 		switch(cmd){
 			case G0_RAPID_MOVE:
-				while(getparam(&p, &sym, &value)){
-					if(sym == 'X')
-						X = UNIT_CONV(value);
-					else if(sym == 'Y')
-						Y = UNIT_CONV(value);
-					else if(sym == 'Z')
-						Z = UNIT_CONV(value);
-				}
-				DBG_MSG("G0_RAPID_MOVE %d,%d,%d", X, Y, Z);
-				// REPORT(INFO_G_G0,"%d,%d,%d", X, Y, Z);
-				Motor_PowerOn();
-				doDrawingCmd();
-				currentState = MACH_STATE_DRAWING;
-				break;
 			case G1_CONTROLLED_MOVE:
 				while(getparam(&p, &sym, &value)){
+					int *t = NULL;
 					if(sym == 'X')
-						X = UNIT_CONV(value);
+						t = &X;
 					else if(sym == 'Y')
-						Y = UNIT_CONV(value);
+						t = &Y;
 					else if(sym == 'Z')
-						Z = UNIT_CONV(value);
+						t = &Z;
 					else if(sym == 'F')
-						F = (value);
+						F = UNIT_CONV(value);
 					else if(sym == 'E')
-						E = UNIT_CONV(value);
+						t = &E;
+					if(t){
+						*t = (PositioningMode == AbsolutePositioning ?
+								UNIT_CONV(value) : *t + UNIT_CONV(value));
+					}
 				}
-				DBG_MSG("G1_CONTROLLED_MOVE %d,%d,%d,%d,%d", X, Y, Z, F, E);
+				if(cmd == G0_RAPID_MOVE){
+					F = DEFAULT_FEEDRATE;
+					DBG_MSG("G0_RAPID_MOVE %d,%d,%d", X, Y, Z);
+				}else{
+					DBG_MSG("G1_CONTROLLED_MOVE %d,%d,%d,%d,%d", X, Y, Z, F, E);
+				}
 				// REPORT(INFO_G_G1,"%d,%d,%d,%d,%d", X, Y, Z, F, E);
 				Motor_PowerOn();
 				doDrawingCmd();
 				currentState = MACH_STATE_DRAWING;
+				break;
+			case G28_MOVE_TO_ORIGIN:
+				Motor_PowerOn();
+				sym=getletter(&p);
+				if(sym < 'X' || sym > 'Z'){
+					//if no axis is specified, then home all
+					Move_Home(X_Axis);
+					Move_Home(Y_Axis);
+					Move_Home(Z_Axis);
+					DBG_MSG("G28_MOVE_TO_ORIGIN all axes", 0);
+				}
+				for(; 'X'<=sym && sym<='Z'; sym=getletter(&p)){
+					switch(sym) {
+						case 'X':
+							Move_Home(X_Axis);
+							break;
+						case 'Y':
+							Move_Home(Y_Axis);
+							break;
+						case 'Z':
+							Move_Home(Z_Axis);
+							break;
+					}
+					char out[] = {sym, '\0'};
+					DBG_MSG("G28_MOVE_TO_ORIGIN %s", out);
+					REPORT(INFO_G_G28, "%s", out);
+				}
+				currentState = MACH_STATE_HOMING;
+				break;
+			case G90_ABSOLUTE_COORD:
+				DBG_MSG("G90_ABSOLUTE_COORD", 0);
+				PositioningMode = AbsolutePositioning;
+				break;
+			case G91_RELATIVE_COORD:
+				DBG_MSG("G91_RELATIVE_COORD", 0);
+				PositioningMode = RelativePositioning;
 				break;
 			case G92_SET_POSITION:
 				while(getparam(&p, &sym, &value)){
@@ -252,6 +305,7 @@ void Command_doNext()
 				REPORT(INFO_G_G92,"%d,%d,%d,%d", X, Y, Z, E);
 				setCurrentPos();
 				break;
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
 			case G162_HOME_MAXIMUM:
 			case G161_HOME_MINIMUM:
 				Motor_PowerOn();
@@ -277,6 +331,7 @@ void Command_doNext()
 				}
 				currentState = MACH_STATE_HOMING;
 				break;
+#endif
 			default:
 				break;
 		}
@@ -285,29 +340,97 @@ void Command_doNext()
 		p++;
 		cmd = getnum(&p);
 		switch(cmd){
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
 			case M6_WAIT_FOR_TOOL:
 				if(getparam(&p, &sym, &value) && sym == 'T')
 					T = value;
 				DBG_MSG("M6_WAIT_FOR_TOOL %d", T);
 				REPORT(INFO_G_M6,"%d", T);
 
-				Extruder_Start_Heating(EXTRUDER_DEFAULT_TEMP);
-				HeatBed_Start_Heating(HEATBED_DEFAULT_TEMP);
 				Motor_PowerOff();
 				currentState = MACH_STATE_WAIT_HEAT;
 				break;
+#endif
 			case M18_DISABLE_MOTORS:
 				DBG_MSG("M18_DISABLE_MOTORS", 0);
 				REPORT(INFO_G_M18,"", 0);
 
 				Motor_PowerOff();
 				break;
+			case M84_STOP_IDLE_HOLD:
+				DBG_MSG("M84_STOP_IDLE_HOLD", 0);
+				Motor_PowerOff();
+				break;
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
 			case M73_SET_PROGRESS:
 				if(getparam(&p, &sym, &value) && sym == 'P')
 					P = value;
 				Progress = P;
 				DBG_MSG("M73_SET_PROGRESS %d", P);
 				REPORT(INFO_G_M73,"%d", P);
+				break;
+#endif
+			case M106_FAN_ON:
+			case M107_FAN_OFF:
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
+			case M126_FAN_ON:
+			case M127_FAN_OFF:
+#endif
+				value = -1;
+				sym = 0;
+				while(getparam(&p, &sym, &value) && sym != 'S');
+				if(cmd == M107_FAN_OFF
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
+					|| cmd == M127_FAN_OFF
+#endif
+					){
+
+					DBG_MSG("M107_FAN_OFF", 0);
+					Fan_Enable(false);
+				}else if(sym == 'S' && value == 0){
+					DBG_MSG("M106_FAN_ON S=%d", (int)value);
+					Fan_Enable(false);
+				}else{
+					DBG_MSG("M106_FAN_ON S=%d", (int)value);
+					Fan_Enable(true);
+				}
+				break;
+#if GCODE_FLAVOR == FLAVOR_REPLICATORG
+			case M104_EXTRUDER_SET:
+			case M109_HEATBED_SET:
+#else
+			case M104_EXTRUDER_SET:
+			case M109_EXTRUDER_WAIT:
+			case M140_HEATBED_SET:
+			case M190_HEATBED_WAIT:
+#endif
+				sym = 0;
+				while(getparam(&p, &sym, &value) && sym != 'S');
+				if(sym != 'S'){
+					ERR_MSG("No Param S", 0);
+					break;
+				}
+				if(cmd == M104_EXTRUDER_SET
+#ifdef M109_EXTRUDER_WAIT
+					|| cmd == M109_EXTRUDER_WAIT
+#endif
+					){
+					Extruder_Start_Heating(value);
+				}else{
+					HeatBed_Start_Heating(value);
+				}
+#if GCODE_FLAVOR != FLAVOR_REPLICATORG
+				if(cmd == M109_EXTRUDER_WAIT){
+					DBG_MSG("M109_EXTRUDER_WAIT", 0);
+					Motor_PowerOff();
+					currentState = MACH_STATE_WAIT_EXTRUDER;
+				}
+				if(cmd == M190_HEATBED_WAIT){
+					DBG_MSG("M190_HEATBED_WAIT", 0);
+					Motor_PowerOff();
+					currentState = MACH_STATE_WAIT_HEATBED;
+				}
+#endif
 				break;
 			default:
 				break;
