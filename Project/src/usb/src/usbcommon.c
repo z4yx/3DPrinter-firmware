@@ -108,6 +108,10 @@ void Set_USBClock(void)
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, ENABLE);
   
 #else 
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, DISABLE);
+  RCC_APB1PeriphResetCmd(RCC_APB1Periph_USB, ENABLE);
+  RCC_APB1PeriphResetCmd(RCC_APB1Periph_USB, DISABLE);
+  
   /* Select USBCLK source */
   RCC_USBCLKConfig(RCC_USBCLKSource_PLLCLK_1Div5);
   
