@@ -254,6 +254,7 @@ uint16_t MAL_Eject (uint8_t lun)
 {
   ejected = true;
   inited = false;
+  DBG_MSG("ejected lun=%d", lun);
   return MAL_OK;
 }
 

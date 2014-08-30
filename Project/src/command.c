@@ -126,6 +126,7 @@ void Command_Task(void)
 			DBG_MSG("Try to connect USB host...", 0);
 			FileManager_SetInUSBMode(true);
 			USBDevice_Connect();
+			DBG_MSG("USB Connected", 0);
 			currentMode = MACH_MODE_USB;
 		}
 		return;
