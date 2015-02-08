@@ -227,7 +227,7 @@ void HostCtrl_Task(void)
 
 void HostCtrl_Interrupt(void)
 {
-	uint8_t byte = USART_getchar(BT_USART);
+	uint8_t byte = USART_ReceiveData(BT_USART);
 	USART_putchar(BT_USART, byte);
-	USART_ClearITPendingBit(BT_USART, USART_FLAG_RXNE);
+	// USART_ClearITPendingBit(BT_USART, USART_IT_RXNE);
 }
