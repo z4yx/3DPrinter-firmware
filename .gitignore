@@ -34,3 +34,7 @@
 *.sym
 
 .tags*
+*.axf
+*.lnp
+*.uvgui.*
+*_uvopt.bak
