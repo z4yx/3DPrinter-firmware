@@ -94,6 +94,11 @@
 #define EXTRUDER_PID_KD 700
 #define EXTRUDER_PID_INIT_SUM 800
 
+//挤出器使用热电阻测温而不是热电偶
+#define EXTRUDER_THERMO_USING_ADC 0
+//挤出器热电阻传感值与温度换算
+#define EXTRUDER_ADC_TO_TEMP(x) (123.678-0.0893583*(x)+0.0000195876*(x)*(x))
+
 //加热板输出更新频率限制(ms)
 #define HEATBED_UPDATE_PERIOD 500
 //加热板默认温度

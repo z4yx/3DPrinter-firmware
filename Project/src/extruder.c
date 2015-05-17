@@ -21,6 +21,7 @@
 #include "max6675.h"
 #include "fanControl.h"
 #include "pwmOutput.h"
+#include "analog.h"
 #include "extruder.h"
 #include "systick.h"
 #include "motor.h"
@@ -37,7 +38,11 @@ void Extruder_Init()
 	bHeating = false;
 	currentTemp = -1;
 	currentOutput = 0;
+#if EXTRUDER_THERMO_USING_ADC
+	Analog_SetChannel(Extruder1Therm_ADC_Ch, true);
+#else
 	MAX6675_Config();
+#endif
 
 	lastUpdatingTime = GetSystemTick();
 }
@@ -84,7 +89,11 @@ void ExtruderTask(void)
 	SysTick_t now = GetSystemTick();
 	if(bHeating && now - lastUpdatingTime > EXTRUDER_UPDATE_PERIOD) {
 		int output;
+#if EXTRUDER_THERMO_USING_ADC
+		currentTemp = EXTRUDER_ADC_TO_TEMP(Analog_GetChannelValue(Extruder1Therm_ADC_Ch));
+#else
 		currentTemp = MAX6675_Read_Value();
+#endif
 
 		lastUpdatingTime = now;
 
