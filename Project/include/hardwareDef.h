@@ -46,9 +46,8 @@
 #define ThermcoupleDo_Pin GPIO_Pin_3
 #define Thermcouple_Port GPIOB
 
-#define HeaterBoardTherm_Pin GPIO_Pin_0
-#define HeaterBoardTherm_Port GPIOC
-#define HeaterBoardTherm_ADCChannel ADC_Channel_10
+#define HeaterBoardTherm_ADC_Ch 10
+#define Extruder1Therm_ADC_Ch   11
 
 #define X_Axis_Start_Pin GPIO_Pin_6
 #define X_Axis_Start_Port GPIOA

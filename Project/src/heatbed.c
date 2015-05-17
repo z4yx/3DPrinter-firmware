@@ -18,7 +18,7 @@
 
 #include "common.h"
 #include "pid.h"
-#include "adc.h"
+#include "analog.h"
 #include "pwmOutput.h"
 #include "heatbed.h"
 #include "systick.h"
@@ -65,9 +65,7 @@ void HeatBed_Init()
 	bHeating = false;
 	currentTemp = -1;
 	currentOutput = 0;
-	ADC_Config(1);
-	ADC_Channel_Config(HeaterBoardTherm_Port, HeaterBoardTherm_Pin, HeaterBoardTherm_ADCChannel, 1);
-	ADC_Start();
+	Analog_SetChannel(HeaterBoardTherm_ADC_Ch, true);
 
 	lastUpdatingTime = GetSystemTick();
 }
@@ -114,15 +112,10 @@ void HeatBedTask(void)
 	SysTick_t now = GetSystemTick();
 	if(bHeating && now - lastUpdatingTime > HEATBED_UPDATE_PERIOD) {
 		int output;
-		int16_t t = ADC_Read_Value();
+		uint16_t t = Analog_GetChannelValue(HeaterBoardTherm_ADC_Ch);
 
 		lastUpdatingTime = now;
 
-		if(t < 0) {
-			currentTemp = -1;
-			ERR_MSG("No adc value available!", "err");
-			return;
-		}
 		currentTemp = HEATBED_ADC_TO_TEMP(t);
 		output = PID_Update(&pid, targetTemp - currentTemp);
 		
