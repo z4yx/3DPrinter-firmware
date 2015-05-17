@@ -717,6 +717,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\lowlevel\usart.c</FilePath>
             </File>
+            <File>
+              <FileName>analog.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\lowlevel\analog.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
