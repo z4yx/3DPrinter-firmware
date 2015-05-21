@@ -88,7 +88,7 @@ SRC_DIR = ../
 # use file-extension c for "c-only"-files
 
 # SRC files
-SRC += $(wildcard $(SRC_DIR)../Libraries/CMSIS/CM3/CoreSupport/*.c)
+# SRC += $(wildcard $(SRC_DIR)../Libraries/CMSIS/CM3/CoreSupport/*.c)
 SRC += $(wildcard $(SRC_DIR)../Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/*.c)
 SRC += $(wildcard $(SRC_DIR)../Libraries/STM32F10x_StdPeriph_Driver/src/*.c)
 SRC += $(wildcard $(SRC_DIR)../Libraries/STM32_USB-FS-Device_Driver/src/*.c)
