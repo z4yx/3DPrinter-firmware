@@ -38,3 +38,4 @@
 *.lnp
 *.uvgui.*
 *_uvopt.bak
+Libraries/CMSIS/Documentation
