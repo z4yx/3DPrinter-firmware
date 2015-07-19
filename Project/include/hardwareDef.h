@@ -98,7 +98,6 @@
 
 #define LED_Port GPIOB
 #define LED_1 GPIO_Pin_8
-#define LED_2 GPIO_Pin_9
 
 #define USB_Port GPIOA
 #define USB_Det  GPIO_Pin_15

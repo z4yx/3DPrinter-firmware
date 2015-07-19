@@ -4,7 +4,6 @@
 #include "common.h"
 
 #define LED1 1
-#define LED2 2
 
 #define LED_ON  true
 #define LED_OFF false
