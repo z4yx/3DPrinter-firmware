@@ -115,7 +115,7 @@
 #define MOTOR_DRIVER_ACTIVE_LOW
 
 //功率输出板极性反转,影响PWM,风扇等
-#define DRIVER_BOARD_POLARITY
+// #define DRIVER_BOARD_POLARITY
 
 //默认给进速度(um/min)
 #define DEFAULT_FEEDRATE (500*1000)
