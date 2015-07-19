@@ -20,8 +20,6 @@
 #include "limitSwitch.h"
 #include "systick.h"
 
-#define NUM_SWITCHS 3
-
 //当前限位开关是否被触碰
 bool bSwitchPressed[NUM_SWITCHS];
 //是否已经发送限位开关事件
@@ -41,6 +39,9 @@ bool LimitSwitch_Pressed(uint8_t sw)
 			break;
 		case LimitSwitch_ZMin:
 			val = GPIO_ReadInputDataBit(Z_Axis_Min_Port, Z_Axis_Min_Pin);
+			break;
+		case LimitSwitch_EXT2HB:
+			val = GPIO_ReadInputDataBit(Ext2Hb_Limit_Port, Ext2Hb_Limit_Pin);
 			break;
 		default:
 			ERR_MSG("Invalid switch number %d", sw);
@@ -66,6 +67,10 @@ void LimitSwitch_Config(void)
 	RCC_GPIOClockCmd(Z_Axis_Min_Port, ENABLE);
 	GPIO_InitStructure.GPIO_Pin = Z_Axis_Min_Pin;
 	GPIO_Init(Z_Axis_Min_Port, &GPIO_InitStructure);
+	
+	RCC_GPIOClockCmd(Ext2Hb_Limit_Port, ENABLE);
+	GPIO_InitStructure.GPIO_Pin = Ext2Hb_Limit_Pin;
+	GPIO_Init(Ext2Hb_Limit_Port, &GPIO_InitStructure);
 
 	for (int i = 0; i < NUM_SWITCHS; ++i)
 	{
