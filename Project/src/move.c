@@ -21,6 +21,7 @@
 #include "move.h"
 #include "systick.h"
 #include "limitSwitch.h"
+#include "robotArm.h"
 #include <stdlib.h>
 
 #define MIN2SEC 60
@@ -43,6 +44,7 @@ void Move_Init()
 {
 	Motor_Init();
 	LimitSwitch_Config();
+	RobotArm_Init();
 
 	um_per_pulse[X_Axis] = (float)X_DISTANCE_PER_CYCLE / X_PULSES_PER_CYCLE;
 	um_per_pulse[Y_Axis] = (float)Y_DISTANCE_PER_CYCLE / Y_PULSES_PER_CYCLE;
@@ -53,25 +55,15 @@ void Move_Init()
 	{
 		currentState[i] = Axis_State_Ready;
 	}
+
+	int xyza[4] = {0};
+	Move_SetCurrentPos(xyza);
 }
 
-static bool alreadyHomed(uint8_t axis)
-{
-	if(axis == X_Axis)
-		return LimitSwitch_Pressed(LimitSwitch_XMin);
-	if(axis == Y_Axis)
-		return LimitSwitch_Pressed(LimitSwitch_YMin);
-	if(axis == Z_Axis)
-		return LimitSwitch_Pressed(LimitSwitch_ZMin);
-	return false;
-}
-
-static void homingDone(uint8_t axis)
+void Move_MotorHomeDone(uint8_t axis)
 {
 	DBG_MSG("Axis %d homing Done", (int)axis);
 	Motor_Stop(axis);
-	currentPos[axis] = 0;
-	currentSteps[axis] = 0;
 	currentState[axis] = Axis_State_Ready;
 }
 
@@ -94,22 +86,22 @@ bool Move_XYZ_Ready()
 }
 
 //开始回原点过程
-bool Move_Home(uint8_t axis)
+bool Move_Home(uint8_t selected_dir)
+{
+	return RobotArm_HomeOperation(selected_dir);
+}
+
+//针对某一个电机的回原点操作，由RobotArm_HomeOperation调用
+bool Move_MotorHome(uint8_t axis, int8_t dir)
 {
 	if(currentState[axis] != Axis_State_Ready) {
 		ERR_MSG("Axis %d is not Ready! state = %d", (int)axis, (int)currentState[axis]);
 		return false;
 	}
-	//回原点前先检查限位开关是否已经被按下了
-	if(alreadyHomed(axis)) {
-		DBG_MSG("Axis %d already homed!", (int)axis);
-		homingDone(axis);
-		return true;
-	}
 
 	currentState[axis] = Axis_State_Homing;
 	//一直运动直到触碰限位开关
-	Motor_Start(axis, -1, Move_Dir_Back * motorDirFix[axis], DEFAULT_FEEDRATE / MIN2SEC / um_per_pulse[axis]);
+	Motor_Start(axis, -1, dir * motorDirFix[axis], DEFAULT_FEEDRATE / MIN2SEC / um_per_pulse[axis]);
 
 	return true;
 }
@@ -134,27 +126,33 @@ bool Move_RelativeMove(int xyza[4], int feedrate)
 //三轴绝对移动及挤出器旋转
 bool Move_AbsoluteMove(int xyza[4], int feedrate)
 {
-	int tmp[4], delta[4], dir[4];
+	int tmp[4], delta[4], dir[4], motorPos[4];
 
 	if(!Move_XYZ_Ready())
 		return false;
 
-	if(xyza[X_Axis] < 0 || xyza[X_Axis] > X_MAX_LIMIT)
+	RobotArm_Coordinate2MotorPos(xyza, motorPos);
+	motorPos[3] = xyza[3];
+
+	for (int i = 0; i < 4; ++i)
+	{
+		delta[i] = xyza[i] - currentPos[i];
+		currentPos[i] = xyza[i];
+	}
+
+	if(motorPos[X_Axis] < 0 || motorPos[X_Axis] > X_MAX_LIMIT)
 		return false;
-	if(xyza[Y_Axis] < 0 || xyza[Y_Axis] > Y_MAX_LIMIT)
+	if(motorPos[Y_Axis] < 0 || motorPos[Y_Axis] > Y_MAX_LIMIT)
 		return false;
-	if(xyza[Z_Axis] < 0 || xyza[Z_Axis] > Z_MAX_LIMIT)
+	if(motorPos[Z_Axis] < 0 || motorPos[Z_Axis] > Z_MAX_LIMIT)
 		return false;
 
 	for (int i = 0; i < 4; ++i){
-		int step = calc_step(i, xyza[i]);
+		int step = calc_step(i, motorPos[i]);
 		int d = step - currentSteps[i];
 
 		dir[i] = motorDirFix[i] * (d > 0 ? Move_Dir_Forward : Move_Dir_Back);
 		tmp[i] = abs(d);
-		delta[i] = xyza[i] - currentPos[i];
-
-		currentPos[i] = xyza[i];
 		currentSteps[i] = step;
 	}
 
@@ -183,17 +181,21 @@ bool Move_AbsoluteMove(int xyza[4], int feedrate)
 
 bool Move_SetCurrentPos(int xyza[4])
 {
-	if(xyza[X_Axis] < 0 || xyza[X_Axis] > X_MAX_LIMIT)
-		return false;
-	if(xyza[Y_Axis] < 0 || xyza[Y_Axis] > Y_MAX_LIMIT)
-		return false;
-	if(xyza[Z_Axis] < 0 || xyza[Z_Axis] > Z_MAX_LIMIT)
-		return false;
+	int motorPos[4];
 
+	RobotArm_Coordinate2MotorPos(xyza, motorPos);
+	motorPos[3] = xyza[3];
+
+	if(motorPos[X_Axis] < 0 || motorPos[X_Axis] > X_MAX_LIMIT)
+		return false;
+	if(motorPos[Y_Axis] < 0 || motorPos[Y_Axis] > Y_MAX_LIMIT)
+		return false;
+	if(motorPos[Z_Axis] < 0 || motorPos[Z_Axis] > Z_MAX_LIMIT)
+		return false;
 
 	for (int i = 0; i < 4; ++i){
 		currentPos[i] = xyza[i];
-		currentSteps[i] = calc_step(i, xyza[i]);
+		currentSteps[i] = calc_step(i, motorPos[i]);
 	}
 	
 	return true;
@@ -204,6 +206,23 @@ void Move_ResetAxisA()
 	currentPos[A_Axis] = currentSteps[A_Axis] = 0;
 }
 
+void Move_ResetDirection(uint8_t selected_dir)
+{
+	int xyza[4];
+	for (int i = 0; i < 4; ++i)
+	{
+		xyza[i] = currentPos[i];
+	}
+	if(selected_dir&MOVE_DIR_X)
+		xyza[X_Axis] = 0;
+	if(selected_dir&MOVE_DIR_Y)
+		xyza[Y_Axis] = 0;
+	if(selected_dir&MOVE_DIR_Z)
+		xyza[Z_Axis] = 0;
+	if(!Move_SetCurrentPos(xyza))
+		ERR_MSG("Failed to set position");
+}
+
 //由限位开关中断调用
 void Move_LimitReached(uint8_t sw_num)
 {
@@ -212,7 +231,7 @@ void Move_LimitReached(uint8_t sw_num)
 	switch(sw_num) {
 		case LimitSwitch_XMin:
 			if(currentState[X_Axis] == Axis_State_Homing)
-				homingDone(X_Axis);
+				RobotArm_Home_LimitSwitchTrig(sw_num);
 			else{
 				err = true;
 				err_axis = X_Axis;
@@ -221,7 +240,7 @@ void Move_LimitReached(uint8_t sw_num)
 
 		case LimitSwitch_YMin:
 			if(currentState[Y_Axis] == Axis_State_Homing)
-				homingDone(Y_Axis);
+				RobotArm_Home_LimitSwitchTrig(sw_num);
 			else{
 				err = true;
 				err_axis = Y_Axis;
@@ -230,7 +249,7 @@ void Move_LimitReached(uint8_t sw_num)
 
 		case LimitSwitch_ZMin:
 			if(currentState[Z_Axis] == Axis_State_Homing)
-				homingDone(Z_Axis);
+				RobotArm_Home_LimitSwitchTrig(sw_num);
 			else{
 				err = true;
 				err_axis = Z_Axis;
@@ -240,6 +259,13 @@ void Move_LimitReached(uint8_t sw_num)
 		// case LimitSwitch_XMax:
 		// ...
 
+		case LimitSwitch_EXT2HB:
+			if(currentState[X_Axis] == Axis_State_Homing ||
+				currentState[Y_Axis] == Axis_State_Homing ||
+				currentState[Z_Axis] == Axis_State_Homing)
+
+				RobotArm_Home_LimitSwitchTrig(sw_num);
+			break;
 	}
 	if(err) {
 		// Motor_Stop(err_axis);

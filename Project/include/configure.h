@@ -16,9 +16,18 @@
  * =====================================================================================
  */
 
+#define MACHINERY_CARTESIAN   1
+#define MACHINERY_COREXY      2
+#define MACHINERY_LINEARDELTA 3
+
 #define FLAVOR_REPLICATORG 1
 #define FLAVOR_CURA        2
 #define FLAVOR_SLIC3R      3
+
+//机械结构,选择一个
+// #define MACHINERY_TYPE MACHINERY_CARTESIAN
+// #define MACHINERY_TYPE MACHINERY_COREXY
+#define MACHINERY_TYPE MACHINERY_LINEARDELTA
 
 //G代码生成工具,选择一个
 // #define GCODE_FLAVOR FLAVOR_REPLICATORG
@@ -26,9 +35,16 @@
 #define GCODE_FLAVOR FLAVOR_SLIC3R
 
 //三轴最大行程(um)
-#define X_MAX_LIMIT 160000
-#define Y_MAX_LIMIT 180000
-#define Z_MAX_LIMIT 100000
+#define X_MAX_LIMIT 400000
+#define Y_MAX_LIMIT 400000
+#define Z_MAX_LIMIT 400000
+
+#if MACHINERY_TYPE == MACHINERY_LINEARDELTA
+//机械臂半径(um)
+#define ROBOTIC_ARM_RADIUS 124000
+//机械臂长度(um)
+#define ROBOTIC_ARM_LENGTH 250000
+#endif
 
 //从G代码坐标到实际坐标的偏移(um)
 #if GCODE_FLAVOR == FLAVOR_REPLICATORG
@@ -42,21 +58,21 @@
 #endif
 
 //X轴步进电机旋转一周对应的直线位移(um)
-#define X_DISTANCE_PER_CYCLE 47500
+#define X_DISTANCE_PER_CYCLE 31415
 //X轴步进电机旋转一周需要的脉冲数量(考虑细分)
 #define X_PULSES_PER_CYCLE   (16*200)
 //X轴运行方向调整(取值+/-1)
 #define X_DIRECTION_ADJ      1 
 
 //Y轴步进电机旋转一周对应的直线位移(um)
-#define Y_DISTANCE_PER_CYCLE 66000
+#define Y_DISTANCE_PER_CYCLE 31415
 //Y轴步进电机旋转一周需要的脉冲数量(考虑细分)
 #define Y_PULSES_PER_CYCLE (16*200)
 //Y轴运行方向调整(取值+/-1)
 #define Y_DIRECTION_ADJ      1 
 
 //Z轴步进电机旋转一周对应的直线位移(um)
-#define Z_DISTANCE_PER_CYCLE 8000
+#define Z_DISTANCE_PER_CYCLE 31415
 //Z轴步进电机旋转一周需要的脉冲数量(考虑细分)
 #define Z_PULSES_PER_CYCLE (16*200)
 //Z轴运行方向调整(取值+/-1)
@@ -72,7 +88,7 @@
 //限位开关最小触发间隔时间(ms)
 #define LIMIT_SWITCH_MIN_TOGGLE_PERIOD 50
 //限位开关接通有效的阈值(ms)
-#define LIMIT_SWITCH_VALID_TIME 10
+#define LIMIT_SWITCH_VALID_TIME 40
 
 //键盘最小触发间隔时间(ms)
 #define KEYBOARD_MIN_TOGGLE_PERIOD 50

@@ -260,21 +260,19 @@ void Command_doNext()
 				sym=getletter(&p);
 				if(sym < 'X' || sym > 'Z'){
 					//if no axis is specified, then home all
-					Move_Home(X_Axis);
-					Move_Home(Y_Axis);
-					Move_Home(Z_Axis);
+					Move_Home(MOVE_DIR_X|MOVE_DIR_Y|MOVE_DIR_Z);
 					DBG_MSG("G28_MOVE_TO_ORIGIN all axes", 0);
 				}
 				for(; 'X'<=sym && sym<='Z'; sym=getletter(&p)){
 					switch(sym) {
 						case 'X':
-							Move_Home(X_Axis);
+							Move_Home(MOVE_DIR_X);
 							break;
 						case 'Y':
-							Move_Home(Y_Axis);
+							Move_Home(MOVE_DIR_Y);
 							break;
 						case 'Z':
-							Move_Home(Z_Axis);
+							Move_Home(MOVE_DIR_Z);
 							break;
 					}
 					char out[] = {sym, '\0'};

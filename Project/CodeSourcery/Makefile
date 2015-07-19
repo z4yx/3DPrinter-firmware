@@ -92,6 +92,7 @@ SRC += $(wildcard $(SRC_DIR)../Libraries/CMSIS/Device/ST/STM32F10x/Source/Templa
 SRC += $(wildcard $(SRC_DIR)../Libraries/STM32F10x_StdPeriph_Driver/src/*.c)
 SRC += $(wildcard $(SRC_DIR)../Libraries/STM32_USB-FS-Device_Driver/src/*.c)
 SRC += $(wildcard $(SRC_DIR)../Project/src/*.c)
+SRC += $(wildcard $(SRC_DIR)../Project/src/machinery/*.c)
 SRC += $(wildcard $(SRC_DIR)../Project/src/lowlevel/*.c)
 SRC += $(wildcard $(SRC_DIR)../Project/src/fatfs/*.c)
 SRC += $(SRC_DIR)../Project/src/fatfs/option/ccsbcs.c
