@@ -221,7 +221,7 @@ CFLAGS += -Wall -Wimplicit
 # CFLAGS += -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
-CFLAGS += -Wa,-adhlns=$(subst $(suffix $<),.lst,$<) 
+# CFLAGS += -Wa,-adhlns=$(subst $(suffix $<),.lst,$<) 
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
 # flags only for C
