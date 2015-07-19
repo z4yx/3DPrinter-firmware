@@ -111,6 +111,9 @@
 #define HEATBED_PID_KD 400
 #define HEATBED_PID_INIT_SUM 100
 
+//步进电机驱动使能端低有效
+#define MOTOR_DRIVER_ACTIVE_LOW
+
 //功率输出板极性反转,影响PWM,风扇等
 #define DRIVER_BOARD_POLARITY
 

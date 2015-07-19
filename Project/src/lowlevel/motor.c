@@ -63,8 +63,8 @@ static void Motor_Output_Config(void)
 		RCC_GPIOClockCmd(Motor_En_Ports[i], ENABLE);
 		GPIO_InitStructure.GPIO_Pin = Motor_En_Pins[i];
 		GPIO_Init(Motor_En_Ports[i], &GPIO_InitStructure);
-		GPIO_ResetBits(Motor_En_Ports[i], Motor_En_Pins[i]);
 	}
+	Motor_PowerOff();
 
 	for(int i=0; i<NUM_MOTORS; i++) {
 		RCC_GPIOClockCmd(Motor_Dir_Ports[i], ENABLE);
@@ -156,7 +156,7 @@ void Motor_Stop(int motor_enum)
 void Motor_Start(int motor_enum, int steps, int8_t dir, uint32_t freq)
 {
 	// Motor_Stop();
-	// DBG_MSG("steps=%d, skip=%d", (int)steps, (int)skip);
+	DBG_MSG("steps=%d, dir=%d, freq=%d", (int)steps, (int)dir, (int)freq);
 
 	Motor_Direction[motor_enum] = dir;
 	GPIO_WriteBit(Motor_Dir_Ports[motor_enum],
@@ -176,7 +176,11 @@ void Motor_Start(int motor_enum, int steps, int8_t dir, uint32_t freq)
 void Motor_PowerOn()
 {
 	for(int i=0; i<NUM_MOTORS; i++) {
+#ifdef MOTOR_DRIVER_ACTIVE_LOW
+		GPIO_ResetBits(Motor_En_Ports[i], Motor_En_Pins[i]);
+#else
 		GPIO_SetBits(Motor_En_Ports[i], Motor_En_Pins[i]);
+#endif
 	}
 	isPowerOn = true;
 }
@@ -184,7 +188,11 @@ void Motor_PowerOn()
 void Motor_PowerOff()
 {
 	for(int i=0; i<NUM_MOTORS; i++) {
+#ifdef MOTOR_DRIVER_ACTIVE_LOW
+		GPIO_SetBits(Motor_En_Ports[i], Motor_En_Pins[i]);
+#else
 		GPIO_ResetBits(Motor_En_Ports[i], Motor_En_Pins[i]);
+#endif
 	}
 	isPowerOn = false;
 }
