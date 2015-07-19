@@ -364,7 +364,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER STM32F10X_HD</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS\CM3\CoreSupport;..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x;..\..\Libraries\STM32F10x_StdPeriph_Driver\inc;..\..\Libraries\STM32_USB-FS-Device_Driver\inc;..\include;..\src\fatfs;..\src\usb\inc</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F10x\Include;..\..\Libraries\STM32F10x_StdPeriph_Driver\inc;..\..\Libraries\STM32_USB-FS-Device_Driver\inc;..\include;..\src\fatfs;..\src\usb\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -408,19 +408,14 @@
           <GroupName>Library-CMSIS</GroupName>
           <Files>
             <File>
-              <FileName>core_cm3.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Libraries\CMSIS\CM3\CoreSupport\core_cm3.c</FilePath>
-            </File>
-            <File>
               <FileName>system_stm32f10x.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\system_stm32f10x.c</FilePath>
+              <FilePath>..\..\Libraries\CMSIS\Device\ST\STM32F10x\Source\Templates\system_stm32f10x.c</FilePath>
             </File>
             <File>
               <FileName>startup_stm32f10x_hd.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup\arm\startup_stm32f10x_hd.s</FilePath>
+              <FilePath>..\..\Libraries\CMSIS\Device\ST\STM32F10x\Source\Templates\arm\startup_stm32f10x_hd.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -636,6 +631,21 @@
               <FileName>usb.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\usb.c</FilePath>
+            </File>
+            <File>
+              <FileName>cartesian.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\machinery\cartesian.c</FilePath>
+            </File>
+            <File>
+              <FileName>coreXY.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\machinery\coreXY.c</FilePath>
+            </File>
+            <File>
+              <FileName>linearDelta.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\machinery\linearDelta.c</FilePath>
             </File>
           </Files>
         </Group>

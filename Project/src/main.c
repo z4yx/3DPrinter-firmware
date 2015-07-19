@@ -107,7 +107,6 @@ int main(void)
 {
 	RCC_ClocksTypeDef clocks;
 	// useHSIClock();
-	RCC_PCLK1Config(RCC_HCLK_Div1);
 	RCC_GetClocksFreq(&clocks);
 
 	coreInit();
