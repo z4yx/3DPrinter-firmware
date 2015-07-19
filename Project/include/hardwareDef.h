@@ -51,8 +51,6 @@
 
 #define X_Axis_Start_Pin GPIO_Pin_6
 #define X_Axis_Start_Port GPIOA
-#define X_Axis_OE_Pin GPIO_Pin_7
-#define X_Axis_OE_Port GPIOA
 #define X_Axis_Step_Pin GPIO_Pin_5
 #define X_Axis_Step_Port GPIOC
 #define X_Axis_Dir_Pin GPIO_Pin_4
@@ -60,8 +58,6 @@
 
 #define Y_Axis_Start_Pin GPIO_Pin_2
 #define Y_Axis_Start_Port GPIOA
-#define Y_Axis_OE_Pin GPIO_Pin_3
-#define Y_Axis_OE_Port GPIOA
 #define Y_Axis_Step_Pin GPIO_Pin_5
 #define Y_Axis_Step_Port GPIOA
 #define Y_Axis_Dir_Pin GPIO_Pin_4
@@ -69,8 +65,6 @@
 
 #define Z_Axis_Start_Pin GPIO_Pin_13
 #define Z_Axis_Start_Port GPIOC
-#define Z_Axis_OE_Pin GPIO_Pin_14
-#define Z_Axis_OE_Port GPIOC
 #define Z_Axis_Step_Pin GPIO_Pin_3
 #define Z_Axis_Step_Port GPIOC
 #define Z_Axis_Dir_Pin GPIO_Pin_2
@@ -78,8 +72,6 @@
 
 #define A_Axis_Start_Pin GPIO_Pin_0
 #define A_Axis_Start_Port GPIOB
-#define A_Axis_OE_Pin GPIO_Pin_1
-#define A_Axis_OE_Port GPIOB
 #define A_Axis_Step_Pin GPIO_Pin_13
 #define A_Axis_Step_Port GPIOB
 #define A_Axis_Dir_Pin GPIO_Pin_12
@@ -96,6 +88,13 @@
 #define Y_Axis_Min_Pin GPIO_Pin_15
 #define Z_Axis_Min_Port GPIOC
 #define Z_Axis_Min_Pin GPIO_Pin_6
+
+#define X_Axis_Max_Port GPIOA
+#define X_Axis_Max_Pin GPIO_Pin_3
+#define Y_Axis_Max_Port GPIOA
+#define Y_Axis_Max_Pin GPIO_Pin_7
+#define Z_Axis_Max_Port GPIOB
+#define Z_Axis_Max_Pin GPIO_Pin_1
 
 #define LED_Port GPIOB
 #define LED_1 GPIO_Pin_8

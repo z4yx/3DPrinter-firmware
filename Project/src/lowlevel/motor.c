@@ -43,8 +43,6 @@ static const uint16_t Motor_Dir_Pins[NUM_MOTORS] =
 	{X_Axis_Dir_Pin, Y_Axis_Dir_Pin, Z_Axis_Dir_Pin, A_Axis_Dir_Pin};
 static const uint16_t Motor_Step_Pins[NUM_MOTORS] =
 	{X_Axis_Step_Pin, Y_Axis_Step_Pin, Z_Axis_Step_Pin, A_Axis_Step_Pin};
-static const uint16_t Motor_OE_Pins[NUM_MOTORS] =
-	{X_Axis_OE_Pin, Y_Axis_OE_Pin, Z_Axis_OE_Pin, A_Axis_OE_Pin};
 
 static GPIO_TypeDef* Motor_En_Ports[NUM_MOTORS] =
 	{X_Axis_Start_Port, Y_Axis_Start_Port, Z_Axis_Start_Port, A_Axis_Start_Port};
@@ -52,8 +50,6 @@ static GPIO_TypeDef* Motor_Dir_Ports[NUM_MOTORS] =
 	{X_Axis_Dir_Port, Y_Axis_Dir_Port, Z_Axis_Dir_Port, A_Axis_Dir_Port};
 static GPIO_TypeDef* Motor_Step_Ports[NUM_MOTORS] =
 	{X_Axis_Step_Port, Y_Axis_Step_Port, Z_Axis_Step_Port, A_Axis_Step_Port};
-static GPIO_TypeDef* Motor_OE_Ports[NUM_MOTORS] =
-	{X_Axis_OE_Port, Y_Axis_OE_Port, Z_Axis_OE_Port, A_Axis_OE_Port};
 
 static void Motor_Output_Config(void)
 {
@@ -79,11 +75,6 @@ static void Motor_Output_Config(void)
 		GPIO_InitStructure.GPIO_Pin = Motor_Step_Pins[i];
 		GPIO_Init(Motor_Step_Ports[i], &GPIO_InitStructure);
 		GPIO_ResetBits(Motor_Step_Ports[i], Motor_Step_Pins[i]);
-
-		RCC_GPIOClockCmd(Motor_OE_Ports[i], ENABLE);
-		GPIO_InitStructure.GPIO_Pin = Motor_OE_Pins[i];
-		GPIO_Init(Motor_OE_Ports[i], &GPIO_InitStructure);
-		GPIO_SetBits(Motor_OE_Ports[i], Motor_OE_Pins[i]);
 	}
 
 }
@@ -142,7 +133,6 @@ void Motor_Interrupt(TIM_TypeDef *tim)
 						Motor_PendingSteps[i] --;
 						if(!Motor_PendingSteps[i]){
 							//attenuate holding current
-							GPIO_SetBits(Motor_OE_Ports[i], Motor_OE_Pins[i]);
 							GPIO_ResetBits(Motor_Step_Ports[i], Motor_Step_Pins[i]);
 							TIM_Cmd(tim, DISABLE);
 							Move_Axis_Eneded(i);
@@ -158,7 +148,6 @@ void Motor_Interrupt(TIM_TypeDef *tim)
 //强行停止电机运行,不会触发运行完成事件
 void Motor_Stop(int motor_enum)
 {
-	GPIO_SetBits(Motor_OE_Ports[motor_enum], Motor_OE_Pins[motor_enum]);
 	GPIO_ResetBits(Motor_Step_Ports[motor_enum], Motor_Step_Pins[motor_enum]);
 	TIM_Cmd(Motor_TIM[motor_enum], DISABLE);
 	Motor_PendingSteps[motor_enum] = 0;
@@ -175,7 +164,6 @@ void Motor_Start(int motor_enum, int steps, int8_t dir, uint32_t freq)
 		(dir > 0 ? Bit_SET : Bit_RESET));
 
 	// set current to 100%
-	GPIO_ResetBits(Motor_OE_Ports[motor_enum], Motor_OE_Pins[motor_enum]);
 	GPIO_ResetBits(Motor_Step_Ports[motor_enum], Motor_Step_Pins[motor_enum]);
 
 	Motor_OutputLevel[motor_enum] = 1;
