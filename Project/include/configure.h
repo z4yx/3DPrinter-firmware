@@ -85,10 +85,8 @@
 //挤出器运行方向调整(取值+/-1)
 #define A_DIRECTION_ADJ      1
 
-//限位开关最小触发间隔时间(ms)
-#define LIMIT_SWITCH_MIN_TOGGLE_PERIOD 50
 //限位开关接通有效的阈值(ms)
-#define LIMIT_SWITCH_VALID_TIME 40
+#define LIMIT_SWITCH_VALID_TIME 90
 
 //键盘最小触发间隔时间(ms)
 #define KEYBOARD_MIN_TOGGLE_PERIOD 50

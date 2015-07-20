@@ -93,12 +93,9 @@ void LimitSwitch_Task()
 		cur_state = LimitSwitch_Pressed(i);
 		//状态改变
 		if(cur_state != bSwitchPressed[i]) {
-			//有效的按键变化
-			if(now - lastInterrupt[i] >= LIMIT_SWITCH_MIN_TOGGLE_PERIOD){
-				lastInterrupt[i] = now;
-				bSwitchPressed[i] = cur_state;
-				bEventSent[i] = false;
-			}
+			lastInterrupt[i] = now;
+			bSwitchPressed[i] = cur_state;
+			bEventSent[i] = false;
 		}else{
 			//超过阈值,按下有效
 			if(cur_state && !bEventSent[i] && now - lastInterrupt[i] >= LIMIT_SWITCH_VALID_TIME) {
