@@ -191,6 +191,18 @@ static void processRequest(char* cmd, char* param)
 			}
 			REPORT(INFO_REPLY, "%d", result);
 		}
+	}else if(strcmp(cmd, "HOME") == 0){
+		if(!Command_IsStandBy()){
+			REPORT(INFO_REPLY, "0", 0);
+		}else{
+			int result = 0;
+			if(strcmp(param, "XY") == 0){
+				result = Command_ManuallyHome(MOVE_DIR_X|MOVE_DIR_Y);
+			}else if(strcmp(param, "Z") == 0){
+				result = Command_ManuallyHome(MOVE_DIR_Z);
+			}
+			REPORT(INFO_REPLY, "%d", result);
+		}
 	}
 }
 

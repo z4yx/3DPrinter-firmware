@@ -207,6 +207,14 @@ static float getfloat(char **p);
 static char getletter(char **p);
 static bool getparam(char **p, char *sym, float *value);
 
+bool Command_ManuallyHome(uint8_t selected_dir)
+{
+	if(!Command_IsStandBy())
+		return false;
+	Motor_PowerOn();
+	Move_Home(selected_dir);
+}
+
 //解析并执行下一条指令
 void Command_doNext()
 {
