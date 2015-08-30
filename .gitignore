@@ -39,3 +39,5 @@
 *.uvgui.*
 *_uvopt.bak
 Libraries/CMSIS/Documentation
+JLinkLog.txt
+3Dprinter_Target 1.dep

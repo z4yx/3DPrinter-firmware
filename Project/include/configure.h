@@ -25,9 +25,9 @@
 #define FLAVOR_SLIC3R      3
 
 //机械结构,选择一个
-// #define MACHINERY_TYPE MACHINERY_CARTESIAN
+#define MACHINERY_TYPE MACHINERY_CARTESIAN
 // #define MACHINERY_TYPE MACHINERY_COREXY
-#define MACHINERY_TYPE MACHINERY_LINEARDELTA
+// #define MACHINERY_TYPE MACHINERY_LINEARDELTA
 
 //G代码生成工具,选择一个
 // #define GCODE_FLAVOR FLAVOR_REPLICATORG
@@ -58,21 +58,21 @@
 #endif
 
 //X轴步进电机旋转一周对应的直线位移(um)
-#define X_DISTANCE_PER_CYCLE 31415
+#define X_DISTANCE_PER_CYCLE 32000
 //X轴步进电机旋转一周需要的脉冲数量(考虑细分)
 #define X_PULSES_PER_CYCLE   (16*200)
 //X轴运行方向调整(取值+/-1)
 #define X_DIRECTION_ADJ      1 
 
 //Y轴步进电机旋转一周对应的直线位移(um)
-#define Y_DISTANCE_PER_CYCLE 31415
+#define Y_DISTANCE_PER_CYCLE 32000
 //Y轴步进电机旋转一周需要的脉冲数量(考虑细分)
 #define Y_PULSES_PER_CYCLE (16*200)
 //Y轴运行方向调整(取值+/-1)
 #define Y_DIRECTION_ADJ      1 
 
 //Z轴步进电机旋转一周对应的直线位移(um)
-#define Z_DISTANCE_PER_CYCLE 31415
+#define Z_DISTANCE_PER_CYCLE 8000
 //Z轴步进电机旋转一周需要的脉冲数量(考虑细分)
 #define Z_PULSES_PER_CYCLE (16*200)
 //Z轴运行方向调整(取值+/-1)
@@ -108,10 +108,10 @@
 #define EXTRUDER_PID_KD 700
 #define EXTRUDER_PID_INIT_SUM 800
 
-//挤出器使用热电阻测温而不是热电偶
-#define EXTRUDER_THERMO_USING_ADC 0
+//挤出器使用热电阻测温而不是热电偶(0或者1)
+#define EXTRUDER_THERMO_USING_ADC 1
 //挤出器热电阻传感值与温度换算
-#define EXTRUDER_ADC_TO_TEMP(x) (123.678-0.0893583*(x)+0.0000195876*(x)*(x))
+#define EXTRUDER_ADC_TO_TEMP(x) (217.605 - 0.166215*x + 0.0000696668*x*x - 1.08901e-8*x*x*x)
 
 //加热板输出更新频率限制(ms)
 #define HEATBED_UPDATE_PERIOD 500
