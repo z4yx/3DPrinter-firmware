@@ -111,7 +111,7 @@
 //挤出器使用热电阻测温而不是热电偶(0或者1)
 #define EXTRUDER_THERMO_USING_ADC 1
 //挤出器热电阻传感值与温度换算
-#define EXTRUDER_ADC_TO_TEMP(x) (217.605 - 0.166215*x + 0.0000696668*x*x - 1.08901e-8*x*x*x)
+#define EXTRUDER_ADC_TO_TEMP(x) (4226.7257/log(-((1.27182e7*(x))/(-1.67936e7 + 4257*(x)))/0.08)-273.15)
 
 //加热板输出更新频率限制(ms)
 #define HEATBED_UPDATE_PERIOD 500
