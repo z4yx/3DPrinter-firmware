@@ -87,6 +87,8 @@
 
 //限位开关接通有效的阈值(ms)
 #define LIMIT_SWITCH_VALID_TIME 90
+//限位开关极性：0=常开，1=常闭
+#define LIMIT_SWITCH_POLARITY   1
 
 //键盘最小触发间隔时间(ms)
 #define KEYBOARD_MIN_TOGGLE_PERIOD 50

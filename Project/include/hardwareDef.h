@@ -96,9 +96,6 @@
 #define Z_Axis_Max_Port GPIOB
 #define Z_Axis_Max_Pin GPIO_Pin_1
 
-#define Ext2Hb_Limit_Port X_Axis_Max_Port
-#define Ext2Hb_Limit_Pin  X_Axis_Max_Pin
-
 #define LED_Port GPIOB
 #define LED_1 GPIO_Pin_8
 

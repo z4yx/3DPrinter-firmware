@@ -40,14 +40,24 @@ bool LimitSwitch_Pressed(uint8_t sw)
 		case LimitSwitch_ZMin:
 			val = GPIO_ReadInputDataBit(Z_Axis_Min_Port, Z_Axis_Min_Pin);
 			break;
-		case LimitSwitch_EXT2HB:
-			val = GPIO_ReadInputDataBit(Ext2Hb_Limit_Port, Ext2Hb_Limit_Pin);
+		case LimitSwitch_XMax:
+			val = GPIO_ReadInputDataBit(X_Axis_Max_Port, X_Axis_Max_Pin);
+			break;
+		case LimitSwitch_YMax:
+			val = GPIO_ReadInputDataBit(Y_Axis_Max_Port, Y_Axis_Max_Pin);
+			break;
+		case LimitSwitch_ZMax:
+			val = GPIO_ReadInputDataBit(Z_Axis_Max_Port, Z_Axis_Max_Pin);
 			break;
 		default:
 			ERR_MSG("Invalid switch number %d", sw);
 			return false;
 	}
+#if LIMIT_SWITCH_POLARITY
+	return val;
+#else
 	return !val;
+#endif
 }
 
 void LimitSwitch_Config(void)
@@ -67,10 +77,18 @@ void LimitSwitch_Config(void)
 	RCC_GPIOClockCmd(Z_Axis_Min_Port, ENABLE);
 	GPIO_InitStructure.GPIO_Pin = Z_Axis_Min_Pin;
 	GPIO_Init(Z_Axis_Min_Port, &GPIO_InitStructure);
+
+	RCC_GPIOClockCmd(X_Axis_Max_Port, ENABLE);
+	GPIO_InitStructure.GPIO_Pin = X_Axis_Max_Pin;
+	GPIO_Init(X_Axis_Max_Port, &GPIO_InitStructure);
+
+	RCC_GPIOClockCmd(Y_Axis_Max_Port, ENABLE);
+	GPIO_InitStructure.GPIO_Pin = Y_Axis_Max_Pin;
+	GPIO_Init(Y_Axis_Max_Port, &GPIO_InitStructure);
 	
-	RCC_GPIOClockCmd(Ext2Hb_Limit_Port, ENABLE);
-	GPIO_InitStructure.GPIO_Pin = Ext2Hb_Limit_Pin;
-	GPIO_Init(Ext2Hb_Limit_Port, &GPIO_InitStructure);
+	RCC_GPIOClockCmd(Z_Axis_Max_Port, ENABLE);
+	GPIO_InitStructure.GPIO_Pin = Z_Axis_Max_Pin;
+	GPIO_Init(Z_Axis_Max_Port, &GPIO_InitStructure);
 
 	for (int i = 0; i < NUM_SWITCHS; ++i)
 	{

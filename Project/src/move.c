@@ -228,46 +228,27 @@ void Move_LimitReached(uint8_t sw_num)
 {
 	bool err = false;
 	uint8_t err_axis;
-	switch(sw_num) {
-		case LimitSwitch_XMin:
-			if(currentState[X_Axis] == Axis_State_Homing)
-				RobotArm_Home_LimitSwitchTrig(sw_num);
-			else{
-				err = true;
+	if(currentState[X_Axis] == Axis_State_Homing ||
+		currentState[Y_Axis] == Axis_State_Homing ||
+		currentState[Z_Axis] == Axis_State_Homing){
+
+		RobotArm_Home_LimitSwitchTrig(sw_num);
+	}else{
+		err = true;
+		switch(sw_num) {
+			case LimitSwitch_XMax:
+			case LimitSwitch_XMin:
 				err_axis = X_Axis;
-			}
-			break;
-
-		case LimitSwitch_YMin:
-			if(currentState[Y_Axis] == Axis_State_Homing)
-				RobotArm_Home_LimitSwitchTrig(sw_num);
-			else{
-				err = true;
+				break;
+			case LimitSwitch_YMax:
+			case LimitSwitch_YMin:
 				err_axis = Y_Axis;
-			}
-			break;
-
-		case LimitSwitch_ZMin:
-			if(currentState[Z_Axis] == Axis_State_Homing)
-				RobotArm_Home_LimitSwitchTrig(sw_num);
-			else{
-				err = true;
+				break;
+			case LimitSwitch_ZMax:
+			case LimitSwitch_ZMin:
 				err_axis = Z_Axis;
-			}
-			break;
-
-		// case LimitSwitch_XMax:
-		// ...
-
-		case LimitSwitch_EXT2HB:
-			if(currentState[X_Axis] == Axis_State_Homing ||
-				currentState[Y_Axis] == Axis_State_Homing ||
-				currentState[Z_Axis] == Axis_State_Homing)
-
-				RobotArm_Home_LimitSwitchTrig(sw_num);
-			break;
-	}
-	if(err) {
+				break;
+		}
 		// Motor_Stop(err_axis);
 		ERR_MSG("Limit switch on illegally! axis=%d, switch=%d", (int)err_axis, (int)sw_num);
 	}

@@ -51,15 +51,15 @@ bool RobotArm_HomeOperation(uint8_t selected_dir)
 {
     if((selected_dir & MOVE_DIR_X) || (selected_dir & MOVE_DIR_Y)){
         bool success = true, all_pressed = true;
-        if(!LimitSwitch_Pressed(LimitSwitch_XMin)){
+        if(!LimitSwitch_Pressed(LimitSwitch_XMax)){
             all_pressed = false;
             success &= Move_MotorHome(X_Axis, Move_Dir_Forward);
         }
-        if(!LimitSwitch_Pressed(LimitSwitch_YMin)){
+        if(!LimitSwitch_Pressed(LimitSwitch_YMax)){
             all_pressed = false;
             success &= Move_MotorHome(Y_Axis, Move_Dir_Forward);
         }
-        if(!LimitSwitch_Pressed(LimitSwitch_ZMin)){
+        if(!LimitSwitch_Pressed(LimitSwitch_ZMax)){
             all_pressed = false;
             success &= Move_MotorHome(Z_Axis, Move_Dir_Forward);
         }
@@ -68,9 +68,9 @@ bool RobotArm_HomeOperation(uint8_t selected_dir)
         }
         return success;
     }else if(selected_dir & MOVE_DIR_Z){
-        if(LimitSwitch_Pressed(LimitSwitch_XMin) &&
-            LimitSwitch_Pressed(LimitSwitch_YMin) &&
-            LimitSwitch_Pressed(LimitSwitch_ZMin)){
+        if(LimitSwitch_Pressed(LimitSwitch_XMax) &&
+            LimitSwitch_Pressed(LimitSwitch_YMax) &&
+            LimitSwitch_Pressed(LimitSwitch_ZMax)){
 
             return Move_MotorHome(X_Axis, Move_Dir_Back) &&
                 Move_MotorHome(Y_Axis, Move_Dir_Back) &&
@@ -86,34 +86,34 @@ bool RobotArm_HomeOperation(uint8_t selected_dir)
 void RobotArm_Home_LimitSwitchTrig(uint8_t sw)
 {
     switch(sw){
-    case LimitSwitch_XMin:
+    case LimitSwitch_XMax:
         Move_MotorHomeDone(X_Axis);
         break;
-    case LimitSwitch_YMin:
+    case LimitSwitch_YMax:
         Move_MotorHomeDone(Y_Axis);
         break;
-    case LimitSwitch_ZMin:
+    case LimitSwitch_ZMax:
         Move_MotorHomeDone(Z_Axis);
         break;
-    case LimitSwitch_EXT2HB:
+    case LimitSwitch_ZMin:
         Move_MotorHomeDone(X_Axis);
         Move_MotorHomeDone(Y_Axis);
         Move_MotorHomeDone(Z_Axis);
         break;
     }
     switch(sw){
-    case LimitSwitch_XMin:
-    case LimitSwitch_YMin:
-    case LimitSwitch_ZMin:
-        if(LimitSwitch_Pressed(LimitSwitch_XMin) &&
-            LimitSwitch_Pressed(LimitSwitch_YMin) &&
-            LimitSwitch_Pressed(LimitSwitch_ZMin)){
+    case LimitSwitch_XMax:
+    case LimitSwitch_YMax:
+    case LimitSwitch_ZMax:
+        if(LimitSwitch_Pressed(LimitSwitch_XMax) &&
+            LimitSwitch_Pressed(LimitSwitch_YMax) &&
+            LimitSwitch_Pressed(LimitSwitch_ZMax)){
             //三个机械臂均触碰限位，挤出头一定在中心
 
             Move_ResetDirection(MOVE_DIR_X|MOVE_DIR_Y);
         }
         break;
-    case LimitSwitch_EXT2HB:
+    case LimitSwitch_ZMin:
         Move_ResetDirection(MOVE_DIR_Z);
         break;
     }
