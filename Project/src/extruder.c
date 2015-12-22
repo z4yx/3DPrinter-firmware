@@ -63,6 +63,7 @@ Temperature to ADC value:
 #include "extruder.h"
 #include "systick.h"
 #include "motor.h"
+#include <math.h>
 
 static bool bHeating;
 static int16_t targetTemp;

@@ -22,6 +22,7 @@
 #include "pwmOutput.h"
 #include "heatbed.h"
 #include "systick.h"
+#include <math.h>
 
 /*
 //实际温度与ADC采样值数据拟合
