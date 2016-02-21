@@ -52,6 +52,7 @@ void RCC_GPIOClockCmd(GPIO_TypeDef* GPIOx, FunctionalState state);
 void RCC_USARTClockCmd(USART_TypeDef* USARTx, FunctionalState state);
 void Timer_16bit_Calc(int freq, uint16_t *period, uint16_t *prescaler);
 float Distance3D(float dx, float dy, float dz);
+void Chip_GetUniqueID(uint32_t ChipUniqueID[3]);
 
 typedef void (*Task_t)(void);
 

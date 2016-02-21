@@ -81,3 +81,11 @@ float Distance3D(float dx, float dy, float dz)
 {
 	return sqrt(dx*dx + dy*dy + dz*dz);
 }
+
+//获得芯片的唯一ID
+void Chip_GetUniqueID(uint32_t ChipUniqueID[3])
+{
+	ChipUniqueID[0] = *(uint32_t *)(0X1FFFF7F0);
+	ChipUniqueID[1] = *(uint32_t *)(0X1FFFF7EC);
+	ChipUniqueID[2] = *(uint32_t *)(0X1FFFF7E8);
+}
