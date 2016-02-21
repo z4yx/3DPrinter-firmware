@@ -5,8 +5,9 @@
 
 #define USB_DISCONNECT                      USB_Port
 #define USB_DISCONNECT_PIN                  USB_Conn
-// #define RCC_APB2Periph_GPIO_DISCONNECT      RCC_APB2Periph_GPIOA
+#define RCC_APB2Periph_GPIO_DISCONNECT      USB_Port_CLK
 
+void USB_Disconnect_Config(void);
 void Set_USBClock(void);
 void Enter_LowPowerMode(void);
 void Leave_LowPowerMode(void);

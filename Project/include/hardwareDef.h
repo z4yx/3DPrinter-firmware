@@ -102,6 +102,7 @@
 #define USB_Port GPIOA
 #define USB_Det  GPIO_Pin_15
 #define USB_Conn GPIO_Pin_8
+#define USB_Port_CLK RCC_APB2Periph_GPIOA
 
 #define STEPPER_COUNT 4
 

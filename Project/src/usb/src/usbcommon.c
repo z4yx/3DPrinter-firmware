@@ -7,6 +7,8 @@
 
 static EXTI_InitTypeDef EXTI_InitStructure;
 
+#define USE_STM3210E_EVAL
+
 /*******************************************************************************
 * Function Name  : Set_System
 * Description    : Configures Main system clocks & power
@@ -15,56 +17,37 @@ static EXTI_InitTypeDef EXTI_InitStructure;
 *******************************************************************************/
 static void Set_System(void)
 {
-#if !defined(STM32L1XX_MD) && !defined(STM32L1XX_HD) && !defined(STM32L1XX_MD_PLUS)
-  GPIO_InitTypeDef GPIO_InitStructure;
-#endif /* STM32L1XX_MD && STM32L1XX_XD */  
-
+#if defined (STM32F37X) || defined (STM32F30X)
+  GPIO_InitTypeDef  GPIO_InitStructure;
+#endif /*STM32L1XX_XD */
+  
 #if defined(USB_USE_EXTERNAL_PULLUP)
   GPIO_InitTypeDef  GPIO_InitStructure;
-#endif /* USB_USE_EXTERNAL_PULLUP */ 
+#endif /* USB_USE_EXTERNAL_PULLUP */
   
   /*!< At this stage the microcontroller clock setting is already configured, 
        this is done through SystemInit() function which is called from startup
-       file (startup_stm32f10x_xx.s) before to branch to application main.
+       file (startup_stm32xxx.s) before to branch to application main.
        To reconfigure the default setting of SystemInit() function, refer to
-       system_stm32f10x.c file
-     */   
+       system_stm32xxx.c file
+     */ 
 #if defined(STM32L1XX_MD) || defined(STM32L1XX_HD)|| defined(STM32L1XX_MD_PLUS) || defined(STM32F37X) || defined(STM32F30X)
   /* Enable the SYSCFG module clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 #endif /* STM32L1XX_XD */ 
-   
-#if !defined(STM32L1XX_MD) && !defined(STM32L1XX_HD) && !defined(STM32L1XX_MD_PLUS) && !defined(STM32F37X) && !defined(STM32F30X)
-  /* Enable USB_DISCONNECT GPIO clock */
-  // RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIO_DISCONNECT, ENABLE);
-  RCC_GPIOClockCmd(USB_DISCONNECT, ENABLE);
+  
+#if !defined (USE_STM32L152_EVAL) 
+  /* Enable and Disconnect Line GPIO clock */
+  USB_Disconnect_Config();
+#endif /* USE_STM32L152_EVAL */
 
-  /* Configure USB pull-up pin */
-  GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
-  GPIO_Init(USB_DISCONNECT, &GPIO_InitStructure);
-#endif /* STM32L1XX_MD && STM32L1XX_XD */
-   
-#if defined(USB_USE_EXTERNAL_PULLUP)
+#if defined (STM32F37X) || defined(STM32F30X)
+
   /* Enable the USB disconnect GPIO clock */
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO_DISCONNECT, ENABLE);
 
-  /* USB_DISCONNECT used as USB pull-up */
-  GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(USB_DISCONNECT, &GPIO_InitStructure);  
-#endif /* USB_USE_EXTERNAL_PULLUP */ 
+ /*Set PA11,12 as IN - USB_DM,DP*/
   
-#if defined(STM32F37X) || defined(STM32F30X)
-  
-  /* Enable the USB disconnect GPIO clock */
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO_DISCONNECT, ENABLE);
-  
-  /*Set PA11,12 as IN - USB_DM,DP*/
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -72,23 +55,36 @@ static void Set_System(void)
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
-  
+    
   /*SET PA11,12 for USB: USB_DM,DP*/
   GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_14);
   GPIO_PinAFConfig(GPIOA, GPIO_PinSource12, GPIO_AF_14);
-  
+ 
   /* USB_DISCONNECT used as USB pull-up */
   GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(USB_DISCONNECT, &GPIO_InitStructure);
-#endif /* STM32F37X && STM32F30X */ 
+  GPIO_Init(USB_DISCONNECT, &GPIO_InitStructure); 
+#endif /* STM32F37X && STM32F30X */   
+
+#if defined(USB_USE_EXTERNAL_PULLUP)
+  /* Enable the USB disconnect GPIO clock */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO_DISCONNECT, ENABLE);
+
+  /* USB_DISCONNECT used as USB pull-up */
+  GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(USB_DISCONNECT, &GPIO_InitStructure);  
+#endif /* USB_USE_EXTERNAL_PULLUP */  
   
-  /* Configure the EXTI line 18 connected internally to the USB IP */
+      /* Configure the EXTI line 18 connected internally to the USB IP */
   EXTI_ClearITPendingBit(EXTI_Line18);
-  EXTI_InitStructure.EXTI_Line = EXTI_Line18; 
+  EXTI_InitStructure.EXTI_Line = EXTI_Line18;
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
@@ -237,6 +233,41 @@ void USB_Cable_Config (FunctionalState NewState)
   }
 }
 
+#if !defined (USE_STM32L152_EVAL) 
+/*******************************************************************************
+* Function Name  : USB_Disconnect_Config
+* Description    : Disconnect pin configuration
+* Input          : None.
+* Return         : None.
+*******************************************************************************/
+void USB_Disconnect_Config(void)
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+#if defined (USE_STM3210B_EVAL) || defined (USE_STM3210E_EVAL)
+  /* Enable USB_DISCONNECT GPIO clock */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIO_DISCONNECT, ENABLE);
+
+  /* USB_DISCONNECT_PIN used as USB pull-up */
+  GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
+#else
+  /* Enable the USB disconnect GPIO clock */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO_DISCONNECT, ENABLE);
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_ALLGPIO, ENABLE);
+  
+  /* USB_DISCONNECT used as USB pull-up */
+  GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+#endif
+  GPIO_Init(USB_DISCONNECT, &GPIO_InitStructure);
+}
+#endif /* USE_STM3210B_EVAL or USE_STM3210E_EVAL */
+
 /*******************************************************************************
 * Function Name  : Get_SerialNum.
 * Description    : Create the serial number string descriptor.
@@ -246,16 +277,19 @@ void USB_Cable_Config (FunctionalState NewState)
 *******************************************************************************/
 void Get_SerialNum(void)
 {
+  uint32_t uniqueId[3];
   uint32_t Device_Serial0, Device_Serial1, Device_Serial2;
 
-  Device_Serial0 = 0xdeadbeef;
-  Device_Serial1 = 0xaa55aa55;
-  Device_Serial2 = 0;  
-
-  Device_Serial0 += Device_Serial2;
+  Chip_GetUniqueID(uniqueId);
+  Device_Serial0 = uniqueId[2];
+  Device_Serial1 = uniqueId[1];
+  Device_Serial2 = uniqueId[0];
 
   if (Device_Serial0 != 0)
   {
+#if MASS_SIZ_STRING_SERIAL != (2+2*(8+4))
+  #error "MASS_SIZ_STRING_SERIAL Length Not Match"
+#endif
     IntToUnicode (Device_Serial0, &MASS_StringSerial[2] , 8);
     IntToUnicode (Device_Serial1, &MASS_StringSerial[18], 4);
   }

@@ -27,6 +27,7 @@ void USBDevice_Config()
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_GPIOClockCmd(USB_Port, ENABLE);
 
+    /* USB Detection Pin Init */
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Pin = USB_Det;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;         /* 下拉输入 */
