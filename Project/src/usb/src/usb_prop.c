@@ -34,6 +34,7 @@
 #include "usb_bot.h"
 #include "memory.h"
 #include "mass_mal.h"
+#include "common.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -128,6 +129,7 @@ void MASS_init()
 
   /* Perform basic device initialization operations */
   USB_SIL_Init();
+  DBG_MSG("after USB_SIL_Init");
 
   bDeviceState = UNCONNECTED;
 }
@@ -141,6 +143,7 @@ void MASS_init()
 *******************************************************************************/
 void MASS_Reset()
 {
+  DBG_MSG("");
   /* Set the device as not configured */
   Device_Info.Current_Configuration = 0;
 
@@ -195,6 +198,7 @@ void MASS_Reset()
 *******************************************************************************/
 void Mass_Storage_SetConfiguration(void)
 {
+  DBG_MSG("");
   if (pInformation->Current_Configuration != 0)
   {
     /* Device configured */
@@ -220,6 +224,7 @@ void Mass_Storage_ClearFeature(void)
      Endpoints (IN & OUT) shall stall until receiving a Mass Storage Reset     */
   if (CBW.dSignature != BOT_CBW_SIGNATURE)
     Bot_Abort(BOTH_DIR);
+  DBG_MSG("");
 }
 
 /*******************************************************************************
@@ -231,6 +236,7 @@ void Mass_Storage_ClearFeature(void)
 *******************************************************************************/
 void Mass_Storage_SetDeviceAddress (void)
 {
+  DBG_MSG("%d", ADDRESSED);
   bDeviceState = ADDRESSED;
 }
 /*******************************************************************************
@@ -274,6 +280,7 @@ RESULT MASS_Data_Setup(uint8_t RequestNo)
       && (pInformation->USBwIndex == 0) && (pInformation->USBwLength == 0x01))
   {
     CopyRoutine = Get_Max_Lun;
+    DBG_MSG("Get_Max_Lun");
   }
   else
   {
@@ -306,6 +313,8 @@ RESULT MASS_NoData_Setup(uint8_t RequestNo)
       && (RequestNo == MASS_STORAGE_RESET) && (pInformation->USBwValue == 0)
       && (pInformation->USBwIndex == 0) && (pInformation->USBwLength == 0x00))
   {
+    DBG_MSG("MASS_STORAGE_RESET");
+
     /* Initialize Endpoint 1 */
     ClearDTOG_TX(ENDP1);
 

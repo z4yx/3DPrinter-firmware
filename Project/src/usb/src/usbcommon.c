@@ -4,6 +4,7 @@
 #include "usb_pwr.h"
 #include "usbcommon.h"
 #include "usbstorage.h"
+#include "systick.h"
 
 static EXTI_InitTypeDef EXTI_InitStructure;
 
@@ -104,15 +105,17 @@ void Set_USBClock(void)
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, ENABLE);
   
 #else 
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, DISABLE);
   RCC_APB1PeriphResetCmd(RCC_APB1Periph_USB, ENABLE);
-  RCC_APB1PeriphResetCmd(RCC_APB1Periph_USB, DISABLE);
-  
+  Delay_ms(1);
+
   /* Select USBCLK source */
   RCC_USBCLKConfig(RCC_USBCLKSource_PLLCLK_1Div5);
   
   /* Enable the USB clock */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, ENABLE);
+
+  RCC_APB1PeriphResetCmd(RCC_APB1Periph_USB, DISABLE);
+  Delay_ms(10);
 #endif /* STM32L1XX_MD */
 }
 

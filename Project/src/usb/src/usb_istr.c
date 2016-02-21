@@ -34,6 +34,7 @@
 #include "usb_istr.h"
 #include "usb_init.h"
 #include "usb_int.h"
+#include "common.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -116,6 +117,10 @@ void USB_Istr(void)
   if (wIstr & ISTR_ERR & wInterrupt_Mask)
   {
     _SetISTR((uint16_t)CLR_ERR);
+    static uint8_t cnt = 0;
+    cnt++;
+    if(cnt==255)
+      ERR_MSG("255");
 #ifdef ERR_CALLBACK
     ERR_Callback();
 #endif
