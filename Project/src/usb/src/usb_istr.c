@@ -119,8 +119,10 @@ void USB_Istr(void)
     _SetISTR((uint16_t)CLR_ERR);
     static uint8_t cnt = 0;
     cnt++;
-    if(cnt==255)
-      ERR_MSG("255");
+    if(cnt==64){
+      cnt=0;
+      ERR_MSG("64");
+    }
 #ifdef ERR_CALLBACK
     ERR_Callback();
 #endif

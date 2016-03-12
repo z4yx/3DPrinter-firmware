@@ -120,12 +120,14 @@ void MASS_init()
 {
   /* Update the serial number string descriptor with the data from the unique
   ID*/
+  DBG_MSG("");
   Get_SerialNum();
 
   pInformation->Current_Configuration = 0;
 
   /* Connect the device */
   PowerOn();
+  DBG_MSG("after PowerOn");
 
   /* Perform basic device initialization operations */
   USB_SIL_Init();
@@ -248,6 +250,7 @@ void Mass_Storage_SetDeviceAddress (void)
 *******************************************************************************/
 void MASS_Status_In(void)
 {
+  DBG_MSG("");
   return;
 }
 
@@ -260,6 +263,7 @@ void MASS_Status_In(void)
 *******************************************************************************/
 void MASS_Status_Out(void)
 {
+  DBG_MSG("");
   return;
 }
 
@@ -274,6 +278,7 @@ RESULT MASS_Data_Setup(uint8_t RequestNo)
 {
   uint8_t    *(*CopyRoutine)(uint16_t);
 
+  DBG_MSG("");
   CopyRoutine = NULL;
   if ((Type_Recipient == (CLASS_REQUEST | INTERFACE_RECIPIENT))
       && (RequestNo == GET_MAX_LUN) && (pInformation->USBwValue == 0)
@@ -309,6 +314,7 @@ RESULT MASS_Data_Setup(uint8_t RequestNo)
 *******************************************************************************/
 RESULT MASS_NoData_Setup(uint8_t RequestNo)
 {
+  DBG_MSG("");
   if ((Type_Recipient == (CLASS_REQUEST | INTERFACE_RECIPIENT))
       && (RequestNo == MASS_STORAGE_RESET) && (pInformation->USBwValue == 0)
       && (pInformation->USBwIndex == 0) && (pInformation->USBwLength == 0x00))
@@ -340,6 +346,7 @@ RESULT MASS_NoData_Setup(uint8_t RequestNo)
 *******************************************************************************/
 RESULT MASS_Get_Interface_Setting(uint8_t Interface, uint8_t AlternateSetting)
 {
+  DBG_MSG("");
   if (AlternateSetting > 0)
   {
     return USB_UNSUPPORT;/* in this application we don't have AlternateSetting*/
@@ -360,6 +367,7 @@ RESULT MASS_Get_Interface_Setting(uint8_t Interface, uint8_t AlternateSetting)
 *******************************************************************************/
 uint8_t *MASS_GetDeviceDescriptor(uint16_t Length)
 {
+  DBG_MSG("");
   return Standard_GetDescriptorData(Length, &Device_Descriptor );
 }
 
@@ -372,6 +380,7 @@ uint8_t *MASS_GetDeviceDescriptor(uint16_t Length)
 *******************************************************************************/
 uint8_t *MASS_GetConfigDescriptor(uint16_t Length)
 {
+  DBG_MSG("");
   return Standard_GetDescriptorData(Length, &Config_Descriptor );
 }
 
@@ -386,6 +395,7 @@ uint8_t *MASS_GetStringDescriptor(uint16_t Length)
 {
   uint8_t wValue0 = pInformation->USBwValue0;
 
+  DBG_MSG("");
   if (wValue0 > 5)
   {
     return NULL;
