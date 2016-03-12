@@ -122,6 +122,7 @@ void Set_USBClock(void)
 void USBCommon_Init(void)
 {
   Set_System();
+  USB_Cable_Config(DISABLE);
   Set_USBClock();
   USB_Interrupts_Config();
 }
