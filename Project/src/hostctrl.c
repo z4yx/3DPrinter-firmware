@@ -198,6 +198,10 @@ static void processRequest(char* cmd, char* param)
 			int result = 0;
 			if(strcmp(param, "XY") == 0){
 				result = Command_ManuallyHome(MOVE_DIR_X|MOVE_DIR_Y);
+			}else if(strcmp(param, "X") == 0){
+				result = Command_ManuallyHome(MOVE_DIR_X);
+			}else if(strcmp(param, "Y") == 0){
+				result = Command_ManuallyHome(MOVE_DIR_Y);
 			}else if(strcmp(param, "Z") == 0){
 				result = Command_ManuallyHome(MOVE_DIR_Z);
 			}
