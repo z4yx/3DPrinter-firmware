@@ -25,9 +25,9 @@
 #define FLAVOR_SLIC3R      3
 
 //机械结构,选择一个
-// #define MACHINERY_TYPE MACHINERY_CARTESIAN
+#define MACHINERY_TYPE MACHINERY_CARTESIAN
 // #define MACHINERY_TYPE MACHINERY_COREXY
-#define MACHINERY_TYPE MACHINERY_LINEARDELTA
+// #define MACHINERY_TYPE MACHINERY_LINEARDELTA
 
 //G代码生成工具,选择一个
 // #define GCODE_FLAVOR FLAVOR_REPLICATORG
@@ -60,28 +60,28 @@
 //X轴步进电机旋转一周对应的直线位移(um)
 #define X_DISTANCE_PER_CYCLE 32000
 //X轴步进电机旋转一周需要的脉冲数量(考虑细分)
-#define X_PULSES_PER_CYCLE   (16*200)
+#define X_PULSES_PER_CYCLE   (32*200)
 //X轴运行方向调整(取值+/-1)
 #define X_DIRECTION_ADJ      1 
 
 //Y轴步进电机旋转一周对应的直线位移(um)
 #define Y_DISTANCE_PER_CYCLE 32000
 //Y轴步进电机旋转一周需要的脉冲数量(考虑细分)
-#define Y_PULSES_PER_CYCLE (16*200)
+#define Y_PULSES_PER_CYCLE (32*200)
 //Y轴运行方向调整(取值+/-1)
 #define Y_DIRECTION_ADJ      1 
 
 //Z轴步进电机旋转一周对应的直线位移(um)
-#define Z_DISTANCE_PER_CYCLE 8000
+#define Z_DISTANCE_PER_CYCLE 4000
 //Z轴步进电机旋转一周需要的脉冲数量(考虑细分)
-#define Z_PULSES_PER_CYCLE (16*200)
+#define Z_PULSES_PER_CYCLE (32*200)
 //Z轴运行方向调整(取值+/-1)
 #define Z_DIRECTION_ADJ      1
 
 //挤出器步进电机旋转一周对应的原料丝运动长度(um)
-#define A_DISTANCE_PER_CYCLE 34540
+#define A_DISTANCE_PER_CYCLE 20400
 //挤出器步进电机旋转一周需要的脉冲数量(考虑细分)
-#define A_PULSES_PER_CYCLE (16*200)
+#define A_PULSES_PER_CYCLE (32*200)
 //挤出器运行方向调整(取值+/-1)
 #define A_DIRECTION_ADJ      1
 
