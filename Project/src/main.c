@@ -18,119 +18,79 @@
 
 #include "stm32f10x.h"
 #include "common.h"
-#include "led.h"
 #include "usart.h"
 #include "systick.h"
-#include "pwmOutput.h"
-#include "fanControl.h"
-#include "adc.h"
-#include "motor.h"
-#include "command.h"
-#include "gfiles.h"
-#include "move.h"
-#include "heatbed.h"
-#include "extruder.h"
-#include "hostctrl.h"
 
-const Task_t SystemTasks[] = { LimitSwitch_Task, ExtruderTask, HeatBedTask, Command_Task, HostCtrl_Task};
+struct gpio_t{
+	GPIO_TypeDef* port;
+	uint16_t pin;
+};
 
-
-static void periphInit()
-{
-	USART_Config(BT_USART, BT_BaudRate);
-	FileManager_Init();
-	PWM_Init(HEATER_PWM_FREQ);
-	Move_Init();
-	Extruder_Init();
-	Fan_Config();
-	HeatBed_Init();
-	USBDevice_Config();
-	Command_Init();
-	HostCtrl_Init();
-}
-
-void useHSIClock()
-{
-	// RCC_HSEConfig(RCC_HSE_ON);
-	// while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)//等待HSE使能成功
-	// {
-	// }
-	RCC_HSICmd(ENABLE);
-	while(RCC_GetFlagStatus(RCC_FLAG_HSIRDY) == RESET);//等待HSI使能成功
-
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
-
-	RCC_PLLCmd(DISABLE);
-	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_10);
-
-	RCC_PLLCmd(ENABLE);
-	while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET);
-
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-	while(RCC_GetSYSCLKSource() != 0x08);
-}
-
-static void NVIC_DeInit(void)
-{
-  u32 index = 0;
-  
-  NVIC->ICER[0] = 0xFFFFFFFF;
-  NVIC->ICER[1] = 0x0FFFFFFF;
-  NVIC->ICPR[0] = 0xFFFFFFFF;
-  NVIC->ICPR[1] = 0x0FFFFFFF;
-  
-  for(index = 0; index < 0x0F; index++)
-  {
-     NVIC->IP[index] = 0x00000000;
-  } 
-}
-
-//核心组件初始化,包括串口(用于打印调试信息)
-static void coreInit()
-{
-	__disable_irq();
-	NVIC_DeInit();
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-	__enable_irq();
+struct gpio_t TestIO[] = {
+	{.port=X_Axis_Step_Port,.pin=X_Axis_Step_Pin},
+	{.port=X_Axis_Dir_Port,.pin=X_Axis_Dir_Pin},
+	{.port=Y_Axis_Start_Port,.pin=Y_Axis_Start_Pin},
+	{.port=Y_Axis_Step_Port,.pin=Y_Axis_Step_Pin},
+	{.port=Y_Axis_Dir_Port,.pin=Y_Axis_Dir_Pin},
+	{.port=Z_Axis_Start_Port,.pin=Z_Axis_Start_Pin},
+	{.port=GPIOC,.pin=GPIO_Pin_0},
+	{.port=GPIOC,.pin=GPIO_Pin_1},
+	{.port=GPIOB,.pin=GPIO_Pin_9},
+	{.port=GPIOC,.pin=GPIO_Pin_14},
+	{.port=GPIOB,.pin=GPIO_Pin_3},
+	{.port=GPIOB,.pin=GPIO_Pin_5},
+	{.port=GPIOB,.pin=GPIO_Pin_4},
+	{.port=Z_Axis_Dir_Port,.pin=Z_Axis_Dir_Pin},
+	{.port=Z_Axis_Step_Port,.pin=Z_Axis_Step_Pin},
+	{.port=X_Axis_Start_Port,.pin=X_Axis_Start_Pin},
+	{.port=A_Axis_Dir_Port,.pin=A_Axis_Dir_Pin},
+	{.port=A_Axis_Step_Port,.pin=A_Axis_Step_Pin},
+	{.port=A_Axis_Start_Port,.pin=A_Axis_Start_Pin},
+	{.port=GPIOB,.pin=GPIO_Pin_6},
+	{.port=GPIOB,.pin=GPIO_Pin_7},
+	{.port=Z_Axis_Max_Port,.pin=Z_Axis_Max_Pin},
+	{.port=Z_Axis_Min_Port,.pin=Z_Axis_Min_Pin},
+	{.port=Y_Axis_Max_Port,.pin=Y_Axis_Max_Pin},
+	{.port=Y_Axis_Min_Port,.pin=Y_Axis_Min_Pin},
 	
-	SystemCoreClockUpdate();
-	SysTick_Init();
-	LED_Config();
-	USART_Config(Debug_USART, Debug_BaudRate);
-
-	//enable remap for max6675 pins
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
-}
+	{.port=GPIOA,.pin=GPIO_Pin_10},
+	{.port=GPIOA,.pin=GPIO_Pin_9},
+	{.port=X_Axis_Max_Port,.pin=X_Axis_Max_Pin},
+	{.port=X_Axis_Min_Port,.pin=X_Axis_Min_Pin},
+	{.port=GPIOA,.pin=GPIO_Pin_1},
+	{.port=GPIOA,.pin=GPIO_Pin_0},
+	{.port=Ex1Fan_Port,.pin=Ex1Fan_Pin},
+	{.port=LED_Port,.pin=LED_1},
+};
 
 int main(void)
 {
-	RCC_ClocksTypeDef clocks;
-	// useHSIClock();
-	RCC_GetClocksFreq(&clocks);
+	int i;
+    GPIO_InitTypeDef GPIO_InitStructure;
+	SystemCoreClockUpdate();
+	SysTick_Init();
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB|RCC_APB2Periph_GPIOC|RCC_APB2Periph_GPIOD, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
 
-	coreInit();
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 
-	Delay_ms(2000);
-
-	DBG_MSG("\r\n\r\n", 0);
-	DBG_MSG("Clock Source: %d", RCC_GetSYSCLKSource());
-	DBG_MSG("SYSCLK: %d, H: %d, P1: %d, P2: %d",
-		clocks.SYSCLK_Frequency,
-		clocks.HCLK_Frequency,
-		clocks.PCLK1_Frequency,
-		clocks.PCLK2_Frequency);
-
-	periphInit();
-
-	DBG_MSG("Peripheral init done.", 0);
+	for(i = 0; i < sizeof(TestIO)/sizeof(TestIO[0]); i++){
+	    GPIO_InitStructure.GPIO_Pin = TestIO[i].pin;
+	    GPIO_Init(TestIO[i].port, &GPIO_InitStructure);
+	}
 
 	while (1)
 	{
-
-		//运行系统中声明的任务
-		for(int i = 0; i < sizeof(SystemTasks)/sizeof(Task_t); i++)
-			(SystemTasks[i])();
+		for(i = 0; i < sizeof(TestIO)/sizeof(TestIO[0]); i++){
+		    GPIO_SetBits(TestIO[i].port, TestIO[i].pin);
+		    Delay_ms(100);
+		}
+		for(i = 0; i < sizeof(TestIO)/sizeof(TestIO[0]); i++){
+		    GPIO_ResetBits(TestIO[i].port, TestIO[i].pin);
+		    Delay_ms(100);
+		}
 	}
 }
 
